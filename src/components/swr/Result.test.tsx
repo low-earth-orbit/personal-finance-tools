@@ -6,7 +6,7 @@ import { DEFAULTS } from "@/utils/swr/presets";
 import Result from "./Result";
 
 const input = { ...DEFAULTS };
-const result = computeSwrTable(input, "independent", { paths: 500 });
+const result = computeSwrTable(input, { paths: 500 });
 
 describe("swr Result", () => {
   it("renders 11 allocation rows by 7 horizons", () => {

@@ -3,9 +3,8 @@ import { DEFAULTS } from "./presets";
 import { validateSwrInput } from "./validation";
 
 describe("validateSwrInput", () => {
-  it("accepts the defaults in every mode", () => {
-    expect(validateSwrInput({ ...DEFAULTS }, "independent")).toEqual({});
-    expect(validateSwrInput({ ...DEFAULTS }, "custom")).toEqual({});
+  it("accepts the defaults", () => {
+    expect(validateSwrInput({ ...DEFAULTS })).toEqual({});
   });
 
   it("flags out-of-range and empty fields", () => {
@@ -22,11 +21,8 @@ describe("validateSwrInput", () => {
     expect(errors.successRate).toBe("Must be between 80 and 99");
   });
 
-  it("validates the VR fields only in custom mode", () => {
-    const input = { ...DEFAULTS, stockVr: 5, bondVr: 0.1 };
-    expect(validateSwrInput(input, "independent")).toEqual({});
-    expect(validateSwrInput(input, "historical")).toEqual({});
-    const errors = validateSwrInput(input, "custom");
+  it("validates the VR fields", () => {
+    const errors = validateSwrInput({ ...DEFAULTS, stockVr: 5, bondVr: 0.1 });
     expect(errors.stockVr).toBe("Must be between 0.5 and 3");
     expect(errors.bondVr).toBe("Must be between 0.5 and 3");
   });
