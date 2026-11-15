@@ -8,7 +8,7 @@ export const CMA = {
   stockReturn: 6.4,
   stockVol: 12,
   bondReturn: 3.8,
-  bondVol: 4.5,
+  bondVol: 5.5,
   correlation: 0.3,
 } as const;
 

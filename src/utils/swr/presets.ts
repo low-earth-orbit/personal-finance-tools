@@ -1,3 +1,4 @@
+import { CMA } from "@/utils/allocations";
 import { SUCCESS_RATE_PRESETS } from "@/utils/retirement/presets";
 
 export { SUCCESS_RATE_PRESETS };
@@ -12,11 +13,11 @@ export const SWR_PATHS = 10_000;
  * Default numeric inputs. Returns and volatilities are nominal geometric (compound) percentages.
  */
 export const DEFAULTS = {
-  stockReturn: 6.4,
-  stockVol: 12,
-  bondReturn: 3.8,
-  bondVol: 4.5,
-  correlation: 0.3,
+  stockReturn: CMA.stockReturn,
+  stockVol: CMA.stockVol,
+  bondReturn: CMA.bondReturn,
+  bondVol: CMA.bondVol,
+  correlation: CMA.correlation,
   inflationRate: 2.1,
   /** Target % of simulated markets the withdrawal must survive. */
   successRate: 90,

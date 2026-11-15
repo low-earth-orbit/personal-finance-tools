@@ -260,8 +260,7 @@ export default function InputForm({ input, errors, onChange, onReset }: InputFor
                       style={{ marginTop: 2, flexShrink: 0 }}
                     />
                     <Text size="xs" c="rust">
-                      Below 90% leans optimistic — it accepts more sequence-of-returns risk. Many
-                      planners use 90% or higher.
+                      Below 90% leans optimistic — it accepts more sequence-of-returns risk.
                     </Text>
                   </Group>
                 )}

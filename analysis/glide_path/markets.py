@@ -18,16 +18,8 @@ from typing import Callable, Sequence
 
 import numpy as np
 
+from analysis.shared.cma import CMA_CURVE
 from analysis.shared.returns import arithmetic_to_geometric, geometric_to_arithmetic
-
-# The app's PWL / FP-Canada allocation table (presets.ts): (equity weight, nominal geometric %,
-# volatility %). Deflated with 2.1% inflation by default.
-PWL_CURVE = [
-    (1.00, 6.87, 12.57), (0.90, 6.59, 11.59), (0.80, 6.29, 10.62),
-    (0.70, 5.99, 9.68), (0.60, 5.67, 8.79), (0.50, 5.35, 7.94),
-    (0.40, 5.01, 7.17), (0.30, 4.66, 6.49), (0.20, 4.30, 5.94),
-    (0.10, 3.93, 5.56), (0.00, 3.55, 5.38),
-]
 
 RETURN_MODES = ("iid-mc", "historical-iid", "historical-block", "forward-block")
 BLOCK_MODES = ("historical-block", "forward-block")  # modes that preserve sequencing
@@ -38,7 +30,7 @@ Sampler = Callable[..., tuple]  # same signature as jst_history.sample_return_pa
 
 
 # ── forward-CMA curve ─────────────────────────────────────────────────────────
-def build_alloc(alloc_curve=PWL_CURVE, inflation=2.1, returns_in_percent=True, borrow_cost=0.0,
+def build_alloc(alloc_curve=CMA_CURVE, inflation=2.1, returns_in_percent=True, borrow_cost=0.0,
                 curve_mean_basis="geometric"):
     """Return ``alloc(w) -> (real arithmetic mean, real vol)`` interpolated along the curve.
 
@@ -76,7 +68,7 @@ def build_alloc(alloc_curve=PWL_CURVE, inflation=2.1, returns_in_percent=True, b
     return alloc
 
 
-def forward_anchors(alloc_curve=PWL_CURVE, inflation=2.1, returns_in_percent=True,
+def forward_anchors(alloc_curve=CMA_CURVE, inflation=2.1, returns_in_percent=True,
                     curve_mean_basis="geometric"):
     """Real arithmetic (equity mean, equity vol, bond mean, bond vol) at w=1 and w=0.
 
@@ -203,7 +195,7 @@ def load_history(dataset, exclude_countries=None, exclude_years=None):
     raise ValueError(f"dataset must be one of {', '.join(DATASETS)}")
 
 
-def build_market(return_mode, alloc_curve=PWL_CURVE, inflation=2.1, returns_in_percent=True,
+def build_market(return_mode, alloc_curve=CMA_CURVE, inflation=2.1, returns_in_percent=True,
                  borrow_cost=0.0, block_years=10, history=None, *, curve_mean_basis="geometric",
                  dataset="pooled", exclude_countries=None, exclude_years=None,
                  sampler: Sampler | None = None):

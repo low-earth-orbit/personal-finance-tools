@@ -319,7 +319,7 @@ export default function InputForm({
                 {...field("withholding")}
                 suffix="%"
                 description="Lost in a TFSA or RRSP; mostly recoverable in a non-registered account."
-                labelHelperText="Foreign countries withhold tax on dividends paid to the Canadian funds inside VEQT. In a TFSA or RRSP that tax is lost. In a non-registered account the fund reports it on your T3 as foreign tax paid, and you can mostly recover it with the foreign tax credit. Withholding one level further down (a fund holding a US-listed ETF) is lost in every account. PWL Capital (Justin Bender) publishes estimates for common ETFs."
+                labelHelperText="Foreign countries withhold tax on dividends paid to the Canadian funds inside VEQT. In a TFSA or RRSP that tax is lost. In a non-registered account the fund reports it on your T3 as foreign tax paid, and you can mostly recover it with the foreign tax credit. Withholding one level further down (a fund holding a US-listed ETF) is lost in every account."
               />
               <UserInputFormItem
                 {...field("inflation")}

@@ -1,31 +1,33 @@
+import { ALLOCATIONS } from "@/utils/allocations";
+
 /**
  * Defaults and the capital-market curve for the glide-path recommender.
  *
  * Ported from `analysis/glide_path/recommender.py`. The engine optimizes the equity
  * weight at each step by Monte Carlo; these are the editable inputs and the default
- * return/vol curve (the app's PWL / FP-Canada allocation table from presets.ts).
+ * return/vol curve (the shared stock/bond blends in `src/utils/allocations.ts`).
  */
 
 /** Anchor: [equityWeight (0..1), nominal geometric mean %, vol %]. */
 export type AllocAnchor = readonly [number, number, number];
 
 /**
- * Default capital-market curve — the same PWL Capital / FP-Canada numbers the
- * `/retirement` tool uses (nominal geometric % per year; converted to arithmetic, then
- * deflated to real with `inflation`).
+ * Default capital-market curve — the same stock/bond blends (stocks 6.4% / 12%, bonds 3.8% /
+ * 5.5%, correlation 0.3) the other tools use (nominal geometric % per year; converted to
+ * arithmetic, then deflated to real with `inflation`).
  */
 export const DEFAULT_ALLOC_CURVE: AllocAnchor[] = [
-  [1.0, 6.87, 12.57],
-  [0.9, 6.59, 11.59],
-  [0.8, 6.29, 10.62],
-  [0.7, 5.99, 9.68],
-  [0.6, 5.67, 8.79],
-  [0.5, 5.35, 7.94],
-  [0.4, 5.01, 7.17],
-  [0.3, 4.66, 6.49],
-  [0.2, 4.3, 5.94],
-  [0.1, 3.93, 5.56],
-  [0.0, 3.55, 5.38],
+  [1.0, ALLOCATIONS["100/0"].returnPct, ALLOCATIONS["100/0"].volatility],
+  [0.9, ALLOCATIONS["90/10"].returnPct, ALLOCATIONS["90/10"].volatility],
+  [0.8, ALLOCATIONS["80/20"].returnPct, ALLOCATIONS["80/20"].volatility],
+  [0.7, ALLOCATIONS["70/30"].returnPct, ALLOCATIONS["70/30"].volatility],
+  [0.6, ALLOCATIONS["60/40"].returnPct, ALLOCATIONS["60/40"].volatility],
+  [0.5, ALLOCATIONS["50/50"].returnPct, ALLOCATIONS["50/50"].volatility],
+  [0.4, ALLOCATIONS["40/60"].returnPct, ALLOCATIONS["40/60"].volatility],
+  [0.3, ALLOCATIONS["30/70"].returnPct, ALLOCATIONS["30/70"].volatility],
+  [0.2, ALLOCATIONS["20/80"].returnPct, ALLOCATIONS["20/80"].volatility],
+  [0.1, ALLOCATIONS["10/90"].returnPct, ALLOCATIONS["10/90"].volatility],
+  [0.0, ALLOCATIONS["0/100"].returnPct, ALLOCATIONS["0/100"].volatility],
 ];
 
 /**

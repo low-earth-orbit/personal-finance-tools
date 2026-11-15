@@ -51,7 +51,7 @@ from __future__ import annotations
 
 import argparse
 
-from .markets import DATASETS, PWL_CURVE, RETURN_MODES
+from .markets import DATASETS, CMA_CURVE, RETURN_MODES
 from .recommender import recommend_glide_path
 from .report import format_summary, plot_glide_path, run_demo
 
@@ -249,7 +249,7 @@ def build_parser():
     # capital-market curve + outputs
     ap.add_argument("--curve", type=str, default=None,
                     help="CSV of 'equity_weight,mean,vol' rows for iid-mc and forward-block; means "
-                    "are nominal geometric %% by default (default: built-in PWL curve)")
+                    "are nominal geometric %% by default (default: built-in stock/bond CMA curve)")
     ap.add_argument("--plot", type=str, default=None, help="save a step-plot of the recommendation to this PNG")
     ap.add_argument("--show", action="store_true", help="display the plot interactively")
     return ap
@@ -300,7 +300,7 @@ def main(argv=None):
         run_demo("analysis/artifacts/glide_path/demo", return_mode=mode)
         return
 
-    curve = load_curve(args.curve) if args.curve else PWL_CURVE
+    curve = load_curve(args.curve) if args.curve else CMA_CURVE
     kwargs = dict(
         flexibility=args.flex, guaranteed_income=args.guaranteed_income,
         guaranteed_delay=_guaranteed_delay(ap, args),

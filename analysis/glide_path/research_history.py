@@ -40,7 +40,7 @@ import numpy as np
 
 from analysis.shared import jst_history as J
 
-from .markets import PWL_CURVE, build_alloc, forward_anchors
+from .markets import CMA_CURVE, build_alloc, forward_anchors
 from .recommender import evaluate_path, recommend_glide_path
 
 # Disasters whose inclusion most stresses the equity case under single-country sequencing.
@@ -179,11 +179,11 @@ def run_channels(args):
     The one-asset cells (d, e) necessarily drop the cross-correlation. b1/b2 isolate only the
     correlation choice; c adds historical marginal shapes.
     """
-    eq_m, eq_v, bd_m, bd_v = forward_anchors(PWL_CURVE, 2.1, True)
+    eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
     raw = J.load_pooled_country_returns()
     historical_corr = float(np.corrcoef(raw.equity, raw.fixed_income)[0, 1])
     w6040 = 0.60
-    _, curve_6040_vol = build_alloc(PWL_CURVE, 2.1, True)(np.array(w6040))
+    _, curve_6040_vol = build_alloc(CMA_CURVE, 2.1, True)(np.array(w6040))
     curve_corr = float(
         (curve_6040_vol**2 - w6040**2 * eq_v**2 - (1 - w6040)**2 * bd_v**2)
         / (2 * w6040 * (1 - w6040) * eq_v * bd_v)
@@ -247,7 +247,7 @@ def run_menu(args):
     as upper bounds. (b) is generous to a real fund on correlation, persistence and mean and
     conservative on volatility; ``tips-stress`` varies each.
     """
-    eq_m, eq_v, bd_m, bd_v = forward_anchors(PWL_CURVE, 2.1, True)
+    eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
     rescaled = J.rescale_to_targets(
         J.load_pooled_country_returns(),
         equity_mean=eq_m, equity_vol=eq_v,
@@ -498,7 +498,7 @@ def run_bills_block(args):
     real-world inflation persistence (arithmetic VR(10y) printed below): the honest "real-world GIC/bill ladder" answer,
     vs the menu's idealized VR=1 short asset.
     """
-    eq_m, eq_v, _, _ = forward_anchors(PWL_CURVE, 2.1, True)
+    eq_m, eq_v, _, _ = forward_anchors(CMA_CURVE, 2.1, True)
     bill_m, bill_v = args.bills_mean / 100.0, args.bills_vol / 100.0
 
     # Joint per-country equity+bills panel: inner-join on year so both legs are present and paired,
@@ -567,7 +567,7 @@ def run_tips_etf(args):
     block-sampled jointly so it carries that persistence while equity keeps its JST forward-block
     sequencing.
     """
-    eq_m, eq_v, bd_m, bd_v = forward_anchors(PWL_CURVE, 2.1, True)
+    eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
     # Default the TIPS marginals to the forward bond anchors so phi=0 reproduces menu cell (b).
     tips_m = bd_m if args.tips_mean is None else args.tips_mean / 100.0
     tips_v = bd_v if args.tips_vol is None else args.tips_vol / 100.0
@@ -656,7 +656,7 @@ def run_tips_stress(args):
     (rescaled) equity series to hit the target correlation, then affine-mapped to the exact target
     mean/vol, and block-sampled jointly with equity so the correlation and persistence survive.
     """
-    eq_m, eq_v, bd_m, bd_v = forward_anchors(PWL_CURVE, 2.1, True)
+    eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
     hist = J.rescale_to_targets(
         J.load_pooled_country_returns(),
         equity_mean=eq_m, equity_vol=eq_v,
@@ -668,14 +668,14 @@ def run_tips_stress(args):
     rows = [
         ("b) menu cell: corr 0, phi 0, bond mean/vol", bd_m, bd_v, 0.0, 0.0),
         ("corr 0.29 (nominal bonds' historical)", bd_m, bd_v, 0.0, 0.29),
-        ("corr 0.48 (iid curve-implied)", bd_m, bd_v, 0.0, 0.48),
+        ("corr 0.50 (stress; the curve implies 0.30)", bd_m, bd_v, 0.0, 0.50),
         ("phi 0.30", bd_m, bd_v, 0.30, 0.0),
         ("phi 0.50", bd_m, bd_v, 0.50, 0.0),
         ("mean 1.00% real (no term premium)", 0.010, bd_v, 0.0, 0.0),
         ("vol 3.0% (short-fund amplitude)", bd_m, 0.030, 0.0, 0.0),
         ("phi 0.80 (real-rate cycle, near random-walk real yield)", bd_m, bd_v, 0.80, 0.0),
         ("combined: 1.00% / 3.0% / phi 0.30 / corr 0.29", 0.010, 0.030, 0.30, 0.29),
-        ("harsh: 1.00% / 5.27% / phi 0.50 / corr 0.48", 0.010, bd_v, 0.50, 0.48),
+        (f"harsh: 1.00% / {pct(bd_v):.2f}% / phi 0.50 / corr 0.50", 0.010, bd_v, 0.50, 0.50),
     ]
     print("\n" + "=" * 100)
     print("SHORT-TIPS STRESS  (equity keeps forward-block sequencing; real leg varied one knob at a time)")
@@ -848,7 +848,7 @@ CONSTANT_WEIGHTS = (30, 40, 50, 60, 70, 80, 90, 100)
 
 
 def _forward_rescaled(**load_kwargs):
-    eq_m, eq_v, bd_m, bd_v = forward_anchors(PWL_CURVE, 2.1, True)
+    eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
     return J.rescale_to_targets(
         J.load_pooled_country_returns(**load_kwargs),
         equity_mean=eq_m, equity_vol=eq_v, fixed_income_mean=bd_m, fixed_income_vol=bd_v,
@@ -858,7 +858,7 @@ def _forward_rescaled(**load_kwargs):
 
 def _blended(hist, share, variant):
     """History whose non-equity leg is (1 - share) nominal bonds + share synthetic real asset."""
-    _, _, bd_m, bd_v = forward_anchors(PWL_CURVE, 2.1, True)
+    _, _, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
     real = real_leg(hist, *REAL_LEGS[variant](bd_m, bd_v))
     return J.ReturnHistory(years=hist.years, equity=hist.equity,
                            fixed_income=(1 - share) * hist.fixed_income + share * real,
@@ -1048,7 +1048,7 @@ def run_gic_ladder(args):
     Equity and bonds are rescaled to the forward anchors; the ladder keeps its own history,
     shifted to the given real mean with its volatility scaled by the same factor as bonds'.
     The XSTH leg is the realistic real leg. Mixes step by 25%; constant equity weights."""
-    eq_m, eq_v, bd_m, bd_v = forward_anchors(PWL_CURVE, 2.1, True)
+    eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
     panel = _ladder_panel()
     print("\n" + "=" * 100)
     print("XSTH / ZGB / 5y GIC LADDER  (sleeve mixes in 25% steps; CE at the best constant weight)")

@@ -4,7 +4,7 @@ Research note for the **When can I retire?** tool (`/retirement`). It explains h
 
 It is written for readers who know personal finance but not necessarily the simulation and statistics behind the tool. Technical terms are kept and defined on first use; the most common ones are collected in [Key terms](#key-terms).
 
-Code: engine [`src/utils/retirement/monteCarlo.ts`](../../src/utils/retirement/monteCarlo.ts), presets [`src/utils/retirement/presets.ts`](../../src/utils/retirement/presets.ts), historical validation [`analysis/retirement/jst_swr_bootstrap.py`](../../analysis/retirement/jst_swr_bootstrap.py). The [glide-path methodology](../glide-path/methodology.md) uses the same JST data, but its capital-market curve is still the PWL / FP Canada table. This tool no longer uses that table (§1.2).
+Code: engine [`src/utils/retirement/monteCarlo.ts`](../../src/utils/retirement/monteCarlo.ts), presets [`src/utils/retirement/presets.ts`](../../src/utils/retirement/presets.ts), historical validation [`analysis/retirement/jst_swr_bootstrap.py`](../../analysis/retirement/jst_swr_bootstrap.py).
 
 ## Contents
 
@@ -21,10 +21,10 @@ Code: engine [`src/utils/retirement/monteCarlo.ts`](../../src/utils/retirement/m
 
 ## Summary
 
-- **The long-horizon SWR is low because the return assumption is modest, not because the risk model is harsh.** A 60/40 portfolio at 90% success sustains 3.90% over 30 years and 2.88% over 50 years.
+- **The long-horizon SWR is low because the return assumption is modest, not because the risk model is harsh.** A 60/40 portfolio at 90% success sustains 3.87% over 30 years and 2.85% over 50 years.
 - **The returns are mainstream, not conservative.** The presets are blended from the stock and bond assumptions in §1.2. At 3.3% real compound for 60/40 they sit slightly below FP Canada's Projection Assumption Guidelines (3.5%).
 - **The US "4% rule" does not transfer.** It reflects US real returns of ~6% (5.5% compound), the luckiest equity century on record.
-- **History confirms the engine.** Historical return sequences, calibrated to the same forward-looking averages, give 3.87% at 30 years versus the engine's 3.94%; the gap is 0.05–0.09pp at every horizon (§3).
+- **History confirms the engine.** Historical return sequences, calibrated to the same forward-looking averages, give 3.79% at 30 years versus the engine's 3.91%; the gap is 0.09–0.14pp at every horizon (§3).
 - **The lever is the return assumption.** Raising the 50-year SWR to the US-style ~3.7% would need ~4.7% real compound returns, against about 5.5% in US history. Not recommended.
 
 ---
@@ -68,7 +68,7 @@ Code: engine [`src/utils/retirement/monteCarlo.ts`](../../src/utils/retirement/m
 
 ### 1.2 Returns
 
-The presets are **nominal geometric** returns with volatilities, blended from per-asset assumptions (inflation 2.1%): stocks 6.4% return / 12% volatility, bonds 3.8% / 4.5%, stock-bond correlation 0.3 (`CMA` and `blendAllocation` in `src/utils/allocations.ts`). A mix's arithmetic mean is the weighted average of the two assets' arithmetic means, its variance uses the correlation, and the blended arithmetic mean is converted back to a geometric return. Monte Carlo draws need **arithmetic** means, so each phase's preset is converted with the exact lognormal relation
+The presets are **nominal geometric** returns with volatilities, blended from per-asset assumptions (inflation 2.1%): stocks 6.4% return / 12% volatility, bonds 3.8% / 5.5%, stock-bond correlation 0.3 (`CMA` and `blendAllocation` in `src/utils/allocations.ts`). A mix's arithmetic mean is the weighted average of the two assets' arithmetic means, its variance uses the correlation, and the blended arithmetic mean is converted back to a geometric return. Monte Carlo draws need **arithmetic** means, so each phase's preset is converted with the exact lognormal relation
 
 ```
 (1+A)² = [ (1+G)² + √((1+G)⁴ + 4(1+G)²σ²) ] / 2
@@ -79,11 +79,9 @@ then deflated to real (`(1+A)/(1+π) − 1`, volatility `σ/(1+π)`). Each year'
 | Mix | Nominal geometric (input) | Volatility | Real geometric | Real arithmetic (MC mean) |
 | --- | --- | --- | --- | --- |
 | 100/0 | 6.40% | 12.00% | 4.21% | 4.86% |
-| 80/20 | 5.97% | 9.91% | 3.79% | 4.24% |
-| **60/40 (retirement default)** | **5.50%** | **7.93%** | **3.33%** | **3.62%** |
-| 40/60 | 4.98% | 6.17% | 2.82% | 3.00% |
-
-> The §4 figure and the glide-path figures were generated with the earlier presets (60/40 at 5.67% / 8.79%, 3.50% real) and have not been re-run. The §3 validation was re-run on the stock/bond CMA. Treat the §4 and glide-path levels as illustrative; the comparisons between methods still hold.
+| 80/20 | 5.98% | 9.99% | 3.80% | 4.26% |
+| **60/40 (retirement default)** | **5.51%** | **8.14%** | **3.34%** | **3.65%** |
+| 40/60 | 4.99% | 6.59% | 2.83% | 3.03% |
 
 Custom returns are treated the same way (as nominal compound rates), with volatility taken from the calibrated `investmentAnnualVolPct` curve. Simulation sizes:
 
@@ -108,22 +106,22 @@ SWR at 90% success for 60/40, by assumed real **compound** return:
 
 | Real compound return   | 20y   | 30y   | 40y   | 50y   |
 | ---------------------- | ----- | ----- | ----- | ----- |
-| 3.33% (current preset) | 5.35% | 3.90% | 3.25% | 2.88% |
-| 3.5%                   | 5.43% | 3.99% | 3.35% | 2.98% |
-| 4.0%                   | 5.68% | 4.26% | 3.64% | 3.28% |
-| 4.5%                   | 5.95% | 4.55% | 3.94% | 3.59% |
-| 5.0%                   | 6.22% | 4.83% | 4.25% | 3.92% |
+| 3.34% (current preset) | 5.31% | 3.87% | 3.23% | 2.85% |
+| 3.5%                   | 5.39% | 3.96% | 3.32% | 2.95% |
+| 4.0%                   | 5.64% | 4.23% | 3.60% | 3.25% |
+| 4.5%                   | 5.91% | 4.51% | 3.90% | 3.56% |
+| 5.0%                   | 6.17% | 4.80% | 4.22% | 3.89% |
 
-> The first row is the 60/40 default (3.33% real geometric, §1.2). Each cell is the web engine's 90% SWR at 4,000 paths with 60/40 volatility of 7.93%; Monte Carlo noise is about ±0.05pp, and the 30-year figure agrees with §3's replica (3.94%).
+> The first row is the 60/40 default (3.34% real geometric, §1.2). Each cell is the web engine's 90% SWR at 4,000 paths with 60/40 volatility of 8.14%; Monte Carlo noise is about ±0.05pp, and the 30-year figure agrees with §3's replica (3.91%).
 
-- A typical retirement (retire at 60–65, plan to 95: a 30–35 year horizon) supports ~3.5–3.9%. Rates below 3% appear only at 45–50 year horizons (retiring at 45–50), where caution is appropriate.
-- Each +0.5pp of real return adds ~0.3pp to the 50-year SWR. Matching the US-style ~3.7% at 50 years needs ~4.7% real compound, well above the current 3.33% preset.
+- A typical retirement (retire at 60–65, plan to 95: a 30–35 year horizon) supports ~3.5–3.9%. Rates fall to about 3% or below only at 45–50 year horizons (retiring at 45–50), where caution is appropriate.
+- Each +0.5pp of real return adds ~0.3pp to the 50-year SWR. Matching the US-style ~3.7% at 50 years needs ~4.7% real compound, well above the current 3.34% preset.
 
 ---
 
 ## 3. Validation against history
 
-**In brief.** Is drawing independent normal returns too optimistic or too pessimistic compared with how markets actually behaved? To check, the same withdrawal plan is run on real historical sequences, both at their raw historical return levels and rescaled to forward-looking averages. At matched averages, history and the engine agree to within 0.09pp.
+**In brief.** Is drawing independent normal returns too optimistic or too pessimistic compared with how markets actually behaved? To check, the same withdrawal plan is run on real historical sequences, both at their raw historical return levels and rescaled to forward-looking averages. At matched averages, history and the engine agree to within 0.14pp.
 
 The figures in this section were re-run on the stock/bond CMA. The §A–§E historical columns do not depend on the CMA and are unchanged.
 
@@ -144,7 +142,7 @@ Each column of the results table answers one question by combining three choices
 
 - **Overlapping windows** run a retirement from every historical start year. They keep history's sequencing within each window but have few independent windows.
 - **Block bootstrap** resamples runs of consecutive years (stationary bootstrap, 10-year mean block length), keeping multi-year patterns while producing many paths. The [glide-path note's Figure 2](../glide-path/methodology.md#how-sequencing-differs-from-iid) shows one simulated path.
-- **Forward-block** first affine-rescales each asset's history to real arithmetic anchors (equity 4.86% / 11.75%, bonds 1.76% / 4.41%: the real arithmetic means and vols of the stock and bond CMA in §1.2), so only the sequencing is historical.
+- **Forward-block** first affine-rescales each asset's history to real arithmetic anchors (equity 4.86% / 11.75%, bonds 1.81% / 5.39%: the real arithmetic means and vols of the stock and bond CMA in §1.2), so only the sequencing is historical.
 
 The **§G vs §H** pair is the key test. Both have the same average returns, and they differ only in whether years follow historical patterns or are independent.
 
@@ -155,9 +153,9 @@ Real 60/40 return statistics:
 | USA (149 years)                   | 6.19% | 12.10% | 5.47%    |
 | World, equal-weight (150 years)   | 5.14% | 9.61%  | 4.69%    |
 | Pooled single-country (2,212 obs) | 5.04% | 15.44% | 3.79%    |
-| World, forward-rescaled           | 3.62% | 7.87%  | 3.32%    |
-| Pooled, forward-rescaled          | 3.62% | 7.76%  | 3.33%    |
-| App preset, iid                   | 3.62% | 7.77%  | 3.33%    |
+| World, forward-rescaled           | 3.64% | 8.09%  | 3.32%    |
+| Pooled, forward-rescaled          | 3.64% | 7.96%  | 3.33%    |
+| App preset, iid                   | 3.65% | 7.97%  | 3.34%    |
 
 ### 3.2 Results
 
@@ -165,24 +163,24 @@ SWR at 90% success, 60/40, 20,000 paths:
 
 | Horizon | §A USA | §B World | §C World block | §D Pooled | §E Pooled block | §F World fwd-block | §G Pooled fwd-block | §H App iid |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 20y | 5.39% | 4.95% | 5.00% | 3.41% | 3.91% | 4.94% | 5.29% | 5.34% |
-| 25y | 4.85% | 4.16% | 4.29% | 2.64% | 3.07% | 4.11% | 4.43% | 4.49% |
-| 30y | 4.54% | 3.77% | 3.78% | 2.18% | 2.47% | 3.61% | 3.87% | 3.94% |
-| 35y | 4.28% | 3.43% | 3.48% | 1.82% | 2.14% | 3.26% | 3.45% | 3.54% |
-| 40y | 4.08% | 3.20% | 3.22% | 1.59% | 1.94% | 2.99% | 3.20% | 3.26% |
-| 45y | 3.90% | 2.98% | 3.05% | 1.33% | 1.69% | 2.78% | 2.96% | 3.04% |
-| 50y | 3.74% | 2.83% | 2.95% | 1.20% | 1.61% | 2.62% | 2.80% | 2.85% |
+| 20y | 5.39% | 4.95% | 5.00% | 3.41% | 3.91% | 4.83% | 5.21% | 5.30% |
+| 25y | 4.85% | 4.16% | 4.29% | 2.64% | 3.07% | 4.00% | 4.36% | 4.46% |
+| 30y | 4.54% | 3.77% | 3.78% | 2.18% | 2.47% | 3.51% | 3.79% | 3.91% |
+| 35y | 4.28% | 3.43% | 3.48% | 1.82% | 2.14% | 3.16% | 3.38% | 3.52% |
+| 40y | 4.08% | 3.20% | 3.22% | 1.59% | 1.94% | 2.90% | 3.12% | 3.23% |
+| 45y | 3.90% | 2.98% | 3.05% | 1.33% | 1.69% | 2.69% | 2.89% | 3.01% |
+| 50y | 3.74% | 2.83% | 2.95% | 1.20% | 1.61% | 2.54% | 2.73% | 2.83% |
 
-(§H is the Python replica of the engine; the web engine gives 3.90% at 30 years at 4,000 paths, as in the §2 table.)
+(§H is the Python replica of the engine; the web engine gives 3.87% at 30 years at 4,000 paths, as in the §2 table.)
 
 ### 3.3 Findings (30-year horizon)
 
-1. **The engine matches forward-calibrated history (§G vs §H): 3.87% vs 3.94%.** The app is 0.05–0.09pp above pooled forward-block at every horizon: very slightly optimistic, not conservative. Two historical patterns roughly cancel here, equity mean reversion (which helps) and bond persistence (which hurts); see §4.
-2. **A diversified, forward-looking Canadian retiree's range is 3.6–3.9%** (§F–§G). It is bracketed below by raw single-country history (§E, 2.47%) and above by US history (§A, 4.54%).
+1. **The engine matches forward-calibrated history (§G vs §H): 3.79% vs 3.91%.** The app is 0.09–0.14pp above pooled forward-block at every horizon: very slightly optimistic, not conservative. Two historical patterns roughly cancel here, equity mean reversion (which helps) and bond persistence (which hurts); see §4.
+2. **A diversified, forward-looking Canadian retiree's range is 3.5–3.8%** (§F–§G). It is bracketed below by raw single-country history (§E, 2.47%) and above by US history (§A, 4.54%).
 3. **Single-country history is far harsher** (§D 2.18%, §E 2.47%). It includes Germany 1914–1943, Japan in the 1940s and UK 1970s stagflation, when a single-country 60/40 retiree was wiped out. This sets a lower bound but does not describe a globally diversified investor. The damage comes from bad years clustering within a country-decade, so it survives block resampling.
 4. **With 10-year blocks, block bootstrap tracks overlapping windows** on the world series (§C 3.78% vs §B 3.77%). An earlier study with 8-year blocks found the bootstrap fell below; that conclusion depended on block length.
-5. **Lower forward returns lower the world floor** (§F 3.61% vs §B 3.77%): the historical world figure relied partly on its 4.69% compound return.
-6. **Pooled sequencing beats world sequencing at the same levels** (§G 3.87% vs §F 3.61%). The world series has stronger bond persistence (VR(10y) ≈ 3.7 vs ≈ 2.7 pooled, arithmetic basis): sustained inflation epochs hit the bond leg and don't recover within a block. Pooled sequences also carry stronger within-country equity mean reversion.
+5. **Lower forward returns lower the world floor** (§F 3.51% vs §B 3.77%): the historical world figure relied partly on its 4.69% compound return.
+6. **Pooled sequencing beats world sequencing at the same levels** (§G 3.79% vs §F 3.51%). The world series has stronger bond persistence (VR(10y) ≈ 3.7 vs ≈ 2.7 pooled, arithmetic basis): sustained inflation epochs hit the bond leg and don't recover within a block. Pooled sequences also carry stronger within-country equity mean reversion.
 7. **US history is exceptional** (§A 4.54%). It is close to the "4% rule", but partly by coincidence: Bengen's 4% is the worst case (100% success) over US history, while §A is a 90%-success figure. The ~0.8pp premium over the world average comes from higher US returns (5.47% vs 4.69% compound).
 
 ### 3.4 Caveats
@@ -192,7 +190,7 @@ These follow from the shared JST data ([glide-path methodology §6](../glide-pat
 - **Survivorship.** JST covers 16 developed markets that survived with usable data; the world floor and the within-country recoveries behind §G partly reflect that.
 - **Tiny effective sample.** ~120 overlapping 30-year windows per series contain only 4–5 independent windows per country, heavily correlated across countries (the same wars, the same inflation waves). No column difference has a confidence interval.
 - **Era dependence.** §G ≈ §H is a full-sample (1871–2020) statement. In the 1990–2020 inflation-targeting era bond persistence disappears (VR(10y) 0.58, within the iid range once cross-country co-movement is allowed for), so historical sequencing there would sit at or above iid. The two eras bracket iid.
-- **Normal vs fat-tailed marginals.** The engine draws normal returns, while §G carries history's fat tails. The 0.05–0.09pp gap nets this against the sequencing effect, and the two cannot be separated.
+- **Normal vs fat-tailed marginals.** The engine draws normal returns, while §G carries history's fat tails. The 0.09–0.14pp gap nets this against the sequencing effect, and the two cannot be separated.
 
 ---
 
@@ -219,7 +217,7 @@ _The coloured band is ±1 standard deviation of the cumulative real return after
 - **Why not a small negative value?** Equity VR(10y) ≈ 0.91 corresponds to φ ≈ −0.05 (solving (1+φ)/(1−φ) = 0.91), but:
   - adding it barely moves the SWR;
   - bonds have the opposite sign (persistent, VR(10y) ≈ 2.7), which a single scalar AR(1) on the portfolio cannot represent;
-  - the joint historical dynamics, tested directly in §3, put the engine within 0.09pp of history.
+  - the joint historical dynamics, tested directly in §3, put the engine within 0.14pp of history.
 
 The block bootstrap is the empirical answer; there is no need to approximate it parametrically.
 
