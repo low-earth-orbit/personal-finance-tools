@@ -767,7 +767,7 @@ def _funding_kwargs(args, **overrides):
         accum_years=30,
         retire_years=30,
         current_savings=200_000.0,
-        annual_contribution=20_000.0,
+        annual_contribution=15_000.0,
         guaranteed_income=20_000.0,
         target_income=60_000.0,
         return_mode="iid-mc",
@@ -779,7 +779,7 @@ def _funding_kwargs(args, **overrides):
 
 def run_funding(args):
     """Funding-ratio and matched-spending comparisons under iid-mc."""
-    pairs = [(300_000, 30_000), (200_000, 20_000), (150_000, 15_000),
+    pairs = [(300_000, 30_000), (200_000, 20_000), (200_000, 15_000), (150_000, 15_000),
              (120_000, 12_000), (100_000, 10_000)]
     print("\n" + "=" * 100)
     print("FUNDING AND SPENDING FLEXIBILITY (iid-mc; default 30y accumulation + 30y retirement household)")

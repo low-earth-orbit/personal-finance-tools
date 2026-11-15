@@ -86,7 +86,7 @@ def collect_argv():
     retirement_age = _ask("Planned retirement age", 65, int, "60 for early retirement")
     planning_age = _ask("Plan until age (life expectancy)", 95, int, "90–100 is typical")
     savings = _ask("Current portfolio balance ($)", 200_000.0, float, "500000")
-    contrib = _ask("Annual savings / contribution ($)", 20_000.0, float, "30000")
+    contrib = _ask("Annual savings / contribution ($)", 15_000.0, float, "30000")
     accum_years = max(0, retirement_age - current_age)
     retire_years = max(1, planning_age - max(retirement_age, current_age))
 

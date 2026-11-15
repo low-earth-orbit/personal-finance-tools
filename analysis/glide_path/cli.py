@@ -215,7 +215,7 @@ def build_parser():
     ap.add_argument("--start-age", type=int, default=None, help="label the schedule by age instead of year")
     # household scale (real dollars)
     ap.add_argument("--savings", type=float, default=200_000.0, help="Start savings ($)")
-    ap.add_argument("--contrib", type=float, default=20_000.0, help="annual contribution ($/yr, accumulation)")
+    ap.add_argument("--contrib", type=float, default=15_000.0, help="annual contribution ($/yr, accumulation)")
     ap.add_argument("--target-income", type=float, default=60_000.0, help="target real retirement income ($/yr)")
     ap.add_argument("--withdrawal-rate", type=float, default=0.04, help="rate for the flexible spending part")
     ap.add_argument("--inflation", type=float, default=2.1,

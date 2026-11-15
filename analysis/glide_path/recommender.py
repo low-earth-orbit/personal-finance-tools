@@ -313,7 +313,7 @@ def recommend_glide_path(
     borrow_cost: float = 2.0,
     # household (real dollars)
     current_savings: float = 200_000.0,
-    annual_contribution: float = 20_000.0,
+    annual_contribution: float = 15_000.0,
     target_income: float = 60_000.0,
     withdrawal_rate: float = 0.04,
     guaranteed_delay: int = 0,
@@ -496,7 +496,7 @@ def evaluate_path(
     sampler=None,
     borrow_cost: float = 2.0,
     current_savings: float = 200_000.0,
-    annual_contribution: float = 20_000.0,
+    annual_contribution: float = 15_000.0,
     target_income: float = 60_000.0,
     withdrawal_rate: float = 0.04,
     guaranteed_delay: int = 0,
