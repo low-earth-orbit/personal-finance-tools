@@ -70,7 +70,7 @@ Code: engine [`src/utils/retirement/monteCarlo.ts`](../../src/utils/retirement/m
 
 ### 1.2 Returns
 
-The presets are **nominal geometric** returns with volatilities, blended from per-asset assumptions (inflation 2.1%): stocks 6.4% return / 12% volatility, bonds 3.8% / 4.5%, stock-bond correlation 0.3 (`CMA` and `blendAllocation` in `presets.ts`). A mix's arithmetic mean is the weighted average of the two assets' arithmetic means, its variance uses the correlation, and the blended arithmetic mean is converted back to a geometric return. Monte Carlo draws need **arithmetic** means, so each phase's preset is converted with the exact lognormal relation
+The presets are **nominal geometric** returns with volatilities, blended from per-asset assumptions (inflation 2.1%): stocks 6.4% return / 12% volatility, bonds 3.8% / 4.5%, stock-bond correlation 0.3 (`CMA` and `blendAllocation` in `src/utils/allocations.ts`). A mix's arithmetic mean is the weighted average of the two assets' arithmetic means, its variance uses the correlation, and the blended arithmetic mean is converted back to a geometric return. Monte Carlo draws need **arithmetic** means, so each phase's preset is converted with the exact lognormal relation
 
 ```
 (1+A)² = [ (1+G)² + √((1+G)⁴ + 4(1+G)²σ²) ] / 2
