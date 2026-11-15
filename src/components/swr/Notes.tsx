@@ -20,26 +20,15 @@ const Notes = () => {
         smoothly.
       </Text>
       <Text size="sm" pb="xs" c="dimmed">
-        &ldquo;Independent&rdquo; draws each year without memory. The variance ratio over 10 years,
-        VR(10), measures memory: below 1 means a bad decade tends to be followed by recovery, above
-        1 means it tends to continue. &ldquo;Historical&rdquo; uses the ratios from 150 years of
-        data across 16 countries (stocks 0.91, bonds 2.66), modelled as a simple one-year memory.
-        That is a rough fit: it can&apos;t reproduce history&apos;s joint stock and bond behaviour,
-        so it lands below the block-bootstrap result in the{" "}
+        The variance ratio over 10 years, VR(10), measures memory: 1 means each year is drawn
+        without memory, below 1 means a bad decade tends to be followed by recovery, above 1 means
+        it tends to continue. Historical data across 16 countries over 150 years gives about 0.91
+        for stocks and 2.66 for bonds. The default bond ratio of 1.5 is milder than that, which
+        lifts the bond-heavy rows. The model uses a simple one-year memory. With the historical
+        ratios, 60/40 closely matches a bootstrap of that history, while all-stock and all-bond rows
+        come out about 0.1 to 0.2 points lower; see the{" "}
         <Anchor href={METHODOLOGY_URL} target="_blank" rel="noreferrer" c="dimmed">
           methodology notes
-        </Anchor>
-        . Bond persistence is what pulls bond-heavy rows down.
-      </Text>
-      <Text size="sm" pb="xs" c="dimmed">
-        Acknowledgement: The default return, volatility and correlation assumptions are adopted from{" "}
-        <Anchor
-          href="https://pwlcapital.com/financial-planning-assumptions-market-capitalization-weighted-portfolio/"
-          target="_blank"
-          rel="noreferrer"
-          c="dimmed"
-        >
-          PWL Capital
         </Anchor>
         .
       </Text>

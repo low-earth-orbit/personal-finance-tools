@@ -1,21 +1,18 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { DEFAULTS } from "./presets";
-import { loadDynamics, loadInput, saveDynamics, saveInput } from "./storage";
+import { loadInput, saveInput } from "./storage";
 
 afterEach(() => localStorage.clear());
 
 describe("swr storage", () => {
   it("falls back to the defaults when nothing is saved", () => {
     expect(loadInput()).toEqual(DEFAULTS);
-    expect(loadDynamics()).toBe("independent");
   });
 
-  it("round-trips inputs and dynamics", () => {
+  it("round-trips inputs", () => {
     const saved = { ...DEFAULTS, stockReturn: 7.5, successRate: 95 };
     saveInput(saved);
-    saveDynamics("historical");
     expect(loadInput()).toEqual(saved);
-    expect(loadDynamics()).toBe("historical");
   });
 
   it("keeps only numeric fields and fills the rest from the defaults", () => {
@@ -28,8 +25,6 @@ describe("swr storage", () => {
 
   it("ignores corrupt data", () => {
     localStorage.setItem("swr_input", "{nope");
-    localStorage.setItem("swr_dynamics", "chaotic");
     expect(loadInput()).toEqual(DEFAULTS);
-    expect(loadDynamics()).toBe("independent");
   });
 });

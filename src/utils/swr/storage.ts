@@ -1,8 +1,7 @@
-import { DEFAULT_DYNAMICS, DEFAULTS } from "./presets";
-import type { DynamicsMode, SwrInput, SwrInputKey } from "./types";
+import { DEFAULTS } from "./presets";
+import type { SwrInput, SwrInputKey } from "./types";
 
 const KEY = "swr_input";
-const DYNAMICS_KEY = "swr_dynamics";
 
 export function loadInput(): SwrInput {
   if (typeof window === "undefined") return { ...DEFAULTS };
@@ -28,25 +27,5 @@ export function saveInput(input: SwrInput): void {
     window.localStorage.setItem(KEY, JSON.stringify(input));
   } catch {
     // localStorage may be unavailable (private mode, quota); ignore.
-  }
-}
-
-export function loadDynamics(): DynamicsMode {
-  if (typeof window === "undefined") return DEFAULT_DYNAMICS;
-  try {
-    const raw = window.localStorage.getItem(DYNAMICS_KEY);
-    if (raw === "independent" || raw === "historical" || raw === "custom") return raw;
-  } catch {
-    // ignore
-  }
-  return DEFAULT_DYNAMICS;
-}
-
-export function saveDynamics(mode: DynamicsMode): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(DYNAMICS_KEY, mode);
-  } catch {
-    // ignore
   }
 }

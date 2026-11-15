@@ -1,5 +1,5 @@
 import { DEFAULTS } from "./presets";
-import type { DynamicsMode, SwrErrors, SwrInput, SwrInputKey } from "./types";
+import type { SwrErrors, SwrInput, SwrInputKey } from "./types";
 
 interface Constraint {
   min: number;
@@ -23,12 +23,10 @@ export const FIELD_CONSTRAINTS: Record<SwrInputKey, Constraint> = {
 
 const KEYS = Object.keys(DEFAULTS) as SwrInputKey[];
 
-/** The VR fields only matter (and are only validated) in custom dynamics mode. */
-export function validateSwrInput(input: SwrInput, mode: DynamicsMode = "independent"): SwrErrors {
+export function validateSwrInput(input: SwrInput): SwrErrors {
   const errors: SwrErrors = {};
 
   for (const key of KEYS) {
-    if (mode !== "custom" && (key === "stockVr" || key === "bondVr")) continue;
     const value = input[key];
     const { min, max, label } = FIELD_CONSTRAINTS[key];
 
