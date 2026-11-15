@@ -116,13 +116,14 @@ export default function Methodology() {
               With independent returns, constant-dollar spending derisks into a moderate “bond tent”
               near retirement. With historical sequences, where equities partly recover while long
               nominal bonds suffer bad decades, the optimum is about 100% equity. The two can
-              disagree by 35 percentage points, so compare both settings of the return model.
+              disagree by 20 percentage points, so compare both settings of the return model.
             </Point>
             <Point heading="About 100% equity is a scenario, not the default.">
               That result leans on pre-1990 monetary regimes, surviving developed markets, and long
-              nominal bonds being the only alternative. With a real, short-duration holding (such as
-              a short inflation-linked bond fund) the optimum drops to roughly 55–80% equity in our
-              tests.
+              nominal bonds being the only alternative. An idealized real, short-duration holding
+              (such as a short inflation-linked bond fund) drops the optimum to roughly 55–70%
+              equity in our tests, but with realistic assumptions about a fund’s return and equity
+              correlation it is back at 80–100%.
             </Point>
             <Point heading="The shape is worth little; the level matters.">
               Out of sample, the optimized glide path beats the best constant weight by only about
@@ -130,7 +131,7 @@ export default function Methodology() {
               sequences.
             </Point>
             <Point heading="A wrong guess about the regime costs little.">
-              Any constant weight from 80% to 100% equity cost at most about 2% of CE income in
+              Any constant weight from 90% to 100% equity cost at most about 1.2% of CE income in
               every regime we tested.
             </Point>
             <Point heading="How well funded you are sets the tent.">
@@ -141,17 +142,17 @@ export default function Methodology() {
             </Point>
             <Point heading="Flexible spending holds about 100% equity.">
               That is true under both return models. Compare spending rules at the same spending
-              level, though: a 4% draw on a large balance can be double a constant-dollar target, so
-              most of a flexible plan’s higher CE income is spending more, not spending flexibly.
-              Check the year-1 portfolio draw shown with your result. At the same starting draw,
-              flexibility is worth a few thousand dollars a year in our default case.
+              level, though: a 4% draw on a large balance can be well above a constant-dollar
+              target, so part of a flexible plan’s higher CE income is spending more, not spending
+              flexibly. Check the year-1 portfolio draw shown with your result. At the same starting
+              draw, flexibility is worth about $6–9k a year in our default case.
             </Point>
             <Point heading="Guaranteed income is your bond floor.">
               A larger guaranteed income (CPP + OAS + DB) lets the portfolio take more equity risk.
               With none, rare depleted years dominate the score, so the tool requires at least
               $10,000 a year. If it covers your whole target and spending is fixed, no allocation is
               better than another and the tool asks you to adjust the inputs. Starting it after you
-              retire lowers income: retiring at 60 with CPP/OAS from 65 cost about 8% in our
+              retire lowers income: retiring at 60 with CPP/OAS from 65 cost about 9% in our
               example.
             </Point>
             <Point heading="Leverage earns little.">

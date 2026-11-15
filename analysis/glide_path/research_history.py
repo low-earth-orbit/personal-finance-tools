@@ -213,7 +213,7 @@ def run_channels(args):
     print("\n" + "=" * 100)
     print(f"CHANNEL FACTORIAL  (curve-implied corr={curve_corr:.3f}; historical pooled corr={historical_corr:.3f})")
     print("  b1/b2 change only correlation at forward arithmetic anchors; c adds marginal shapes;")
-    print("  (d, e) does not flip it either — only the full joint sequence structure (f) does.")
+    print("  (d, e) sequence one asset only, which also removes their correlation; f sequences both jointly.")
     print("=" * 100)
 
     print(summary_row("a) iid-mc",
@@ -766,7 +766,7 @@ def _funding_kwargs(args, **overrides):
     defaults = dict(
         accum_years=30,
         retire_years=30,
-        current_savings=200_000.0,
+        current_savings=100_000.0,
         annual_contribution=15_000.0,
         guaranteed_income=20_000.0,
         target_income=60_000.0,
@@ -780,7 +780,7 @@ def _funding_kwargs(args, **overrides):
 def run_funding(args):
     """Funding-ratio and matched-spending comparisons under iid-mc."""
     pairs = [(300_000, 30_000), (200_000, 20_000), (200_000, 15_000), (150_000, 15_000),
-             (120_000, 12_000), (100_000, 10_000)]
+             (100_000, 15_000), (120_000, 12_000), (100_000, 10_000)]
     print("\n" + "=" * 100)
     print("FUNDING AND SPENDING FLEXIBILITY (iid-mc; default 30y accumulation + 30y retirement household)")
     print("=" * 100)

@@ -27,15 +27,15 @@ It assumes you know personal-finance basics (asset allocation, safe withdrawal r
 
 ## Summary
 
-Default household: age 35, $200k saved, $15k/yr contributions for 30 years, a $60k real retirement target of which $20k is guaranteed income (CPP/OAS/DB), a 30-year retirement, risk aversion γ = 4 and time preference β = 0.985.
+Default household: age 35, $100k saved, $15k/yr contributions for 30 years, a $60k real retirement target of which $20k is guaranteed income (CPP/OAS/DB), a 30-year retirement, risk aversion γ = 4 and time preference β = 0.985.
 
-1. **The return model decides whether there is a bond tent**, that is, equity dipping around retirement and rising again afterwards. Under iid, constant-dollar spending gives a tent bottoming at 50–70% equity (§2b), and the best constant weight is **65–70%** for a 30-year retirement (80% for 40 years and 100% for 50; §2e). Under forward-block the optimum is **flat ~100% equity** (§3a).
+1. **The return model decides whether there is a bond tent**, that is, equity dipping around retirement and rising again afterwards. Under iid, constant-dollar spending gives a tent bottoming at 60–80% equity (§2b), and the best constant weight is **80%** for a 30-year retirement (100% for 40 and 50 years; §2e). Under forward-block the optimum is **flat ~100% equity** (§3a).
 2. **Flexible spenders hold ~100% equity** throughout, in both models (§2b, §3a).
 3. **The glide's shape is worth little; its level matters more.** Out of sample, the optimized glide beats the best constant weight by ≤ ~1% of certainty-equivalent (CE) income under iid, and by ≈ $0 under forward-block (§2e, §3a).
-4. **The iid tent depends on how well funded the plan is.** The default plan's first-year withdrawal is ~3.0% of its median retirement balance, and the optimizer still guards the floor (tent bottom 50%). At a ~2.6% draw the tent is 40%, at ~3.8% a shallow dip to 70%, and at ~4.3% it is nearly gone (§2f).
-5. **Flat 100% is a verdict on long nominal bonds, not on equity.** In history they had bad decades, a 0.29 correlation with stocks and a fat left tail. Swap them for an idealized real asset and the optimum falls to ~55%; with realistic assumptions about a real fund, to 60–80% (§4a, §4c). In 1990–2020, ordinary nominal bonds already give ~60% (§3c).
-6. **A mostly real bond sleeve is insurance against inflation regimes, not a free gain.** In the full history CE never falls as the real share of the bond sleeve rises (idealized +5.0% at 100%; realistic +0.7%). In 1990–2020 the idealized sleeve adds up to 1.2% and the realistic one costs 0.7–1.5% once it is half or more of the sleeve. Pair ~80% equity with a realistic real sleeve, or ~50–60% with an idealized one. A US-CPI fund (XSTH) hedges ~90% of Canadian inflation in the eras where inflation matters (§4f).
-7. **Guessing the regime wrong costs little.** Any constant weight from 80% to 100% costs at most ~2% of CE in any regime tested (§3d).
+4. **The iid tent depends on how well funded the plan is.** The default plan's first-year withdrawal is ~3.5% of its median retirement balance, and the optimizer still guards the floor (tent bottom 60%). At a ~2.6% draw the tent is 40%, at ~3.8% a shallow dip to 70%, and at ~4.3% it is nearly gone (§2f).
+5. **Flat 100% is a verdict on the bond menu.** In history long nominal bonds had bad decades, a 0.29 correlation with stocks and a fat left tail. Swap them for an idealized real asset and the optimum falls to ~70% (~55% with low volatility), but with realistic assumptions about a real fund's mean and equity correlation it is back at 80–100% (§4a, §4c). In 1990–2020, ordinary nominal bonds already give ~80% (§3c).
+6. **A real bond sleeve is insurance against inflation regimes, not a free gain.** In the full history CE never falls as the real share of the bond sleeve rises (idealized +2.6% at 100%; realistic 0%, since 100% equity stays best). In 1990–2020 the idealized sleeve adds 0.7–1.7% and the realistic one costs 0.5–0.9%. Pair ~70% equity with an idealized real sleeve, or ~100% (no sleeve) with a realistic one. A US-CPI fund (XSTH) hedges ~90% of Canadian inflation in the eras where inflation matters (§4f).
+7. **Guessing the regime wrong costs little.** Any constant weight from 90% to 100% costs at most ~1.2% of CE in any regime tested (§3d).
 8. **γ barely matters with constant-dollar spending.** Consumption is then almost always the full target or the guaranteed floor, so every γ ranks allocations the same way (§2d).
 
 The app recommends what the selected model's simulation produces: the optimized glide, or the best constant weight unless the glide is clearly better (§1.5).
@@ -44,12 +44,12 @@ The app recommends what the selected model's simulation produces: the optimized 
 
 ## Applying this
 
-- **Choose the return model before the shape.** The two models can disagree on the equity level by 35pp, while the shape within either is worth ≤ ~1% of CE (§2e, §3a). Run both (`--compare-modes` in the CLI, or the app's Simulation toggle).
-- **When the models disagree, pick a constant weight between their answers.** Any constant weight from 80% to 100% costs at most ~2% of CE in any regime tested (§3d), so you do not need to know which regime is coming.
+- **Choose the return model before the shape.** The two models can disagree on the best constant equity weight by 20pp (80% under iid, 100% under forward-block), while the shape within either is worth ≤ ~1% of CE (§2e, §3a). Run both (`--compare-modes` in the CLI, or the app's Simulation toggle).
+- **When the models disagree, pick a constant weight between their answers.** Any constant weight from 90% to 100% costs at most ~1.2% of CE in any regime tested (80% costs up to ~3%; §3d), so you do not need to know which regime is coming.
 - **Leverage earns little.** In a young-saver case (age 30, $100k saved, $20k/yr for 30 years, $70k target), allowing up to 150% equity raised CE by under 1% ($150–290/yr) in both models, and the optimizer used it only in the first decade (the first 5 years under iid, the first 10 under forward-block). That is inside the model's own uncertainty and ignores margin calls, rate changes and behaviour. Treat equity above ~110% as unrewarded.
 - **An over-funded plan has no best allocation.** When every constant weight already delivers the target (both engines flag this), the allocation does not change income and the reported weight is the middle of a tie. Decide what the surplus is for: leave it (a bequest weight, Python `--bequest-weight` only) or use it (retire earlier or spend more).
 - **Bequest weight (Python only; the web app fixes θ = 0).** θ = 0.25 / 0.5 on u(money left + one year of target spending) (§1.4). With γ = 4 a large estate adds little utility, so θ barely moves a plan that needs its money; in an over-funded plan it replaces the tie with a real choice (55–60% equity in retirement instead of a ~50% tie midpoint in our test).
-- **Guaranteed-income start age.** A start age after retirement models a bridge: the portfolio funds the whole target until CPP/OAS/DB begins (§1.1). Retiring at 60 with $20k from 65 cost about 8% of CE ($45.5k → $41.6k) against the same income from 60.
+- **Guaranteed-income start age.** A start age after retirement models a bridge: the portfolio funds the whole target until CPP/OAS/DB begins (§1.1). Retiring at 60 with $20k from 65 cost about 9% of CE ($38.8k → $35.4k) against the same income from 60, and raised full-path shortfall from 34% to 41% (25 years of saving, a 35-year retirement, iid).
 - **The app's bonds are nominal.** Its bond asset is the forward curve's bond (iid) or JST long government bonds (forward-block). The real-bond results in §4 are research, not an app option; if your sleeve is mostly real return bonds or XSTH, §4f's lower equity weights apply instead.
 
 ---
@@ -181,7 +181,7 @@ Grids and step lengths differ between sections, so tent depths from §2 (10pp, 1
 
 Three independent sets of simulated paths keep the comparison honest: the glide is fitted on an **optimization sample**, the best constant weight is picked on a **selection sample**, and both are scored on an **evaluation sample**. Every CE and shortfall figure in this note is out of sample in this sense.
 
-**Simplicity rule (web app).** The app recommends the constant weight unless the glide beats it by more than 3% on CE income or by more than 1 point on full-path shortfall (`SIMPLICITY_*` in [`recommendation.ts`](../../src/utils/glide-path/recommendation.ts)). The gate compares spending CE even when a bequest weight is set (the app fixes θ = 0, so this matters only for direct engine calls): the bequest already shapes both allocations through the objective, and welfare CE is ill-conditioned for well-funded plans (it inverts u near the CRRA bound, so a 0.1% spending-CE gap can show as a 4–5% welfare-CE gap). CE gaps under ~3% are inside the model's own uncertainty: glide edge ≤ ~1%, Monte Carlo noise ~0.3%, era regret ≤ ~2%. Across 72 input combinations, every threshold of 2% or more gave the same seed-stable picks, and the constant never added more than 0.3pp of full-path shortfall (calibration notes in the source). The Python CLI has no simplicity rule; it flags the constant weight when its CE beats the glide's by more than 5%. Both always report the raw optimized glide.
+**Simplicity rule (web app).** The app recommends the constant weight unless the glide beats it by more than 3% on CE income or by more than 1 point on full-path shortfall (`SIMPLICITY_*` in [`recommendation.ts`](../../src/utils/glide-path/recommendation.ts)). The gate compares spending CE even when a bequest weight is set (the app fixes θ = 0, so this matters only for direct engine calls): the bequest already shapes both allocations through the objective, and welfare CE is ill-conditioned for well-funded plans (it inverts u near the CRRA bound, so a 0.1% spending-CE gap can show as a 4–5% welfare-CE gap). CE gaps under ~3% are inside the model's own uncertainty: glide edge ≤ ~1%, Monte Carlo noise ~0.3%, era regret ≤ ~1.2% for weights of 90–100%. Across 72 input combinations, every threshold of 2% or more gave the same seed-stable picks, and the constant never added more than 0.3pp of full-path shortfall (calibration notes in the source). The Python CLI has no simplicity rule; it flags the constant weight when its CE beats the glide's by more than 5%. Both always report the raw optimized glide.
 
 **Over-funded plans and ties.** When θ = 0 and every constant weight on the selection sample delivers the target (CE within 0.5% and shortfall under 0.5%), both engines flag the plan as over-funded: the allocation does not change income. Ties among equally good weights (exact or within 1e-12) go to the middle of the tied range, for the optimizer's starting weight and for the best constant weight; a first-wins rule would report 0% equity, a corner the objective did not choose.
 
@@ -227,18 +227,18 @@ The default household (retiring at 65) with retirements of 30, 40 and 50 years, 
 
 | Spending | Ret. horizon | start | acc. avg | pre-ret | @ret | tent (age) | end | BEFORE | AFTER | CE income | Shortfall |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| constant $ | 30y | 100 | 69 | 50 | 50 | 50 (@65) | 60 | Falling | Rising | $54,478 | 7.9% |
-| constant $ | 40y | 100 | 83 | 60 | 70 | 60 (@64) | 100 | Falling | Rising | $49,328 | 13.2% |
-| constant $ | 50y | 100 | 91 | 70 | 70 | 70 (@65) | 100 | Falling | Rising | $45,818 | 16.9% |
-| semi-flex 50% | 30y | 100 | 99 | 100 | 100 | 80 (@62) | 100 | Flat | Flat | $67,443 | 1.7% |
-| semi-flex 50% | 40y | 100 | 96 | 80 | 80 | 80 (@65) | 100 | Falling | Rising | $63,579 | 4.3% |
-| semi-flex 50% | 50y | 100 | 96 | 80 | 80 | 70 (@69) | 100 | Falling | Rising | $59,296 | 7.9% |
-| flexible 100% | 30y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $66,663 | 0.0% |
-| flexible 100% | 40y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $65,191 | 0.0% |
-| flexible 100% | 50y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $63,936 | 0.0% |
+| constant $ | 30y | 100 | 85 | 60 | 60 | 60 (@65) | 80 | Falling | Rising | $48,859 | 15.6% |
+| constant $ | 40y | 100 | 95 | 80 | 70 | 70 (@65) | 100 | Falling | Rising | $43,385 | 22.6% |
+| constant $ | 50y | 100 | 99 | 100 | 80 | 80 (@65) | 100 | Flat | Falling | $40,181 | 27.0% |
+| semi-flex 50% | 30y | 100 | 97 | 90 | 80 | 80 (@65) | 100 | Flat | Rising | $59,949 | 3.6% |
+| semi-flex 50% | 40y | 100 | 96 | 80 | 80 | 70 (@69) | 100 | Falling | Rising | $55,229 | 8.8% |
+| semi-flex 50% | 50y | 100 | 97 | 80 | 80 | 80 (@65) | 100 | Falling | Rising | $50,872 | 14.4% |
+| flexible 100% | 30y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $58,569 | 0.0% |
+| flexible 100% | 40y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $57,486 | 0.0% |
+| flexible 100% | 50y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $56,564 | 0.0% |
 
-- **Constant dollar → a tent.** Equity falls through accumulation to a low within a few years of retirement (50–70%), then rises. Rigid income costs shortfall risk (8–17%, rising with the horizon). Longer retirements need more growth, so their tent is shallower.
-- **Semi-flexible and flexible → ~100% throughout.** Accumulation averages 96–100%, and the tent is at most a dip to 70–80% (semi-flexible at every horizon; fully flexible holds 100% throughout). Their cost is income variability; shortfall stays at 0–4% except for the semi-flexible 50-year case (7.9%).
+- **Constant dollar → a tent.** Equity averages 85–99% through accumulation, dips to a low at retirement (60% at 30 years, 70% at 40, 80% at 50), then rises. Rigid income costs shortfall risk (16–27%, rising with the horizon). Longer retirements need more growth, so their tent is shallower.
+- **Semi-flexible and flexible → ~100% throughout.** Accumulation averages 96–100%, and the tent is at most a dip to 70–80% (semi-flexible at every horizon; fully flexible holds 100% throughout). Their cost is income variability; shortfall is 0% for fully flexible spending and 4–14% for semi-flexible (rising with the horizon).
 - The CE gap between rule rows is **not** the value of flexibility; see §2f.
 
 ### 2c. Accumulation-horizon sweep (30-year retirement)
@@ -247,28 +247,28 @@ Start age stays 35; the retirement age moves to 55, 65 or 75, so the household s
 
 | Spending | Accum. years | start | acc. avg | pre-ret | @ret | tent (age) | end | BEFORE | AFTER | CE income | Shortfall |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| constant $ | 20y | 100 | 96 | 80 | 90 | 80 (@54) | 100 | Falling | Flat | $41,350 | 29.5% |
-| constant $ | 30y | 100 | 69 | 50 | 50 | 50 (@65) | 60 | Falling | Rising | $54,478 | 7.9% |
-| constant $ | 40y | 60 | 58 | 40 | 50 | 30 (@76) | 100 | Falling | Rising | $59,277 | 1.3% |
+| constant $ | 20y | 100 | 100 | 100 | 100 | 100 (@55) | 100 | Flat | Flat | $34,535 | 49.6% |
+| constant $ | 30y | 100 | 85 | 60 | 60 | 60 (@65) | 80 | Falling | Rising | $48,859 | 15.6% |
+| constant $ | 40y | 100 | 70 | 40 | 50 | 40 (@76) | 100 | Falling | Rising | $57,860 | 3.2% |
 
-A longer accumulation acts as a funding lever. A 40-year saver is so over-funded for the $40k gap that the optimum averages ~58% equity, is 40% in the year before retirement and bottoms at 30% just after; a 20-year saver averages 96% and stays at 80–100% (29.5% shortfall).
+A longer accumulation acts as a funding lever. A 40-year saver is well funded for the $40k gap (3.2% shortfall): the optimum averages ~70% equity, is 40% in the year before retirement and bottoms at 40% just after. A 20-year saver is badly underfunded (49.6% shortfall) and holds 100% throughout.
 
 ### 2d. Risk aversion (30y + 30y)
 
 | Spending      | γ   | start | acc. avg | pre-ret | @ret | tent (age) | end | BEFORE  | AFTER  |
 | ------------- | --- | ----- | -------- | ------- | ---- | ---------- | --- | ------- | ------ |
-| constant $    | 2   | 100   | 72       | 50      | 50   | 40 (@63)   | 100 | Falling | Rising |
-| constant $    | 4   | 100   | 69       | 50      | 50   | 50 (@65)   | 60  | Falling | Rising |
-| constant $    | 8   | 100   | 70       | 40      | 60   | 40 (@64)   | 100 | Falling | Rising |
-| flexible 100% | 8   | 100   | 87       | 70      | 70   | 60 (@66)   | 70  | Falling | Flat   |
+| constant $    | 2   | 100   | 85       | 60      | 60   | 60 (@65)   | 80  | Falling | Rising |
+| constant $    | 4   | 100   | 85       | 60      | 60   | 60 (@65)   | 80  | Falling | Rising |
+| constant $    | 8   | 100   | 85       | 60      | 60   | 60 (@65)   | 100 | Falling | Rising |
+| flexible 100% | 8   | 100   | 90       | 70      | 70   | 60 (@68)   | 80  | Falling | Rising |
 
 Flexible spending holds 100% throughout at γ = 2 and 4.
 
-**Why γ doesn't move the constant-dollar tent.** With consumption capped at the target, ~98% of simulated retirement years sit exactly at the target and ~2% at the floor. Expected utility is then a constant minus (the utility gap between target and floor) × (expected discounted years at the floor). Any utility function therefore ranks allocations by those floor-years; γ only rescales the CE level.
+**Why γ doesn't move the constant-dollar tent.** With consumption capped at the target, ~96% of simulated retirement years sit exactly at the target and ~4% at the floor. Expected utility is then a constant minus (the utility gap between target and floor) × (expected discounted years at the floor). Any utility function therefore ranks allocations by those floor-years; γ only rescales the CE level.
 
-- The recommender's best constant weight is 65% for γ = 1, 2, 4 and 8. Scored under any one γ, the four γ-optimized glides differ by ≤ ~$30/yr (under 0.1% of CE) (`research_history --sections gamma`, 5-year steps).
-- The tent bottoms (40%, 50%, 40%) are within one grid step of each other: optimizer noise.
-- γ matters once spending flexes: fully flexible spending at γ = 8 averages 87% through accumulation and dips to 60% around retirement, against 100% at γ ≤ 4.
+- The recommender's best constant weight is 80% for γ = 1, 2, 4 and 8. Scored under any one γ, the four γ-optimized glides differ by ≤ ~$10/yr (under 0.1% of CE) (`research_history --sections gamma`, 5-year steps).
+- The tent bottoms (60%, 60%, 60%) are identical across γ.
+- γ matters once spending flexes: fully flexible spending at γ = 8 averages 90% through accumulation and dips to 60% around retirement, against 100% at γ ≤ 4.
 
 ### 2e. Is the glide shape worth anything? (out of sample)
 
@@ -276,14 +276,14 @@ CE income ($/yr) on the evaluation sample, constant dollar. `opt ret / 100% acc`
 
 | Ret. horizon | optimum | opt ret / 100% acc | 100% equity | best constant (w\*) | glide vs best constant |
 | --- | --- | --- | --- | --- | --- |
-| 30y | $54,603 | $53,321 | $53,150 | $54,287 (70%) | **+$316** |
-| 40y | $49,392 | $48,928 | $48,798 | $49,070 (80%) | **+$322** |
-| 50y | $45,847 | $45,684 | $45,651 | $45,651 (100%) | **+$196** |
+| 30y | $48,900 | $48,343 | $48,211 | $48,441 (80%) | **+$459** |
+| 40y | $43,319 | $43,261 | $43,228 | $43,228 (100%) | **+$91** |
+| 50y | $40,103 | $40,110 | $40,111 | $40,111 (100%) | **−$8** |
 
-For semi-flexible and flexible spending the best constant weight is 100% at every horizon, and the glide's edge is −$20 to +$118 (the +$118 is the 50-year semi-flexible case; the rest is noise).
+For semi-flexible and flexible spending the best constant weight is 100% at every horizon, and the glide's edge is −$21 to +$48 (noise).
 
-- **Shape:** the glide adds ≤ ~$320/yr (~0.7%) for constant dollar and ≤ ~$120 (~0.2%) once spending flexes. This matches Estrada's "glidepath illusion": in his historical tests, lifecycle glide paths do no better than a well-chosen fixed mix.
-- **Level:** the optimum beats 100% equity by $200–1,450/yr (0.4–2.7%), most at 30 years. Holding 100% through accumulation costs ~$1,280/yr at 30 years and less at longer horizons ($160 at 50).
+- **Shape:** the glide adds ≤ ~$460/yr (~0.9%) for constant dollar at 30 years, nothing measurable at longer horizons, and ≤ ~$50 (~0.1%) once spending flexes. This matches Estrada's "glidepath illusion": in his historical tests, lifecycle glide paths do no better than a well-chosen fixed mix.
+- **Level:** the optimum beats 100% equity by up to $690/yr (1.4%) at 30 years, $90 at 40 and nothing at 50. Holding 100% through accumulation costs ~$560/yr at 30 years and less at longer horizons ($60 at 40, nothing at 50).
 
 ### 2f. Funding level and the value of flexibility
 
@@ -295,29 +295,30 @@ For semi-flexible and flexible spending the best constant weight is 100% at ever
 | ---------------------- | ------------- | ---- | ------------- | ------- | ------------------- |
 | $300k / $30k           | 1.9%          | 30%  | 30%           | $59,961 | 0.1%                |
 | $200k / $20k           | 2.6%          | 40%  | 50%           | $58,244 | 3.0%                |
-| $200k / $15k (default) | 3.0%          | 50%  | 65%           | $54,520 | 7.7%                |
+| $200k / $15k           | 3.0%          | 50%  | 65%           | $54,520 | 7.7%                |
 | $150k / $15k           | 3.2%          | 55%  | 70%           | $52,029 | 11.0%               |
+| $100k / $15k (default) | 3.5%          | 60%  | 80%           | $48,804 | 15.6%               |
 | $120k / $12k           | 3.8%          | 70%  | 100%          | $45,329 | 20.4%               |
 | $100k / $10k           | 4.3%          | 90%  | 100%          | $40,219 | 29.9%               |
 
 A spender capped at the target gains nothing from extra wealth (with no bequest weight) but loses heavily from shortfalls. The more over-funded the plan, the more the optimizer protects the floor.
 
-**Compare spending rules at the same spending level.** At 4%, the flexible rule's first-year draw is ~$63k (4% of its ~$1.58M median balance), about 1.6× the constant rule's $40k. Most of §2b's CE gap is therefore **spending more**, not spending flexibly. The matched-draw rows set the rate to 2.53%, which gives the same $40k first-year draw.
+**Compare spending rules at the same spending level.** At 4%, the flexible rule's first-year draw is ~$49k (4% of its ~$1.23M median balance), about 1.2× the constant rule's $40k. About a third of §2b's CE gap is therefore **spending more**; the rest is spending flexibly. The matched-draw rows set the rate to 3.24%, which gives the same $40k first-year draw.
 
 | Rule                      | Withdrawal rate | Year-1 draw | CE      |
 | ------------------------- | --------------- | ----------- | ------- |
-| constant dollar (default) | —               | $40,000     | $54,520 |
-| flexible at 4%            | 4.00%           | $63,178     | $66,538 |
-| flexible, matched draw    | 2.53%           | $40,000     | $57,308 |
-| semi-flex, matched draw   | 2.53%           | $40,000     | $61,370 |
+| constant dollar (default) | —               | $40,000     | $48,804 |
+| flexible at 4%            | 4.00%           | $49,389     | $58,468 |
+| flexible, matched draw    | 3.24%           | $40,000     | $55,135 |
+| semi-flex, matched draw   | 3.24%           | $40,000     | $58,196 |
 
-At a matched draw, flexibility is worth **+$2.8k to +$6.9k/yr**. If each rule also picks its own best spending level, the gap widens: constant dollar peaks at $54.5k CE (at the $60k target), flexible at $70.0k (a 6% rate). Flexibility lets the household spend wealth that a rigid plan must keep as a buffer.
+At a matched draw, flexibility is worth **+$6.3k to +$9.4k/yr**. If each rule also picks its own best spending level, the gap widens: constant dollar peaks at $49.7k CE (at a $55k target, below the $60k default), flexible at $61.6k (a 6% rate). Flexibility lets the household spend wealth that a rigid plan must keep as a buffer.
 
 ---
 
 ## 3. Results under historical sequencing (forward-block)
 
-**In brief.** History has patterns iid ignores: stocks partly recover after crashes, while long nominal bonds suffer bad decades. Keep both patterns, at the same forward-looking averages, and the bond tent disappears: the optimum becomes ~100% equity. CE changes little (−0.3% at 30 years, +2–4% at 40–50); what changes most is the allocation that achieves it.
+**In brief.** History has patterns iid ignores: stocks partly recover after crashes, while long nominal bonds suffer bad decades. Keep both patterns, at the same forward-looking averages, and the bond tent largely disappears: the optimum becomes ~100% equity. CE rises 2% at 30 years and 4–5% at 40–50.
 
 ### How sequencing differs from iid
 
@@ -350,46 +351,46 @@ The product engine (`recommend_glide_path`, forward-block), 1-year steps, 5pp gr
 
 | Spending | Ret. horizon | start | acc. avg | pre-ret | @ret | tent (age) | end | BEFORE | AFTER | CE income | Shortfall |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| constant $ | 30y | 100 | 99 | 100 | 100 | 90 (@61) | 100 | Flat | Falling | $54,297 | 5.9% |
-| constant $ | 40y | 100 | 100 | 100 | 100 | 85 (@61) | 80 | Flat | Flat | $50,521 | 9.9% |
-| constant $ | 50y | 100 | 100 | 100 | 100 | 85 (@61) | 55 | Flat | Flat | $47,584 | 13.0% |
-| semi-flex 50% | 30y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $68,659 | 1.4% |
-| flexible 100% | 30y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $68,793 | 0.0% |
+| constant $ | 30y | 100 | 100 | 100 | 100 | 90 (@67) | 100 | Flat | Flat | $49,929 | 11.7% |
+| constant $ | 40y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $45,236 | 17.8% |
+| constant $ | 50y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Falling | $42,091 | 22.6% |
+| semi-flex 50% | 30y | 100 | 100 | 100 | 100 | 100 (@65) | 20 | Flat | Flat | $61,043 | 2.9% |
+| flexible 100% | 30y | 100 | 100 | 100 | 100 | 100 (@65) | 100 | Flat | Flat | $60,135 | 0.0% |
 
-Out of sample the best constant weight is 100% in every row, and the glide's edge over it is −$31 to $0/yr (noise). Compared with iid, constant-dollar accumulation stays at ~100% instead of averaging 69–91%, and the dip is 85–90% instead of 50–70%. At 30 years CE is about the same ($54.3k vs $54.5k); at 40 and 50 years it is 2.4% and 3.9% higher ($50.5k vs $49.3k, $47.6k vs $45.8k). This reproduces ACO's flat 100% on our own capital-market assumptions.
+Out of sample the best constant weight is 100% in every row, and the glide's edge over it is −$27 to $0/yr (noise). Compared with iid, constant-dollar accumulation stays at ~100% instead of averaging 85–99%, and the dip is 90–100% instead of 60–80%. CE is 2.2%, 4.3% and 4.8% higher at 30, 40 and 50 years ($49.9k vs $48.9k, $45.2k vs $43.4k, $42.1k vs $40.2k). This reproduces ACO's flat 100% on our own capital-market assumptions.
 
 ### 3b. What drives the flip
 
 `research_history --sections matrix blocks channels` (constant dollar, 30y + 30y, 5-year steps; best constant weight per cell).
 
-**Sequencing, not pooling.** Best constant weight by dataset (CE where reported):
+**Not pooling.** Best constant weight by dataset (CE where reported):
 
 | Return model                                            | pooled        | world         |
 | ------------------------------------------------------- | ------------- | ------------- |
-| forward-block (forward levels, historical sequencing)   | 100% ($54.3k) | 100% ($54.5k) |
-| raw historical-block (historical levels and sequencing) | 95% ($42.9k)  | 100%          |
+| forward-block (forward levels, historical sequencing)   | 100% ($50.0k) | 100% ($49.4k) |
+| raw historical-block (historical levels and sequencing) | 95% ($40.2k)  | 100%          |
 
-iid-mc gives 65%. Forward-block reaches 100% on either dataset, so pooling is not the driver. Pooling matters only for raw history, where single-country disasters hit at full size; the forward rescale shrinks them to forward volatility.
+iid-mc gives 80%. Forward-block reaches 100% on either dataset, so pooling is not the driver. Pooling matters only for raw history, where single-country disasters hit at full size; the forward rescale shrinks them to forward volatility.
 
-**Any sequencing is enough.** By mean block length: 1y → 75%, 3y–40y → 100%. A 1-year mean block is nearly an iid resample of rescaled history (cell c below: 80%).
+**Sequencing is not what flips it.** By mean block length: 1y → 95%, 3y–40y → 100%. A 1-year mean block is nearly an iid resample of rescaled history (cell c below: 100%).
 
-**It takes the joint structure.** Forward-block differs from iid in three ingredients at once: the shape of yearly returns (normal vs history's skew and fat tails), equity sequencing (VR(10y) 0.91 vs 1) and bond sequencing (2.66 vs 1). The stock/bond correlation is now about the same in both (0.30 vs 0.29). The `channels` section switches the ingredients on one at a time, with each asset's forward mean and volatility held fixed.
+**Return shape does most of it at this funding level.** Forward-block differs from iid in three ingredients at once: the shape of yearly returns (normal vs history's skew and fat tails), equity sequencing (VR(10y) 0.91 vs 1) and bond sequencing (2.66 vs 1). The stock/bond correlation is now about the same in both (0.30 vs 0.29). The `channels` section switches the ingredients on one at a time, with each asset's forward mean and volatility held fixed.
 
 | Cell | Return draws | Stock/bond corr. | Return shape | Equity VR(10y) | Bond VR(10y) | Best constant |
 | --- | --- | --- | --- | --- | --- | --- |
-| a | iid-mc baseline (the app's default) | 0.30 (curve) | normal | 1 | 1 | 65% |
-| b1 | synthetic iid normals, two-asset | 0.30 | normal | 1 | 1 | 65% |
-| b2 | synthetic iid normals, two-asset | 0.29 | normal | 1 | 1 | 65% |
-| c | rescaled history, single years resampled iid | 0.29 | **historical** | 1 | 1 | 80% |
-| d | equity in historical blocks, bond years shuffled | ≈0 | historical | **0.91** | 1 | 55% |
-| e | bonds in historical blocks, equity years shuffled | ≈0 | historical | 1 | **2.66** | 70% |
+| a | iid-mc baseline (the app's default) | 0.30 (curve) | normal | 1 | 1 | 80% |
+| b1 | synthetic iid normals, two-asset | 0.30 | normal | 1 | 1 | 85% |
+| b2 | synthetic iid normals, two-asset | 0.29 | normal | 1 | 1 | 85% |
+| c | rescaled history, single years resampled iid | 0.29 | **historical** | 1 | 1 | 100% |
+| d | equity in historical blocks, bond years shuffled | ≈0 | historical | **0.91** | 1 | 70% |
+| e | bonds in historical blocks, equity years shuffled | ≈0 | historical | 1 | **2.66** | 80% |
 | f | full forward-block (both in the same blocks) | 0.29 | historical | **0.91** | **2.66** | 100% |
 
-- **a → b1: engine check.** Building iid from the two endpoint assets gives the same 65% as the curve.
-- **b1 → b2: correlation.** The curve's correlation (0.30) is now almost history's (0.29), so this step changes nothing: 65%.
-- **b2 → c: return shape.** Rescaled equity is right-skewed (+0.85); rescaled bonds have a long left tail from hyperinflations (skew −1.06, excess kurtosis 11, worst year −8.6 s.d.). Bonds look worse in the tail: 80%.
-- **c → d, c → e: one asset's sequencing.** Keeping one asset's order while shuffling the other's years also removes their correlation (≈0), which by itself favours bonds. With equity sequenced, the optimum falls to 55%: lost correlation plus history's short-run equity momentum (VR(2y) ≈ 1.1). With bonds sequenced it is 70%: persistent bonds alone come nowhere near 100%.
-- **c → f: both together.** Only persistent bonds **and** mean-reverting equity in the same simulated years, with history's correlation, reach 100%.
+- **a → b1: engine check.** Building iid from the two endpoint assets gives 85% against the curve's 80%, one grid step apart (CE within 0.2%).
+- **b1 → b2: correlation.** The curve's correlation (0.30) is now almost history's (0.29), so this step changes nothing: 85%.
+- **b2 → c: return shape.** Rescaled equity is right-skewed (+0.85); rescaled bonds have a long left tail from hyperinflations (skew −1.06, excess kurtosis 11, worst year −8.6 s.d.). Bonds look worse in the tail, and the optimum moves to 100% on this change alone.
+- **c → d, c → e: one asset's sequencing.** Keeping one asset's order while shuffling the other's years also removes their correlation (≈0), which by itself favours bonds. With equity sequenced, the optimum falls to 70%: lost correlation plus history's short-run equity momentum (VR(2y) ≈ 1.1). With bonds sequenced it is 80%: persistent bonds without the correlation do not reach 100% either.
+- **c → f: both together.** Sequencing both assets in the same simulated years, with history's correlation, is back at 100%: sequencing adds little once the return shape is in. Which ingredient decides depends on funding. At the ~3.0% draw of the $200k / $15k row in §2f, shape alone gave 80% and only the joint structure reached 100% (`--savings 200000 --contrib 15000`).
 
 ### 3c. Era and country cuts
 
@@ -400,38 +401,38 @@ Each cut restricts the history before rescaling, so only the sequencing changes.
 | full 1871–2020 | 2.66 | 1.00 [0.87, 1.15] | 3.29 | 0.91 | 100% | — |
 | post-1950 | 2.21 | 0.94 [0.78, 1.09]; common-year 0.93 [0.65, 1.28] | 4.97 | 0.91 | 100% | — |
 | ex Germany + Japan | 2.54 | 0.99 [0.85, 1.13] | 3.63 | 0.94 | 100% | — |
-| stable six¹ | 1.92 | 0.96 [0.77, 1.19] | 3.23 | 0.73 | 90% | +0.1% |
-| 1990–2020 | **0.58** | 0.82 [0.61, 1.08]; common-year 0.79 [0.44, 1.35] | 3.85 | 0.69 | **60%** | +1.8% |
+| stable six¹ | 1.92 | 0.96 [0.77, 1.19] | 3.23 | 0.73 | 100% | — |
+| 1990–2020 | **0.58** | 0.82 [0.61, 1.08]; common-year 0.79 [0.44, 1.35] | 3.85 | 0.69 | **80%** | +0.9% |
 
 ¹ USA, UK, Canada, Australia, Switzerland, Sweden. JST has no return data for Canada, so five countries contribute.
 
 - **Not a disaster artifact.** Dropping Germany and Japan leaves bond persistence about the same (2.54 vs 2.66).
 - **Era-dependent for bonds.** In 1990–2020 bond persistence disappears and stock/bond correlation falls to ≈0 (0.06), and the interior optimum returns. That is one 31-year regime (about three independent decades), and it ends before the 2021–22 inflation shock. §4b explains why.
 - **The 1990–2020 bond VR is consistent with iid, not evidence of mean reversion.** 0.58 sits at the 2nd percentile of the within-country null but only the ~23rd of the common-year null, because the 16 countries' bond markets moved together. It is below 1 in all 16 countries (0.13–0.86) and in every nearby window (0.41–0.74 for 1980/1985/1995 starts or 2010/2015 ends), so the loss of persistence is robust; the reversion beyond iid is not. The full-history and post-1950 persistence (2.66, 2.21) lie far outside either null.
-- **The ~60% optimum comes from correlation, not sequencing.** Drawing the same 1990–2020 years independently instead of in blocks still gives 50% (`--sections era-seq`); block sequencing only flattens the curve (100% costs ~1.7% of CE with blocks, ~4.7% without). In the full history the same switch moves the optimum from 100% to 80%.
+- **The ~80% optimum comes from correlation, not sequencing.** Drawing the same 1990–2020 years independently instead of in blocks still gives 70% (`--sections era-seq`); block sequencing only flattens the curve (100% costs ~0.9% of CE with blocks, ~2.7% without). In the full history the optimum is 100% either way, but sequencing widens 100%'s lead over 90% from $0.1k to $0.6k.
 - **Bills stay persistent in every era** (VR 3.2–5.0), through lagging inflation in the long samples and the policy-rate cycle in 1990–2020 (§4b). Short duration removes neither.
 
 ### 3d. Welfare regret across regimes (robustness check)
 
 A weight's **regret** in a regime is that regime's best constant CE minus the weight's CE; **maximum regret** is the most it could cost if you don't know which regime is true. `research_history --sections regret` (constant dollar, 30y + 30y); cells in $/yr of CE income:
 
-| Regime (forward-block unless noted) | best | 60%   | 70%   | 80% | 90%     | 100%  |
-| ----------------------------------- | ---- | ----- | ----- | --- | ------- | ----- |
-| full 1871–2020                      | 100% | 2,918 | 1,704 | 876 | 339     | 0     |
-| post-1950                           | 100% | 2,423 | 1,441 | 741 | 271     | 0     |
-| ex Germany + Japan                  | 100% | 2,786 | 1,683 | 898 | 350     | 0     |
-| stable six                          | 90%  | 1,203 | 473   | 112 | 0       | 77    |
-| 1990–2020                           | 60%  | 0     | 74    | 291 | 614     | 1,040 |
-| iid-mc                              | 65%  | 11    | 4     | 244 | 680     | 1,155 |
-| **max regret**                      |      | 2,918 | 1,704 | 898 | **680** | 1,155 |
+| Regime (forward-block unless noted) | best | 60%   | 70%   | 80%   | 90% | 100%    |
+| ----------------------------------- | ---- | ----- | ----- | ----- | --- | ------- |
+| full 1871–2020                      | 100% | 4,204 | 2,674 | 1,480 | 612 | 0       |
+| post-1950                           | 100% | 3,633 | 2,267 | 1,238 | 494 | 0       |
+| ex Germany + Japan                  | 100% | 4,043 | 2,593 | 1,447 | 597 | 0       |
+| stable six                          | 100% | 3,339 | 1,837 | 852   | 275 | 0       |
+| 1990–2020                           | 80%  | 604   | 109   | 0     | 143 | 477     |
+| iid-mc                              | 80%  | 858   | 239   | 0     | 70  | 232     |
+| **max regret**                      |      | 4,204 | 2,674 | 1,480 | 612 | **477** |
 
-Any weight from 80% to 100% loses at most ~2% of CE in any regime ($1,155 ≈ 2.1% of ~$54k, for 100% if iid is right); 70% costs up to $1,704 (3.1%) in the full-history regimes. ~90% has the smallest worst case ($680/yr), with or without iid (largest forward-block regret $614). The iid-optimized glide has a maximum regret of $1,980. This is a robustness check, not a product rule.
+Any weight from 90% to 100% loses at most ~1.2% of CE in any regime ($612 ≈ 1.2% of ~$50k, for 90% in the full history); 80% costs up to $1,480 (3.0%) there. 100% has the smallest worst case ($477/yr, in 1990–2020), with or without iid (its regret if iid is right is $232). The iid-optimized glide has a maximum regret of $1,366. This is a robustness check, not a product rule.
 
 ---
 
 ## 4. The bond menu
 
-**In brief.** Flat 100% equity is a verdict on long nominal bonds. Swap them for a real asset without their historical baggage (bad decades, correlation with equity, a fat left tail) and a substantial bond share comes back. How much, and what it is worth, depends on assumptions that a buyable fund only partly meets (§4c).
+**In brief.** Flat 100% equity is a verdict on long nominal bonds. Swap them for a real asset without their historical baggage (bad decades, correlation with equity, a fat left tail) and a substantial bond share comes back. How much, and whether anything comes back at all, depends on assumptions that a buyable fund only partly meets (§4c).
 
 ### 4a. The experiment
 
@@ -439,11 +440,11 @@ Equity keeps its forward-block sequencing; only the non-equity asset changes (`r
 
 | Non-equity asset | best constant | CE at best |
 | --- | --- | --- |
-| a) long nominal bonds, historical sequencing (forward-block) | 100% | $54.3k |
-| b) idealized real asset: same mean/vol as bonds (1.81% / 5.39%), iid, zero equity correlation | **55%** | $57.0k |
-| c) idealized short real ladder, 2% vol | 25% | $58.8k |
+| a) long nominal bonds, historical sequencing (forward-block) | 100% | $50.0k |
+| b) idealized real asset: same mean/vol as bonds (1.81% / 5.39%), iid, zero equity correlation | **70%** | $51.1k |
+| c) idealized short real ladder, 2% vol | 55% | $51.8k |
 
-Cell b keeps the bond leg's mean and volatility but removes its persistence, its correlation with equity and its fat left tail all at once. The optimum moves from 100% to 55% and CE rises ~$2.7k/yr (~4.9%). Cell c also suppresses volatility, which only a hold-to-maturity ladder does; raising its mean to 2.0% real moves it only to 20%.
+Cell b keeps the bond leg's mean and volatility but removes its persistence, its correlation with equity and its fat left tail all at once. The optimum moves from 100% to 70% and CE rises ~$1.2k/yr (~2.4%). Cell c also suppresses volatility, which only a hold-to-maturity ladder does; raising its mean to 2.0% real moves it only to 45%.
 
 ### 4b. Where long-bond persistence comes from
 
@@ -492,34 +493,34 @@ Cell b is the closest the menu comes to a short-TIPS ETF such as XSTH, but it is
 - **Mean.** The bond leg's 1.81% real, which includes a term premium a short fund does not earn.
 - **Volatility (conservative).** Long bonds' 5.39%; a short fund is calmer.
 
-`--sections tips-stress` changes one assumption at a time (gain versus cell a's $54,314):
+`--sections tips-stress` changes one assumption at a time (gain versus cell a's $49,956):
 
 | Change to cell b | best constant | CE | gain vs nominal bonds |
 | --- | --- | --- | --- |
-| none (cell b) | 55% | $57,221 | +$2,907 |
-| equity correlation 0.29 | 65% | $55,970 | +$1,656 |
-| equity correlation 0.50 | 75% | $55,261 | +$947 |
-| persistence φ = 0.50 | 65% | $56,474 | +$2,160 |
-| persistence φ = 0.80 (near random-walk real rate) | 75% | $55,975 | +$1,661 |
-| mean 1.00% real | 75% | $55,439 | +$1,125 |
-| volatility 3.0% | 35% | $58,267 | +$3,953 |
-| combined: 1.00% / 3.0% / φ 0.30 / corr 0.29 | 80% | $55,091 | +$777 |
-| harsh: 1.00% / 5.39% / φ 0.50 / corr 0.50 | 100% | $54,445 | +$131 |
+| none (cell b) | 70% | $51,371 | +$1,415 |
+| equity correlation 0.29 | 80% | $50,282 | +$326 |
+| equity correlation 0.50 | 95% | $49,961 | +$5 |
+| persistence φ = 0.50 | 75% | $51,106 | +$1,150 |
+| persistence φ = 0.80 (near random-walk real rate) | 80% | $50,865 | +$909 |
+| mean 1.00% real | 95% | $49,991 | +$35 |
+| volatility 3.0% | 60% | $51,829 | +$1,873 |
+| combined: 1.00% / 3.0% / φ 0.30 / corr 0.29 | 100% | $49,956 | +$0 |
+| harsh: 1.00% / 5.39% / φ 0.50 / corr 0.50 | 100% | $49,956 | +$0 |
 
-The "none" row differs from §4a's $56,969 by Monte Carlo noise. For scale, φ = 0.5 is as persistent as long nominal bonds (VR(10y) ≈ 2.6); φ = 0.8 gives ≈ 5.4.
+The "none" row differs from §4a's $51,132 by Monte Carlo noise. For scale, φ = 0.5 is as persistent as long nominal bonds (VR(10y) ≈ 2.6); φ = 0.8 gives ≈ 5.4.
 
-- **The direction is robust.** No single change takes the optimum above 75%, and the plausible combined case lands at 80%. Even a leg twice as persistent as long bonds stays at 75%, so persistence alone is not what pins forward-block at 100%.
-- **The size of the gain is not.** It falls from ~$2.9k/yr (5.4% of cell a's CE) to ~$0.8k/yr (1.4%) in the combined case; the lower mean and the correlation matter most. Only when most assumptions turn unfavourable at once (harsh row) does the gain shrink to noise (~$130/yr) and the optimum return to 100%.
+- **Persistence is not what pins forward-block at 100%.** Even a leg twice as persistent as long bonds (φ = 0.80) stays at 80%, and φ = 0.50 at 75%.
+- **The mean and the correlation are.** A 1.00% real mean or a 0.50 equity correlation alone takes the optimum to 95% and the gain to ~$0; the combined case lands at 100%, no better than nominal bonds. The idealized gain (~$1.4k/yr, 2.8% of cell a's CE) does not survive realistic assumptions about a buyable fund.
 - **Not modelled:** the ~3-month indexation lag, hedging costs and fees. The US-versus-Canadian CPI gap is measured in §4f.
-- **Full history only.** In 1990–2020 nominal bonds already give ~60% (§3c), and the realistic real sleeve costs up to 1.5% of CE there (§4f).
+- **Full history only.** In 1990–2020 nominal bonds already give ~80% (§3c), and the realistic real sleeve costs up to 0.9% of CE there (§4f).
 
-The realistic reading: a short real asset is worth roughly 1–4% of CE over long nominal bonds in inflation-prone histories, and moves the optimum to about 60–80% equity. It is a hedge across regimes, not a free lunch.
+The realistic reading: at the default's funding, a short real asset is worth 0–4% of CE over long nominal bonds in inflation-prone histories (about nothing once its mean and equity correlation are set conservatively), with the optimum anywhere from 60% to 100% equity. It is a hedge across regimes, not a free lunch.
 
 ### 4d. Reading the menu
 
-- **Inflation linkage does most of the work** (a → b). Linkage removes the inflation term; short duration removes most of the price term. A short-TIPS fund does both, but still carries the real-rate cycle. VTIP's measured persistence leaves the best weight at 60% and costs ~$200/yr (`--sections tips-etf`).
-- **Low volatility needs a hold-to-maturity real ladder** (b → c), where each rung's real value is locked in at purchase. No Canadian fund offers this. A do-it-yourself ladder of RRBs or US TIPS has maturity gaps (no new RRBs since 2022) and, for TIPS, US-CPI and currency basis. Read 25% as an idealized bound.
-- **Short nominal is not enough.** Real bill returns are _more_ persistent than long bonds (VR(10y) 3.29 vs 2.66), because bill rates lag inflation. A bill-ladder leg (0.75% real, 2% vol) that keeps its historical persistence gives a best constant weight of **100%** (tent ~75%); the same bills made iid give 75% (`--sections bills-block`, whose joint panel reads bills VR 2.97).
+- **Inflation linkage does most of the work** (a → b). Linkage removes the inflation term; short duration removes most of the price term. A short-TIPS fund does both, but still carries the real-rate cycle. VTIP's measured persistence leaves the best weight at 75% and costs ~$90/yr (`--sections tips-etf`).
+- **Low volatility needs a hold-to-maturity real ladder** (b → c), where each rung's real value is locked in at purchase. No Canadian fund offers this. A do-it-yourself ladder of RRBs or US TIPS has maturity gaps (no new RRBs since 2022) and, for TIPS, US-CPI and currency basis. Read 55% as an idealized bound.
+- **Short nominal is not enough.** Real bill returns are _more_ persistent than long bonds (VR(10y) 3.29 vs 2.66), because bill rates lag inflation. A bill-ladder leg (0.75% real, 2% vol) gives a best constant weight of **100%** whether it keeps its historical persistence (tent ~85%) or is made iid (tent ~70%); a 0.75% real mean is too low to earn a place beside equity at this funding (`--sections bills-block`, whose joint panel reads bills VR 2.97).
 - **Short beats long only for the tent's job.** Short duration cheaply limits drawdowns on near-term withdrawals. For a permanent sleeve, long duration earns a term premium and rallies in deflationary crashes but falls with equities in inflationary ones (2022). No nominal option fixes inflation.
 
 ### 4e. What a Canadian can buy
@@ -545,26 +546,26 @@ Two questions: what share of the bond sleeve should be real, and does the answer
 
 | Real share s | full history, idealized | full history, realistic | 1990–2020, idealized | 1990–2020, realistic |
 | --- | --- | --- | --- | --- |
-| 0 (nominal only) | $54.1k (100%) | $54.1k (100%) | $58.7k (60%) | $58.7k (60%) |
-| 0.25 | $54.1k (90%) | $54.1k (100%) | $59.1k (50%) | $58.5k (60%) |
-| 0.5 | $54.7k (70%) | $54.1k (100%) | $59.4k (40%) | $58.3k (60%) |
-| 0.75 | $55.9k (50%) | $54.3k (80%) | $59.4k (50%) | $58.0k (80%) |
-| 1 (real only) | **$56.8k** (50%) | **$54.5k** (80%) | $59.2k (60%) | $57.8k (90%) |
+| 0 (nominal only) | $49.9k (100%) | $49.9k (100%) | $53.9k (80%) | $53.9k (80%) |
+| 0.25 | $49.9k (100%) | $49.9k (100%) | $54.2k (70%) | $53.6k (80%) |
+| 0.5 | $50.0k (90%) | $49.9k (100%) | $54.6k (70%) | $53.4k (90%) |
+| 0.75 | $50.4k (80%) | $49.9k (100%) | $54.7k (70%) | $53.4k (100%) |
+| 1 (real only) | **$51.2k** (70%) | $49.9k (100%) | $54.8k (70%) | $53.4k (100%) |
 
-- **Full history: more real never hurts, and the idealized sleeve gains all the way to s = 1** (+5.0% over nominal bonds; the realistic sleeve gains only beyond s = 0.5, +0.7% at s = 1).
-- **1990–2020: the sleeve matters little, and cuts both ways.** The idealized sleeve adds up to 1.2% (s = 0.5); the realistic one costs 0.2% (s = 0.25) to 1.5% (s = 1), best weight against best weight.
-- **The real share sets the equity weight.** Nominal bonds don't hedge inflation regimes, so equity does that job (80–100%). With a mostly real sleeve the best weight falls to 50% (idealized) or 80% (realistic).
+- **Full history: more real never hurts, but only the idealized sleeve helps** (+2.6% over nominal bonds at s = 1). With the realistic sleeve 100% equity stays best at every s, so the sleeve is never held.
+- **1990–2020: the sleeve matters little, and cuts both ways.** The idealized sleeve adds 0.7% (s = 0.25) to 1.7% (s = 1); the realistic one costs 0.5% (s = 0.25) to 0.9% (s ≥ 0.75), best weight against best weight.
+- **The real share sets the equity weight.** Nominal bonds don't hedge inflation regimes, so equity does that job (100% in the full history). With an all-real idealized sleeve the best weight falls to 70%; a realistic sleeve leaves it at 100%.
 
 **Regime mixture.** Each simulated lifecycle lives in the 1990–2020 regime with probability p, else in the full history. (Switching regime each year with probability 1/30 gives nearly the same numbers.) Regret is the CE lost against the best constant weight for that p. Largest regret over p = 0–1:
 
-| Sleeve               | 50%  | 60%      | 70%  | 80%      | 90%      | 100% |
-| -------------------- | ---- | -------- | ---- | -------- | -------- | ---- |
-| nominal only (s = 0) | 8.2% | 5.2%     | 3.0% | 1.5%     | **1.0%** | 1.7% |
-| realistic, s = 0.5   | 3.8% | 1.9%     | 0.8% | **0.3%** | 0.5%     | 1.0% |
-| realistic, s = 1     | 3.0% | 1.2%     | 0.4% | **0.0%** | 0.2%     | 0.7% |
-| idealized, s = 1     | 0.2% | **0.2%** | 0.9% | 2.0%     | 3.3%     | 4.7% |
+| Sleeve               | 50%   | 60%  | 70%      | 80%  | 90%  | 100%     |
+| -------------------- | ----- | ---- | -------- | ---- | ---- | -------- |
+| nominal only (s = 0) | 12.2% | 8.6% | 5.6%     | 3.2% | 1.3% | **0.9%** |
+| realistic, s = 0.5   | 10.1% | 6.7% | 4.0%     | 2.1% | 0.8% | **0.0%** |
+| realistic, s = 1     | 13.6% | 7.6% | 3.9%     | 1.8% | 0.6% | **0.0%** |
+| idealized, s = 1     | 3.1%  | 0.6% | **0.0%** | 0.5% | 1.5% | 2.8%     |
 
-The belief p moves the best weight by ≤ 10pp between p = 0.2 and 0.8 for the all-real sleeves, and by 20pp for nominal bonds and the half-real realistic sleeve. What matters is pairing the equity weight with the sleeve: ~80% equity with a realistic sleeve (half or all real; regret ≤ 0.3% for any p), ~50–60% with an idealized all-real one (≤ 0.2%).
+The belief p barely moves the best weight: ≤ 10pp between p = 0.2 and 0.8 in every row (100% to 90% for nominal bonds, no change for the others). What matters is pairing the equity weight with the sleeve: ~100% equity with nominal bonds or a realistic sleeve (regret ≤ 0.9% for any p), ~70% with an idealized all-real one (0.0%).
 
 **US versus Canadian CPI.** XSTH indexes to US CPI. `--sections cpi-basis` measures how much of a Canadian's inflation risk a 1:1 US-CPI claim removes: **hedged share** = 1 − Var(US − CA)/Var(CA), on cumulative log inflation.
 
@@ -589,18 +590,18 @@ Mixes step by 25%; CE at the best constant weight:
 
 | XSTH / ZGB / GIC | full, GIC 1.25% | full, GIC 2.0% | 1990–2020, GIC 1.25% | 1990–2020, GIC 2.0% |
 | --- | --- | --- | --- | --- |
-| 100 / 0 / 0 | **$54.4k** (80%) | **$54.4k** (80%) | $57.8k (90%) | $57.8k (90%) |
-| 75 / 0 / 25 | $54.1k (90%) | $54.4k (80%) | $57.8k (80%) | $58.0k (70%) |
-| 75 / 25 / 0 | $54.2k (80%) | $54.2k (80%) | $58.0k (80%) | $58.0k (80%) |
-| 50 / 0 / 50 | $54.1k (100%) | $54.3k (80%) | $57.8k (80%) | $58.4k (60%) |
-| no XSTH (any ZGB/GIC mix) | $54.1k (100%) | $54.1k (90–100%) | $57.8–58.7k (60–80%) | $58.7–59.1k (40–60%) |
+| 100 / 0 / 0 | $50.0k (100%) | $50.0k (100%) | $53.4k (100%) | $53.4k (100%) |
+| 75 / 0 / 25 | $50.0k (100%) | $50.0k (100%) | $53.4k (100%) | $53.4k (100%) |
+| 75 / 25 / 0 | $50.0k (100%) | $50.0k (100%) | $53.4k (100%) | $53.4k (100%) |
+| 50 / 0 / 50 | $50.0k (100%) | $50.0k (100%) | $53.4k (100%) | $53.4k (90%) |
+| no XSTH (any ZGB/GIC mix) | $50.0k (100%) | $50.0k (100%) | $53.4–53.9k (80–100%) | $53.9–54.3k (60–80%) |
 
-- **XSTH stays best in the full history, even against a 2% real GIC**, though by little ($54.4k vs $54.1–54.3k). Without it the sleeve falls back to 90–100% equity: a GIC ladder hedges inflation regimes no better than bonds.
-- **In 1990–2020 the order reverses.** XSTH is the weakest leg ($57.8k), ZGB gives $58.7k, and an all-GIC sleeve gives $57.8k at 1.25% real and $59.1k (40% equity) at 2.0%.
-- **As the nominal slot, a GIC ladder ties or beats ZGB** in the full history (equal at 1.25% real, better at 2.0%). In 1990–2020 it beats ZGB only at 2.0%; at 1.25% it trails by 1.4%.
+- **In the full history every mix ties at 100% equity ($50.0k).** No sleeve is worth holding at this funding, so XSTH, ZGB and a GIC ladder cannot be told apart.
+- **In 1990–2020 XSTH is the weakest leg.** ZGB gives $53.9k (80% equity); XSTH-heavy sleeves go to 100% equity and $53.4k, and an all-GIC sleeve gives $53.4k at 1.25% real and $54.3k (60% equity) at 2.0%.
+- **As the nominal slot, a GIC ladder beats ZGB only at 2.0% real, and only in 1990–2020** (+0.8%); at 1.25% it trails by 0.9%.
 - **The model is generous to GICs.** It rebalances the whole sleeve annually at market value; non-redeemable GICs free only the maturing rung (~20% a year), so in a crash they cannot fund equity purchases.
 
-**Reading.** The model favours a mostly or fully real sleeve, with a lower equity weight to match. That edge rests on an assumed synthetic real series, not a fund with a track record, and §4c's harsh row shows it can shrink to noise, so read it as insurance against a return of inflation regimes rather than an expected gain; if 1990–2020 continues, a realistic sleeve costs ~0.7% (half real) to ~1.5% (all real) of CE. If GICs pay a premium over long bonds, any nominal slice is better held in a GIC ladder than in long bonds.
+**Reading.** At the default's funding the model favours an idealized real sleeve (70% equity), but a realistic one earns nothing in the full history, since 100% equity stays best, and costs ~0.5–0.9% of CE if 1990–2020 continues. The idealized edge rests on an assumed synthetic real series, not a fund with a track record, and §4c shows it disappearing under modest changes to the fund's mean and equity correlation, so read a real sleeve as insurance against a return of inflation regimes rather than an expected gain. A GIC ladder beats long bonds only if it pays about 2% real, and only in 1990–2020.
 
 ---
 
@@ -612,11 +613,11 @@ Mixes step by 25%; CE at the best constant weight:
 
 | Claim | Verdict |
 | --- | --- |
-| ACO: ~100% equity, flat | **Reproduced** under forward-block, and under iid for flexible spending or a tightly funded plan. For a well-funded rigid spender under iid, a ~50% tent beats 100% by ~3% at 30 years, less at longer horizons. |
+| ACO: ~100% equity, flat | **Reproduced** under forward-block, and under iid for flexible spending or a tightly funded plan. For a rigid spender under iid at the default funding, a ~60% tent beats 100% by ~1.4% at 30 years, less at longer horizons. |
 | ERN / Kitces–Pfau: rising retirement glide | The derisk-then-rise shape appears under iid with rigid spending, and largely vanishes under forward-block. ERN's SWR boost does **not** reproduce under iid (§2a): the rising glide only ties the best constant weight. |
 | Both: beat a declining (target-date) retirement glide | Direction agreed, magnitude small: the glide shape is worth ≤ ~1% of CE. |
 
-**Why our iid path differs from ACO's.** ACO stays at ~100% through accumulation; our iid constant-dollar path falls into the tent. Two levers each close the gap on their own: historical sequencing (§3) and less over-funding (§2f). The third difference is the objective: ACO also values terminal wealth, which removes the "wasted upside" of a capped spender. ACO uses Global Financial Data rather than JST, but the two cover largely the same markets and events, so reproducing ACO is a consistency check, not independent confirmation.
+**Why our iid path differs from ACO's.** ACO stays at ~100% through accumulation; our iid constant-dollar path falls into the tent. Two levers each close the gap on their own: historical returns, shape and sequencing (§3), and less over-funding (§2f). The third difference is the objective: ACO also values terminal wealth, which removes the "wasted upside" of a capped spender. ACO uses Global Financial Data rather than JST, but the two cover largely the same markets and events, so reproducing ACO is a consistency check, not independent confirmation.
 
 **Persistence and the 1990–2020 regime in ACO.** ACO reports bond VR(10) of 1.88 in the actual data and 2.16 in its 10-year-block bootstrap (international stocks 0.86 / 0.89, domestic stocks 0.79 / 0.90, bills 2.49 / 2.70), the same direction as our full-history 2.66 (bonds), 0.91 (equity) and 3.29 (bills). Excluding war and hyperinflation years, our full-history bond VR(10y) of 2.06 (1.77 demeaned) is close to ACO's 1.88 / 2.16. Its only era cut is post-WWII (1945–2023), which still gives 100% equity. It does not test an inflation-targeting or post-1990 period, so our 1990–2020 result has no counterpart there.
 
@@ -666,7 +667,7 @@ python3 -m analysis.glide_path.research               # §2 tables + figures (~5
 python3 -m analysis.glide_path.research_history --sections matrix blocks channels menu \
     tips-etf tips-stress sleeve-blend regime-mix cpi-basis gic-ladder bills-block gamma vr \
     bond-decomp regret funding era-seq \
-    --accum 30 --retire 30 --savings 200000 --contrib 15000 --interval 5 --paths 8000
+    --accum 30 --retire 30 --savings 100000 --contrib 15000 --interval 5 --paths 8000
 python3 -m analysis.glide_path.doc_figures             # Figures 1–3 (light + dark SVG)
 python3 -m analysis.glide_path.generate_bundle         # regenerate src/utils/glide-path/jstData.ts
 ```
