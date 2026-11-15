@@ -312,7 +312,7 @@ def recommend_glide_path(
     retirement_max_equity: float | None = None,
     borrow_cost: float = 2.0,
     # household (real dollars)
-    current_savings: float = 200_000.0,
+    current_savings: float = 100_000.0,
     annual_contribution: float = 15_000.0,
     target_income: float = 60_000.0,
     withdrawal_rate: float = 0.04,
@@ -495,7 +495,7 @@ def evaluate_path(
     history=None,
     sampler=None,
     borrow_cost: float = 2.0,
-    current_savings: float = 200_000.0,
+    current_savings: float = 100_000.0,
     annual_contribution: float = 15_000.0,
     target_income: float = 60_000.0,
     withdrawal_rate: float = 0.04,

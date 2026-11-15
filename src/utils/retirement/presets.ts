@@ -102,10 +102,10 @@ export const SWR_TABLE_HORIZONS = [20, 25, 30, 35, 40, 45, 50] as const;
 export const DEFAULTS = {
   currentAge: 35,
   planningAge: 95,
-  currentSavings: 200000,
+  currentSavings: 100000,
   currentIncome: 100000,
   /** Annual savings rate, as a % of current income. 15% of $100k = $15k/yr. */
-  contributionPct: 20,
+  contributionPct: 15,
   /** Target gross retirement income, as a % of current income (replacement ratio). */
   targetIncomePct: 60,
   /**
