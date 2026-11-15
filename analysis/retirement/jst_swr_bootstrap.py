@@ -38,12 +38,12 @@ Each mode is a cell in the marginals × sequencing factorial:
                         │ pooled=§D/§E            │
 ─────────────────────────────────────────────────────────────────────────────
 
-FORWARD-CMA ANCHORS (real arithmetic, derived from ALLOC_TABLE at w=0 and w=1, 2.1% inflation)
-  equity : arithmetic mean 5.38 %, vol 12.31 %
-  bonds  : arithmetic mean 1.56 %, vol  5.27 %
-  60/40 portfolio (from ALLOCATIONS table): nominal 5.67 % → real geometric 3.50 %
+FORWARD-CMA ANCHORS (real arithmetic, from the stock/bond CMA in src/utils/allocations.ts, 2.1% inflation)
+  equity : arithmetic mean 4.86 %, vol 11.75 %
+  bonds  : arithmetic mean 1.76 %, vol  4.41 %
+  60/40 portfolio (from ALLOCATIONS table): nominal 5.50 % → real geometric 3.33 %
 
-KEY FINDINGS (default run: 60/40, 90% success, block=10y)
+KEY FINDINGS (default run: 60/40, 90% success, block=10y; stock/bond CMA anchors)
 ----------------------------------------------------------
                          20y     30y     40y     50y
   §A USA overlapping     5.39%   4.54%   4.08%   3.74%   ← US-exceptionalism reference
@@ -51,9 +51,9 @@ KEY FINDINGS (default run: 60/40, 90% success, block=10y)
   §C World block (10y)   5.00%   3.78%   3.22%   2.95%   ← tracks §B closely (cf. 8y blocks below)
   §D Pooled overlapping  3.41%   2.18%   1.59%   1.20%   ← single-country disaster risk
   §E Pooled block (10y)  3.91%   2.47%   1.94%   1.61%
-  §F World fwd-block     4.86%   3.56%   2.96%   2.61%
-  §G Pooled fwd-block    5.26%   3.86%   3.19%   2.80%   ← best empirical comparator for app
-  §H App iid parametric  5.26%   3.90%   3.23%   2.83%   ← web app ALLOCATIONS params
+  §F World fwd-block     4.94%   3.61%   2.99%   2.62%
+  §G Pooled fwd-block    5.29%   3.87%   3.20%   2.80%   ← best empirical comparator for app
+  §H App iid parametric  5.34%   3.94%   3.26%   2.85%   ← web app ALLOCATIONS params
 
   Key readings:
   * §B vs §C: 10y blocks now track the overlapping floor (unlike the old 8y study, where
@@ -62,7 +62,7 @@ KEY FINDINGS (default run: 60/40, 90% success, block=10y)
   * §D/§E: raw pooled overlapping/block gives catastrophically low SWRs (single-country
     disaster risk: Germany 1914–1943, Japan 1940s, etc.). Not directly applicable to a
     diversified investor, but sets the lower bound.
-  * §G vs §H: app iid (3.90% at 30y) is ~0.04pp ABOVE pooled fwd-block (3.86%). The web
+  * §G vs §H: app iid (3.94% at 30y) is ~0.07pp ABOVE pooled fwd-block (3.87%). The web
     app's iid assumption is very slightly optimistic vs forward-calibrated historical
     sequencing (≤ 0.07pp at every horizon). Equity mean reversion and bond persistence
     roughly offset in a 60/40, so RETURN_AUTOCORRELATION=0 is a reasonable default.
@@ -96,7 +96,7 @@ from analysis.shared.jst_history import (
     _split_segments,
     sample_indices,
 )
-from analysis.shared.returns import geometric_to_arithmetic
+from analysis.shared.returns import arithmetic_to_geometric, geometric_to_arithmetic
 
 # ───────────────────────── CONFIG ─────────────────────────
 EQUITY_WEIGHT = 0.60          # 60/40; bond weight = 1 − this
@@ -107,39 +107,40 @@ BLOCK_YEARS   = 10            # average block length (stationary bootstrap)
 SEED          = 12345
 INFLATION     = 0.021         # matches web app default inflationRate
 
-# Web app ALLOCATIONS table (presets.ts) — nominal geometric return (%) and
-# portfolio vol (%)
-# for each equity/bond mix. These are PWL Capital estimates for the full portfolio,
-# not simple per-asset linear blends; they include stock-bond correlation in the vol.
-# Keyed by equity percentage (0–100 in steps of 10).
-ALLOC_TABLE: dict[int, tuple[float, float]] = {
-    100: (6.87, 12.57),
-    90:  (6.59, 11.59),
-    80:  (6.29, 10.62),
-    70:  (5.99,  9.68),
-    60:  (5.67,  8.79),
-    50:  (5.35,  7.94),
-    40:  (5.01,  7.17),
-    30:  (4.66,  6.49),
-    20:  (4.30,  5.94),
-    10:  (3.93,  5.56),
-    0:   (3.55,  5.38),
-}
+# Capital-market assumptions behind the web app's portfolio presets (src/utils/allocations.ts):
+# nominal geometric return and volatility (%) per asset, and the stock-bond correlation.
+CMA_STOCK_RETURN, CMA_STOCK_VOL = 6.4, 12.0
+CMA_BOND_RETURN, CMA_BOND_VOL = 3.8, 4.5
+CMA_CORRELATION = 0.3
 
 
-def _real_arithmetic_from_alloc(eq_pct: int) -> tuple[float, float]:
-    nominal_geo_pct, nominal_vol_pct = ALLOC_TABLE[eq_pct]
-    nominal_arith = geometric_to_arithmetic(nominal_geo_pct / 100, nominal_vol_pct / 100)
-    return (
-        (1 + float(nominal_arith)) / (1 + INFLATION) - 1,
-        nominal_vol_pct / 100 / (1 + INFLATION),
+def blend_allocation(eq_w: float) -> tuple[float, float]:
+    """Nominal geometric return and volatility (%) of a yearly rebalanced stock/bond mix.
+    Mirrors blendAllocation() in src/utils/allocations.ts, including 2-decimal rounding."""
+    s_vol, b_vol = CMA_STOCK_VOL / 100, CMA_BOND_VOL / 100
+    arith = (
+        eq_w * float(geometric_to_arithmetic(CMA_STOCK_RETURN / 100, s_vol))
+        + (1 - eq_w) * float(geometric_to_arithmetic(CMA_BOND_RETURN / 100, b_vol))
     )
+    vol = float(np.sqrt(
+        (eq_w * s_vol) ** 2
+        + ((1 - eq_w) * b_vol) ** 2
+        + 2 * CMA_CORRELATION * eq_w * (1 - eq_w) * s_vol * b_vol
+    ))
+    geo = float(arithmetic_to_geometric(arith, vol))
+    return round(geo * 100, 2), round(vol * 100, 2)
 
 
-# Forward-CMA per-asset anchors (real arithmetic mean and vol, decimal), derived
-# from the nominal geometric PWL Capital rows at w=1.0 and w=0.0.
-FWD_EQ_MEAN, FWD_EQ_VOL = _real_arithmetic_from_alloc(100)
-FWD_BD_MEAN, FWD_BD_VOL = _real_arithmetic_from_alloc(0)
+def _real_arithmetic(geo_pct: float, vol_pct: float) -> tuple[float, float]:
+    """Real arithmetic mean and vol (decimal) from a nominal geometric return and vol (%)."""
+    nominal_arith = float(geometric_to_arithmetic(geo_pct / 100, vol_pct / 100))
+    return (1 + nominal_arith) / (1 + INFLATION) - 1, vol_pct / 100 / (1 + INFLATION)
+
+
+# Forward-CMA per-asset anchors (real arithmetic mean and vol, decimal) from the stock and
+# bond CMA above.
+FWD_EQ_MEAN, FWD_EQ_VOL = _real_arithmetic(CMA_STOCK_RETURN, CMA_STOCK_VOL)
+FWD_BD_MEAN, FWD_BD_VOL = _real_arithmetic(CMA_BOND_RETURN, CMA_BOND_VOL)
 # ──────────────────────────────────────────────────────────
 
 
@@ -279,10 +280,10 @@ def main() -> None:
     p_port  = _portfolio(pooled_h, eq_w)
     u_port  = eq_w * usa_h.equity + (1 - eq_w) * usa_h.fixed_income
 
-    # App's iid parametric parameters — taken from the ALLOCATIONS table (presets.ts),
+    # App's iid parametric parameters — taken from the web app's allocation blend
     # matching exactly what safeWithdrawalRate uses in the web app.
     eq_pct = int(round(eq_w * 100))
-    alloc_nom_pct, alloc_vol_pct = ALLOC_TABLE[eq_pct]
+    alloc_nom_pct, alloc_vol_pct = blend_allocation(eq_w)
     app_nominal_arith = float(
         geometric_to_arithmetic(alloc_nom_pct / 100, alloc_vol_pct / 100)
     )

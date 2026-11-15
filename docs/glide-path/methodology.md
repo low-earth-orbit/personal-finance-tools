@@ -2,7 +2,7 @@
 
 Research note for the Lifetime Allocation Optimizer (`/glide-path`). The question: **what equity weight should a household hold at each age, before and after retirement?**
 
-It assumes you know personal-finance basics (asset allocation, safe withdrawal rates, real versus nominal returns), not the statistics behind the tool. Terms are defined in [Key terms](#key-terms). The [`retirement` SWR methodology](../retirement/swr-methodology.md) is a companion note with the same return assumptions and historical data.
+It assumes you know personal-finance basics (asset allocation, safe withdrawal rates, real versus nominal returns), not the statistics behind the tool. Terms are defined in [Key terms](#key-terms).
 
 **How the answer is found.** A Monte Carlo optimizer tries equity weights age by age and keeps those that maximize the expected utility of retirement consumption. No rule of thumb such as "100 minus your age" is assumed. Results are reported under two return models:
 
@@ -211,7 +211,7 @@ Three independent sets of simulated paths keep the comparison honest: the glide 
 
 ### 2a. Safe-withdrawal-rate check
 
-First, the familiar SWR framing: retirement only, constant dollar, the highest initial withdrawal rate with 90% success. Columns give that SWR for the best constant weight (in brackets), for 100% equity, and for a retirement glide rising from 60% to 100%. The [SWR note](../retirement/swr-methodology.md) covers SWRs in depth.
+First, the familiar SWR framing: retirement only, constant dollar, the highest initial withdrawal rate with 90% success. Columns give that SWR for the best constant weight (in brackets), for 100% equity, and for a retirement glide rising from 60% to 100%.
 
 | Horizon | Best constant (w\*) | 100% equity | Rising 60→100 |
 | ------- | ------------------- | ----------- | ------------- |
@@ -686,4 +686,3 @@ Historical modes download JST R6 to the gitignored `analysis/.data/` on first us
 - Politis & Romano (1994) — "The Stationary Bootstrap", _JASA_ 89(428).
 - FP Canada / IQPF — Projection Assumption Guidelines (geometric returns; conversion for Monte Carlo).
 - PWL Capital — Financial Planning Assumptions.
-- [`retirement` SWR methodology](../retirement/swr-methodology.md) — shared return assumptions and the JST withdrawal-rate cross-check.
