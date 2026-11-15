@@ -1,7 +1,7 @@
 import { realArithmeticFromNominalGeometric } from "@/utils/returns";
 import { fillNormals } from "@/utils/rng";
-import { HISTORICAL_VR, SWR_HORIZONS, SWR_PATHS } from "./presets";
-import type { DynamicsMode, SwrAllocation, SwrInput, SwrResult } from "./types";
+import { SWR_HORIZONS, SWR_PATHS } from "./presets";
+import type { SwrAllocation, SwrInput, SwrResult } from "./types";
 
 const VR_LAG = 10;
 const PHI_LIMIT = 0.95;
@@ -47,16 +47,6 @@ export function innovationCorrelation(
   return { value, clamped: Math.abs(raw) > MAX_INNOVATION_CORRELATION };
 }
 
-/** Variance ratios for a dynamics mode. */
-export function resolveVr(
-  input: Pick<SwrInput, "stockVr" | "bondVr">,
-  mode: DynamicsMode,
-): { stockVr: number; bondVr: number } {
-  if (mode === "historical") return { ...HISTORICAL_VR };
-  if (mode === "custom") return { stockVr: input.stockVr, bondVr: input.bondVr };
-  return { stockVr: 1, bondVr: 1 };
-}
-
 export interface AssetPaths {
   /** Real stock returns, indexed [path * years + t]. */
   stock: Float64Array;
@@ -78,7 +68,6 @@ export interface AssetPaths {
  */
 export function generateAssetPaths(
   input: SwrInput,
-  mode: DynamicsMode,
   paths: number = SWR_PATHS,
   years: number = YEARS,
 ): AssetPaths {
@@ -92,9 +81,8 @@ export function generateAssetPaths(
     input.bondVol,
     input.inflationRate,
   );
-  const { stockVr, bondVr } = resolveVr(input, mode);
-  const phiStock = phiFromVr(stockVr);
-  const phiBond = phiFromVr(bondVr);
+  const phiStock = phiFromVr(input.stockVr);
+  const phiBond = phiFromVr(input.bondVr);
   const rho = input.correlation;
   const { value: rhoEps, clamped } = innovationCorrelation(rho, phiStock, phiBond);
 
@@ -195,12 +183,8 @@ export function swrFromPaths(
 }
 
 /** The full table for the current inputs; deterministic for identical inputs. */
-export function computeSwrTable(
-  input: SwrInput,
-  mode: DynamicsMode,
-  options: { paths?: number } = {},
-): SwrResult {
-  const assets = generateAssetPaths(input, mode, options.paths ?? SWR_PATHS);
+export function computeSwrTable(input: SwrInput, options: { paths?: number } = {}): SwrResult {
+  const assets = generateAssetPaths(input, options.paths ?? SWR_PATHS);
   return {
     horizons: SWR_HORIZONS,
     allocations: SWR_ALLOCATIONS,

@@ -43,7 +43,7 @@ describe("innovation correlation", () => {
     expect(clamped).toBe(false);
   });
 
-  it("matches the historical figure", () => {
+  it("matches the history-calibrated figure", () => {
     expect(innovationCorrelation(0.48, phiFromVr(0.91), phiFromVr(2.66)).value).toBeCloseTo(
       0.574,
       2,
@@ -59,71 +59,65 @@ describe("innovation correlation", () => {
 });
 
 describe("computeSwrTable", () => {
-  const iid = computeSwrTable(input, "independent");
+  const table = computeSwrTable(input);
+  const iid = computeSwrTable({ ...input, stockVr: 1, bondVr: 1 });
 
   it("has 11 allocations x 7 horizons", () => {
-    expect(iid.rates).toHaveLength(11);
-    expect(iid.rates.every((r) => r.length === SWR_HORIZONS.length)).toBe(true);
-    expect(iid.allocations[0].label).toBe("100/0");
-    expect(iid.allocations[10].label).toBe("0/100");
+    expect(table.rates).toHaveLength(11);
+    expect(table.rates.every((r) => r.length === SWR_HORIZONS.length)).toBe(true);
+    expect(table.allocations[0].label).toBe("100/0");
+    expect(table.allocations[10].label).toBe("0/100");
   });
 
-  it("reproduces the documented 60/40 rates at the defaults (iid)", () => {
-    expect(Math.abs(rate(iid, "60/40", 20) - 5.28)).toBeLessThan(0.1);
-    expect(Math.abs(rate(iid, "60/40", 30) - 3.87)).toBeLessThan(0.1);
-    expect(Math.abs(rate(iid, "60/40", 50) - 2.83)).toBeLessThan(0.1);
-    expect(Math.abs(rate(iid, "100/0", 30) - 3.88)).toBeLessThan(0.1);
-    expect(Math.abs(rate(iid, "0/100", 30) - 3.31)).toBeLessThan(0.1);
+  it("reproduces the documented rates at the defaults", () => {
+    expect(table.phiStock).toBeLessThan(0);
+    expect(table.phiBond).toBeGreaterThan(0);
+    expect(Math.abs(rate(table, "60/40", 20) - 5.36)).toBeLessThan(0.1);
+    expect(Math.abs(rate(table, "60/40", 30) - 3.95)).toBeLessThan(0.1);
+    expect(Math.abs(rate(table, "60/40", 50) - 2.9)).toBeLessThan(0.1);
+    expect(Math.abs(rate(table, "100/0", 30) - 3.85)).toBeLessThan(0.1);
+    expect(Math.abs(rate(table, "0/100", 30) - 3.41)).toBeLessThan(0.1);
   });
 
-  it("lowers the bond-heavy rows under historical dynamics", () => {
-    const hist = computeSwrTable(input, "historical");
-    expect(hist.phiBond).toBeCloseTo(0.51, 2);
-    expect(Math.abs(rate(hist, "60/40", 30) - 3.73)).toBeLessThan(0.1);
-    expect(Math.abs(rate(hist, "0/100", 30) - 2.84)).toBeLessThan(0.1);
-    expect(rate(hist, "0/100", 30)).toBeLessThan(rate(iid, "0/100", 30));
-  });
-
-  it("uses the custom VR inputs only in custom mode", () => {
-    const custom = { ...input, stockVr: 0.91, bondVr: 2.66 };
-    expect(computeSwrTable(custom, "independent").rates).toEqual(iid.rates);
-    expect(computeSwrTable(custom, "custom").rates).toEqual(
-      computeSwrTable(input, "historical").rates,
-    );
+  it("uses the VR inputs: bond persistence lowers the bond-heavy rows", () => {
+    expect(iid.phiStock).toBe(0);
+    expect(iid.phiBond).toBe(0);
+    expect(rate(table, "0/100", 30)).toBeLessThan(rate(iid, "0/100", 30));
   });
 
   it("falls as the horizon lengthens", () => {
-    for (const r of iid.rates) {
+    for (const r of table.rates) {
       for (let i = 1; i < r.length; i++) expect(r[i]).toBeLessThanOrEqual(r[i - 1]);
     }
   });
 
   it("falls as the success rate rises", () => {
-    const strict = computeSwrTable({ ...input, successRate: 99 }, "independent");
-    const loose = computeSwrTable({ ...input, successRate: 80 }, "independent");
-    expect(rate(strict, "60/40", 30)).toBeLessThan(rate(iid, "60/40", 30));
-    expect(rate(iid, "60/40", 30)).toBeLessThan(rate(loose, "60/40", 30));
+    const strict = computeSwrTable({ ...input, successRate: 99 });
+    const loose = computeSwrTable({ ...input, successRate: 80 });
+    expect(rate(strict, "60/40", 30)).toBeLessThan(rate(table, "60/40", 30));
+    expect(rate(table, "60/40", 30)).toBeLessThan(rate(loose, "60/40", 30));
   });
 
   it("is identical for identical inputs", () => {
-    expect(computeSwrTable(input, "independent").rates).toEqual(iid.rates);
+    expect(computeSwrTable(input).rates).toEqual(table.rates);
   });
 
   it("flags a clamped correlation", () => {
     const result = computeSwrTable(
       { ...input, correlation: 0.9, stockVr: 0.5, bondVr: 3 },
-      "custom",
-      { paths: 200 },
+      {
+        paths: 200,
+      },
     );
     expect(result.correlationClamped).toBe(true);
-    expect(iid.correlationClamped).toBe(false);
+    expect(table.correlationClamped).toBe(false);
   });
 
   it("matches a brute-force bisection simulation for one cell", () => {
     const paths = 2000;
     const years = 30;
     const successRate = input.successRate / 100;
-    const assets = generateAssetPaths(input, "historical", paths, years);
+    const assets = generateAssetPaths(input, paths, years);
     const equity = 0.6;
 
     function successShare(w: number): number {
