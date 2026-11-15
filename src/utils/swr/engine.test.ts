@@ -72,11 +72,11 @@ describe("computeSwrTable", () => {
   it("reproduces the documented rates at the defaults", () => {
     expect(table.phiStock).toBeLessThan(0);
     expect(table.phiBond).toBeGreaterThan(0);
-    expect(Math.abs(rate(table, "60/40", 20) - 5.36)).toBeLessThan(0.1);
-    expect(Math.abs(rate(table, "60/40", 30) - 3.95)).toBeLessThan(0.1);
-    expect(Math.abs(rate(table, "60/40", 50) - 2.9)).toBeLessThan(0.1);
+    expect(Math.abs(rate(table, "60/40", 20) - 5.31)).toBeLessThan(0.1);
+    expect(Math.abs(rate(table, "60/40", 30) - 3.92)).toBeLessThan(0.1);
+    expect(Math.abs(rate(table, "60/40", 50) - 2.86)).toBeLessThan(0.1);
     expect(Math.abs(rate(table, "100/0", 30) - 3.85)).toBeLessThan(0.1);
-    expect(Math.abs(rate(table, "0/100", 30) - 3.41)).toBeLessThan(0.1);
+    expect(Math.abs(rate(table, "0/100", 30) - 3.24)).toBeLessThan(0.1);
   });
 
   it("uses the VR inputs: bond persistence lowers the bond-heavy rows", () => {

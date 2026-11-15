@@ -1,5 +1,6 @@
 import { Anchor, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import ToolNotes from "@/components/shared/ToolNotes";
+import { CMA } from "@/utils/allocations";
 import type { ReactNode } from "react";
 
 function Point({ heading, children }: { heading: string; children: ReactNode }) {
@@ -75,14 +76,16 @@ export default function Methodology() {
               improves. No shape (flat, rising, falling) is assumed.
             </Text>
             <Text size="sm" c="dimmed">
-              By default each year’s return is an independent draw from our PWL / FP Canada
-              capital-market assumptions, in real (today’s) dollars. Those assumptions are{" "}
-              <Strong>compound (geometric)</Strong> returns, so the simulation converts each one to
-              the matching average annual return; otherwise volatility drag would make every mix
-              compound below its stated rate. The Historical sequences option instead replays stock
-              and bond sequences from the JST Macrohistory cross-country panel, rescaled to the same
-              assumptions and block-bootstrapped. That keeps history’s multi-year patterns: crashes
-              followed by recoveries, and inflation decades.
+              By default each year’s return is an independent draw from our capital-market
+              assumptions (stocks {CMA.stockReturn}% with {CMA.stockVol}% volatility, bonds{" "}
+              {CMA.bondReturn}% with {CMA.bondVol}%, correlation {CMA.correlation}), in real
+              (today’s) dollars. Those assumptions are <Strong>compound (geometric)</Strong>{" "}
+              returns, so the simulation converts each one to the matching average annual return;
+              otherwise volatility drag would make every mix compound below its stated rate. The
+              Historical sequences option instead replays stock and bond sequences from the JST
+              Macrohistory cross-country panel, rescaled to the same assumptions and
+              block-bootstrapped. That keeps history’s multi-year patterns: crashes followed by
+              recoveries, and inflation decades.
             </Text>
 
             <Title order={3} fz="md">
@@ -113,22 +116,22 @@ export default function Methodology() {
               With independent returns, constant-dollar spending derisks into a moderate “bond tent”
               near retirement. With historical sequences, where equities partly recover while long
               nominal bonds suffer bad decades, the optimum is about 100% equity. The two can
-              disagree by 30 percentage points, so compare both settings of the return model.
+              disagree by 50 percentage points, so compare both settings of the return model.
             </Point>
             <Point heading="About 100% equity is a scenario, not the default.">
               That result leans on pre-1990 monetary regimes, surviving developed markets, and long
               nominal bonds being the only alternative. With a real, short-duration holding (such as
-              a short inflation-linked bond fund) the optimum drops to roughly 50–70% equity in our
+              a short inflation-linked bond fund) the optimum drops to roughly 45–70% equity in our
               tests.
             </Point>
             <Point heading="The shape is worth little; the level matters.">
               Out of sample, the optimized glide path beats the best constant weight by only about
-              0.5% of CE income with independent returns, and by essentially nothing with historical
+              1% of CE income with independent returns, and by essentially nothing with historical
               sequences.
             </Point>
             <Point heading="A wrong guess about the regime costs little.">
-              Any constant weight from 70% to 100% equity cost at most about 2% of CE income in
-              every historical era we tested.
+              Any constant weight from 70% to 90% equity cost at most about 2% of CE income in every
+              regime we tested.
             </Point>
             <Point heading="How well funded you are sets the tent.">
               The more your savings exceed what the spending target needs, the less upside you can
@@ -148,7 +151,7 @@ export default function Methodology() {
               With none, rare depleted years dominate the score, so the tool requires at least
               $10,000 a year. If it covers your whole target and spending is fixed, no allocation is
               better than another and the tool asks you to adjust the inputs. Starting it after you
-              retire lowers income: retiring at 60 with CPP/OAS from 65 cost about 6% in our
+              retire lowers income: retiring at 60 with CPP/OAS from 65 cost about 7% in our
               example.
             </Point>
             <Point heading="Leverage earns little.">

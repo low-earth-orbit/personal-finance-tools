@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { sampleBlockIndices, sampleBlockPaths } from "./blockBootstrap";
 import { JST_BOND, JST_EQUITY, JST_OBSERVATIONS, JST_SEG_LEN, JST_SEG_START } from "./jstData";
+import { DEFAULTS, DEFAULT_ALLOC_CURVE } from "./presets";
+import { realArithmeticFromNominalGeometric } from "@/utils/returns";
 
 const N_YEARS = 60;
 const N_PATHS = 400;
@@ -73,9 +75,13 @@ describe("JST bundle", () => {
       return { mean, vol: Math.sqrt(variance) };
     };
     // Real arithmetic mean / vol of the default curve's 100% and 0% equity endpoints.
-    expect(moments(JST_EQUITY).mean).toBeCloseTo(0.0538, 3);
-    expect(moments(JST_EQUITY).vol).toBeCloseTo(0.1231, 3);
-    expect(moments(JST_BOND).mean).toBeCloseTo(0.0156, 3);
-    expect(moments(JST_BOND).vol).toBeCloseTo(0.0527, 3);
+    const [, eqReturn, eqVol] = DEFAULT_ALLOC_CURVE[0];
+    const [, bondReturn, bondVol] = DEFAULT_ALLOC_CURVE[DEFAULT_ALLOC_CURVE.length - 1];
+    const eq = realArithmeticFromNominalGeometric(eqReturn, eqVol, DEFAULTS.inflation);
+    const bond = realArithmeticFromNominalGeometric(bondReturn, bondVol, DEFAULTS.inflation);
+    expect(moments(JST_EQUITY).mean).toBeCloseTo(eq.mean, 3);
+    expect(moments(JST_EQUITY).vol).toBeCloseTo(eq.vol, 3);
+    expect(moments(JST_BOND).mean).toBeCloseTo(bond.mean, 3);
+    expect(moments(JST_BOND).vol).toBeCloseTo(bond.vol, 3);
   });
 });

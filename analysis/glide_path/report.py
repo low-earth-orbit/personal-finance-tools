@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 
-from analysis.glide_path.markets import PWL_CURVE
+from analysis.glide_path.markets import CMA_CURVE
 
 
 # ── plotting ──────────────────────────────────────────────────────────────────
@@ -114,11 +114,11 @@ def run_demo(out_dir, return_mode="iid-mc"):
     def one(flex, **kw):
         from analysis.glide_path.recommender import recommend_glide_path
 
-        return recommend_glide_path(flexibility=flex, alloc_curve=PWL_CURVE,
+        return recommend_glide_path(flexibility=flex, alloc_curve=CMA_CURVE,
                                     start_age=AGE, interval=INTERVAL,
                                     return_mode=return_mode, **kw)
 
-    print(f"Demo mode — PWL curve, start age {AGE}, {INTERVAL}y steps, {return_mode}\n")
+    print(f"Demo mode — CMA curve, start age {AGE}, {INTERVAL}y steps, {return_mode}\n")
     figs = []
     for slug, flex, label in SPENDING:
         for lslug, ltitle, kwarg, fmt, values in SWEEPS:

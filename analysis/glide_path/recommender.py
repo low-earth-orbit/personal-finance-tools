@@ -137,7 +137,7 @@ if __package__ in (None, ""):
 
 from analysis.glide_path.markets import (  # noqa: E402  (after the sys.path fix above)
     DATASETS,
-    PWL_CURVE,
+    CMA_CURVE,
     RETURN_MODES,
     build_market,
 )
@@ -149,7 +149,7 @@ from analysis.glide_path.simulate import (  # noqa: E402
     tie_middle_argmax,
 )
 
-__all__ = ["DATASETS", "PWL_CURVE", "RETURN_MODES", "TENT_WINDOW", "BlockLayout",
+__all__ = ["DATASETS", "CMA_CURVE", "RETURN_MODES", "TENT_WINDOW", "BlockLayout",
            "describe_shape", "evaluate_path", "optimize_blocks", "recommend_glide_path"]
 
 SELECT_SEED_OFFSET = 4242  # flat-comparator selection sample (also evaluate_path's sample)
@@ -293,7 +293,7 @@ def recommend_glide_path(
     retire_years: int = 30,
     flexibility: float = 0,
     guaranteed_income: float = 20_000.0,
-    alloc_curve: Sequence[tuple] = PWL_CURVE,
+    alloc_curve: Sequence[tuple] = CMA_CURVE,
     interval: int = 5,
     *,
     # capital-market inputs
@@ -482,7 +482,7 @@ def evaluate_path(
     retire_years: int = 30,
     flexibility: float = 0,
     guaranteed_income: float = 20_000.0,
-    alloc_curve: Sequence[tuple] = PWL_CURVE,
+    alloc_curve: Sequence[tuple] = CMA_CURVE,
     *,
     inflation: float = 2.1,
     returns_in_percent: bool = True,

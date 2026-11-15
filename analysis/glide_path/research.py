@@ -33,13 +33,13 @@ Two well-known studies answer this from realized history:
     retirement (e.g. 60%->100%) adds ~0.1-0.3pp to the SWR, but only when CAPE > 20.
 Both lean on properties of realized sequences (mean reversion, valuation signals,
 US-exceptional equity returns). This script instead asks what falls out of *our* forward
-Canadian capital-market assumptions (PWL / FP Canada — the /retirement tool's numbers) under
+capital-market assumptions (stocks 6.4% / 12%, bonds 3.8% / 5.5%, correlation 0.3 — the tools' shared numbers) under
 a plain iid Monte Carlo with NO valuation signal and NO mean reversion. That isolates how
 much of each study's conclusion is an artifact of historical sequencing vs a robust result.
 
 MODEL (real, today's dollars)
 -----------------------------
-  * Returns: the app's nominal-geometric allocation curve (presets.ts), converted to matching
+  * Returns: the app's nominal-geometric allocation curve (allocations.ts), converted to matching
     arithmetic means before inflation deflation and interpolated to any equity weight w. Draws
     are iid normal around those real arithmetic means (matching monteCarlo.ts: mid-year cash flow
     earns half a year, depleted portfolio absorbs at 0).
@@ -77,7 +77,7 @@ import matplotlib.pyplot as plt
 
 from analysis.shared.returns import arithmetic_to_geometric
 
-from .markets import PWL_CURVE, IidMarket, build_alloc
+from .markets import CMA_CURVE, IidMarket, build_alloc
 from .recommender import TENT_WINDOW, BlockLayout, describe_shape, optimize_blocks
 from .simulate import Lifecycle, path_outcomes
 
@@ -85,7 +85,7 @@ from .simulate import Lifecycle, path_outcomes
 INFLATION = 2.1  # %, to deflate nominal CMAs to real
 
 # (equity_weight, nominal_geometric_return_%, volatility_%) — mirrors presets.ts ALLOCATIONS.
-ALLOC_ANCHORS = PWL_CURVE
+ALLOC_ANCHORS = CMA_CURVE
 
 # Household (broadly the /retirement DEFAULTS), real dollars.
 START_AGE = 35

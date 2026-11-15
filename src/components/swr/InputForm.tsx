@@ -135,8 +135,7 @@ export default function InputForm({ input, errors, onChange, onReset }: InputFor
               </Button.Group>
               {input.successRate < 90 && (
                 <Warning>
-                  Below 90% leans optimistic — it accepts more sequence-of-returns risk. Many
-                  planners use 90% or higher.
+                  Below 90% leans optimistic — it accepts more sequence-of-returns risk.
                 </Warning>
               )}
             </Stack>

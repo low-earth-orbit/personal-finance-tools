@@ -6,7 +6,7 @@ Python engine and research scripts for the Lifetime Allocation Optimizer (`/glid
 
 | Module | Role |
 | --- | --- |
-| `markets.py` | Capital-market curve (nominal geometric → real arithmetic), `IidMarket`, `HistoricalMarket`, `build_market` |
+| `markets.py` | Capital-market curve (the shared stock/bond CMA in `analysis/shared/cma.py`; nominal geometric → real arithmetic), `IidMarket`, `HistoricalMarket`, `build_market` |
 | `simulate.py` | `Lifecycle` inputs (incl. guaranteed-income delay and bequest weight), cash-flow rules, CRRA utility, `expected_utility`, `path_outcomes`, `drawdown_outcomes`, `tie_middle_argmax` |
 | `recommender.py` | Public API: `recommend_glide_path`, `evaluate_path`; `optimize_blocks` (coordinate ascent); over-funded flag |
 | `report.py` | `format_summary`, `plot_glide_path`, `run_demo` |

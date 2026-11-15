@@ -15,7 +15,7 @@ import pandas as pd
 
 from analysis.glide_path.interactive import _ask_choice, collect_argv, format_reproduction_command
 from analysis.glide_path.markets import (
-    PWL_CURVE,
+    CMA_CURVE,
     HistoricalMarket,
     IidMarket,
     build_alloc,
@@ -160,9 +160,9 @@ class GlidePathMarketTests(unittest.TestCase):
         )
 
     def test_iid_compound_growth_matches_geometric_curve_means(self):
-        market = IidMarket(build_alloc(PWL_CURVE, 2.1, True))
+        market = IidMarket(build_alloc(CMA_CURVE, 2.1, True))
         sample = market.sample(500, 5_000, seed=17)
-        for weight, expected in ((1.0, 0.0467), (0.0, 0.0142)):
+        for weight, expected in ((1.0, 1.064 / 1.021 - 1), (0.0, 1.038 / 1.021 - 1)):
             growth = np.expm1(
                 np.mean(
                     np.log1p(
@@ -351,12 +351,12 @@ class GlidePathMarketTests(unittest.TestCase):
     def test_market_validation_and_metadata(self):
         history = synthetic_history()
         with self.assertRaisesRegex(ValueError, "return_mode"):
-            build_market("other", PWL_CURVE, 2.1, True, 2.0, 8, history)
+            build_market("other", CMA_CURVE, 2.1, True, 2.0, 8, history)
         with self.assertRaisesRegex(ValueError, "block_years"):
-            build_market("historical-block", PWL_CURVE, 2.1, True, 2.0, 0, history)
+            build_market("historical-block", CMA_CURVE, 2.1, True, 2.0, 0, history)
 
         market = build_market(
-            "historical-block", PWL_CURVE, 2.1, True, 2.0, 3, history
+            "historical-block", CMA_CURVE, 2.1, True, 2.0, 3, history
         )
         self.assertEqual(market.metadata["return_mode"], "historical-block")
         self.assertEqual(market.metadata["history_start_year"], 2000)
@@ -367,14 +367,14 @@ class GlidePathMarketTests(unittest.TestCase):
 
     def test_forward_block_rescales_marginals_and_samples_as_block(self):
         history = synthetic_history()
-        market = build_market("forward-block", PWL_CURVE, 2.1, True, 2.0, 5, history)
+        market = build_market("forward-block", CMA_CURVE, 2.1, True, 2.0, 5, history)
         # Reports forward-block but samples with stationary-circular blocks.
         self.assertEqual(market.mode, "historical-block")
         self.assertEqual(market.metadata["return_mode"], "forward-block")
         self.assertEqual(market.metadata["block_method"], "stationary-circular")
         self.assertEqual(market.metadata["block_years"], 5)
         # Marginals are rescaled to exactly the iid-mc curve anchors.
-        eq_mean, eq_vol, bond_mean, bond_vol = forward_anchors(PWL_CURVE, 2.1, True)
+        eq_mean, eq_vol, bond_mean, bond_vol = forward_anchors(CMA_CURVE, 2.1, True)
         self.assertAlmostEqual(market.history.equity.mean(), eq_mean)
         self.assertAlmostEqual(market.history.equity.std(), eq_vol)
         self.assertAlmostEqual(market.history.fixed_income.mean(), bond_mean)
@@ -387,7 +387,7 @@ class GlidePathMarketTests(unittest.TestCase):
             return_value=history,
         ) as loader:
             market = build_market(
-                "historical-block", PWL_CURVE, 2.1, True, 2.0, 5,
+                "historical-block", CMA_CURVE, 2.1, True, 2.0, 5,
                 dataset="pooled",
                 exclude_countries=["Germany"],
                 exclude_years=[(1914, 1923)],
@@ -400,13 +400,13 @@ class GlidePathMarketTests(unittest.TestCase):
 
     def test_iid_rejects_exclusions(self):
         with self.assertRaisesRegex(ValueError, "dataset/exclusions apply only"):
-            build_market("iid-mc", PWL_CURVE, 2.1, True, 2.0, 5,
+            build_market("iid-mc", CMA_CURVE, 2.1, True, 2.0, 5,
                           exclude_countries=["Germany"])
 
     def test_world_dataset_rejects_exclusions(self):
         with self.assertRaisesRegex(ValueError, "exclusions require dataset='pooled'"):
             build_market(
-                "historical-block", PWL_CURVE, 2.1, True, 2.0, 5,
+                "historical-block", CMA_CURVE, 2.1, True, 2.0, 5,
                 dataset="world", exclude_countries=["Germany"],
             )
 

@@ -31,22 +31,22 @@ The `√(1−φ²)` factor keeps the one-year volatility at `σ`. The first devi
 
 ## 4. Defaults
 
-The default inputs are stocks 6.4% / 12%, bonds 3.8% / 4.5%, ρ = 0.3, inflation 2.1%, 90% success, all nominal compound returns, VR(10) 0.9 / 1.5. That gives 60/40 about 4.0% over 30 years and 2.9% over 50. Setting both VRs to 1 (independent years) gives 3.9% for 60/40 over 30 years; bond persistence mainly lowers the bond-heavy rows (0/100 over 30 years: 3.6% independent, 3.4% at the defaults).
+The default inputs are stocks 6.4% / 12%, bonds 3.8% / 5.5%, ρ = 0.3, inflation 2.1%, 90% success, all nominal compound returns, VR(10) 0.9 / 1.5. That gives 60/40 about 3.9% over 30 years and 2.9% over 50. Setting both VRs to 1 (independent years) gives 3.9% for 60/40 over 30 years; bond persistence mainly lowers the bond-heavy rows (0/100 over 30 years: 3.4% independent, 3.2% at the defaults).
 
 ## 5. Check against the block bootstrap
 
-The AR(1) model was compared with a pooled forward-block bootstrap of the JST history (16 countries, 10-year stationary blocks, 20,000 paths; the method of the retirement methodology, §G). Each asset's history was affine-rescaled to this tool's defaults (stocks 6.4% / 12%, bonds 3.8% / 4.5%, 2.1% inflation), so only the sequencing is historical. The pooled history has a stock-bond correlation of 0.29 (the ρ = 0.3 default) and VR(10) of 0.91 for stocks and 2.66 for bonds. The AR(1) figures use ρ = 0.3, 100,000 paths and 90% success. Rows are stock/bond mixes; each cell is 30 years / 50 years.
+The AR(1) model was compared with a pooled forward-block bootstrap of the JST history (16 countries, 10-year stationary blocks, 20,000 paths; the method of the retirement methodology, §G). Each asset's history was affine-rescaled to this tool's defaults (stocks 6.4% / 12%, bonds 3.8% / 5.5%, 2.1% inflation), so only the sequencing is historical. The pooled history has a stock-bond correlation of 0.29 (the ρ = 0.3 default) and VR(10) of 0.91 for stocks and 2.66 for bonds. The AR(1) figures use ρ = 0.3, 100,000 paths and 90% success. Rows are stock/bond mixes; each cell is 30 years / 50 years.
 
 | Model                              | 100/0       | 60/40       | 0/100       |
 | ---------------------------------- | ----------- | ----------- | ----------- |
-| Block bootstrap (pooled)           | 3.96 / 3.01 | 3.87 / 2.83 | 3.28 / 2.11 |
-| AR(1), historical VR (0.91 / 2.66) | 3.83 / 2.87 | 3.86 / 2.81 | 3.14 / 2.01 |
-| AR(1), tool defaults (0.9 / 1.5)   | 3.84 / 2.88 | 3.95 / 2.89 | 3.41 / 2.24 |
-| AR(1), independent years (1 / 1)   | 3.74 / 2.79 | 3.92 / 2.87 | 3.56 / 2.37 |
+| Block bootstrap (pooled)           | 3.96 / 2.98 | 3.79 / 2.73 | 3.10 / 1.92 |
+| AR(1), historical VR (0.91 / 2.66) | 3.83 / 2.87 | 3.79 / 2.75 | 2.93 / 1.83 |
+| AR(1), tool defaults (0.9 / 1.5)   | 3.84 / 2.88 | 3.91 / 2.85 | 3.24 / 2.10 |
+| AR(1), independent years (1 / 1)   | 3.74 / 2.79 | 3.90 / 2.85 | 3.42 / 2.25 |
 
-- **With the historical ratios, 60/40 matches the bootstrap** to within 0.02 points at 20, 30, 40 and 50 years (30 years: 3.86% against 3.87%). The two effects in the retirement note, equity mean reversion helping and bond persistence hurting, are captured well enough in a balanced mix.
-- **The all-stock and all-bond rows come out lower than the bootstrap**, by 0.1–0.2 points (30 years: 100/0 by 0.13, 0/100 by 0.14). The 100/0 gap involves no stock-bond interaction, so joint stock and bond dynamics are not the explanation. What a normal AR(1) leaves out (fat tails, skew, memory beyond one year) is a likely cause, but it was not tested.
-- **The defaults are milder than history on bonds.** A bond VR of 1.5 instead of 2.66 raises the bond-heavy rows above the bootstrap (0/100 at 30 years: 3.41% against 3.28%) and puts 60/40 about 0.1 points above it (3.95% against 3.87%). Moving the bond VR toward 2.66 closes that gap.
-- **The equal-weight world series is harsher than the pooled one.** Its bond VR(10) is about 3.7, and 60/40 gives 3.59% over 30 years on the same rescaled inputs, so pooled sequencing is the more generous comparator.
+- **With the historical ratios, 60/40 matches the bootstrap** to within 0.02 points at 20, 30, 40 and 50 years (30 years: 3.79% against 3.79%). The two effects in the retirement note, equity mean reversion helping and bond persistence hurting, are captured well enough in a balanced mix.
+- **The all-stock and all-bond rows come out lower than the bootstrap**, by 0.1–0.2 points (30 years: 100/0 by 0.13, 0/100 by 0.17). The 100/0 gap involves no stock-bond interaction, so joint stock and bond dynamics are not the explanation. What a normal AR(1) leaves out (fat tails, skew, memory beyond one year) is a likely cause, but it was not tested.
+- **The defaults are milder than history on bonds.** A bond VR of 1.5 instead of 2.66 raises the bond-heavy rows above the bootstrap (0/100 at 30 years: 3.24% against 3.10%) and puts 60/40 about 0.1 points above it (3.91% against 3.79%). Moving the bond VR toward 2.66 closes that gap.
+- **The equal-weight world series is harsher than the pooled one.** Its bond VR(10) is about 3.7, and 60/40 gives 3.51% over 30 years on the same rescaled inputs, so pooled sequencing is the more generous comparator.
 
 The figures come from a one-off comparison script that is not committed. It reuses the loaders and `rescale_to_targets` in `analysis/shared/jst_history.py` and the block sampler in `analysis/retirement/jst_swr_bootstrap.py`; differences under about 0.05 points are within sampling noise.
