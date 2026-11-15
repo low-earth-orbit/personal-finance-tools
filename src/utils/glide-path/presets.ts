@@ -42,7 +42,7 @@ export const DEFAULTS = {
   retirementAge: 65,
   planningAge: 95,
   startSavings: 200000,
-  annualContribution: 20000,
+  annualContribution: 15000,
 
   // ── Retirement income ─────────────────────────────────────
   /** Target real annual spending in retirement. */

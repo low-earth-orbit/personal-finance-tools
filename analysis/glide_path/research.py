@@ -87,11 +87,11 @@ INFLATION = 2.1  # %, to deflate nominal CMAs to real
 # (equity_weight, nominal_geometric_return_%, volatility_%) — mirrors presets.ts ALLOCATIONS.
 ALLOC_ANCHORS = CMA_CURVE
 
-# Household (broadly the /retirement DEFAULTS), real dollars.
+# Household (the /glide-path DEFAULTS; /retirement saves 20% of income), real dollars.
 START_AGE = 35
 START_SAVINGS = 200_000.0
 INCOME = 100_000.0
-CONTRIB = 0.20 * INCOME           # saved per accumulation year
+CONTRIB = 0.15 * INCOME           # saved per accumulation year
 TARGET_GROSS = 0.60 * INCOME      # desired real retirement income
 GUARANTEED = 0.20 * INCOME        # CPP/OAS/DB floor, paid every retirement year
 GAP = TARGET_GROSS - GUARANTEED   # what the portfolio is asked to fund each year
