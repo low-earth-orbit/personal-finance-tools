@@ -2,7 +2,7 @@ import { Anchor, Text } from "@mantine/core";
 import ToolNotes from "@/components/shared/ToolNotes";
 
 const METHODOLOGY_URL =
-  "https://github.com/low-earth-orbit/personal-finance/blob/main/docs/swr/methodology.md";
+  "https://github.com/low-earth-orbit/personal-finance-tools/blob/main/docs/swr/methodology.md";
 
 /** Plain-language method, acknowledgement and caveats under the tool. */
 const Notes = () => {

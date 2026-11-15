@@ -16,7 +16,7 @@ const Footer = () => {
           </Anchor>{" "}
           · Source on{" "}
           <Anchor
-            href="https://github.com/low-earth-orbit/personal-finance"
+            href="https://github.com/low-earth-orbit/personal-finance-tools"
             target="_blank"
             rel="noreferrer"
             c="ledger"
