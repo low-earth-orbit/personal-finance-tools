@@ -1,4 +1,4 @@
-import { Text, Anchor } from "@mantine/core";
+import { Text } from "@mantine/core";
 import ToolNotes from "@/components/shared/ToolNotes";
 
 /**
@@ -19,18 +19,6 @@ const Assumptions = () => {
         capture sequence-of-returns risk. Returns are nominal compound (geometric) averages;
         accumulation compounds that expected return, while Monte Carlo converts it to the matching
         average annual return.
-      </Text>
-      <Text size="sm" pb="xs" c="dimmed">
-        Acknowledgement: Return and volatility assumptions are adopted from{" "}
-        <Anchor
-          href="https://pwlcapital.com/financial-planning-assumptions-market-capitalization-weighted-portfolio/"
-          target="_blank"
-          rel="noreferrer"
-          c="dimmed"
-        >
-          PWL Capital
-        </Anchor>
-        .
       </Text>
     </ToolNotes>
   );

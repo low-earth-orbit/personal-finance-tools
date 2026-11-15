@@ -23,7 +23,7 @@ Code: engine [`src/utils/retirement/monteCarlo.ts`](../../src/utils/retirement/m
 ## Summary
 
 - **The long-horizon SWR is low because the return assumption is modest, not because the risk model is harsh.** A 60/40 portfolio at 90% success sustains 3.86% over 30 years and 2.86% over 50 years.
-- **The returns are mainstream, not conservative.** The presets come from PWL Capital and are corroborated by FP Canada's Projection Assumption Guidelines: 3.5% real compound for 60/40.
+- **The returns are mainstream, not conservative.** The presets are blended from the stock and bond assumptions in §1.2. At 3.3% real compound for 60/40 they sit slightly below FP Canada's Projection Assumption Guidelines (3.5%).
 - **The US "4% rule" does not transfer.** It reflects US real returns of ~6% (5.5% compound), the luckiest equity century on record.
 - **History confirms the engine.** Historical return sequences, calibrated to the same forward-looking averages, give 3.86% at 30 years versus the engine's 3.90%; the gap is ≤ 0.07pp at every horizon.
 - **The lever is the return assumption.** Raising the 50-year SWR to the US-style ~3.7% would need ~5% real compound returns, close to US history. Not recommended.
@@ -70,7 +70,7 @@ Code: engine [`src/utils/retirement/monteCarlo.ts`](../../src/utils/retirement/m
 
 ### 1.2 Returns
 
-The presets are **nominal geometric** returns with volatilities (PWL Capital, inflation 2.1%, cross-checked against FP Canada's 2026 guidelines). Monte Carlo draws need **arithmetic** means, so each phase's preset is converted with the exact lognormal relation
+The presets are **nominal geometric** returns with volatilities, blended from per-asset assumptions (inflation 2.1%): stocks 6.4% return / 12% volatility, bonds 3.8% / 4.5%, stock-bond correlation 0.3 (`CMA` and `blendAllocation` in `presets.ts`). A mix's arithmetic mean is the weighted average of the two assets' arithmetic means, its variance uses the correlation, and the blended arithmetic mean is converted back to a geometric return. Monte Carlo draws need **arithmetic** means, so each phase's preset is converted with the exact lognormal relation
 
 ```
 (1+A)² = [ (1+G)² + √((1+G)⁴ + 4(1+G)²σ²) ] / 2
@@ -80,10 +80,12 @@ then deflated to real (`(1+A)/(1+π) − 1`, volatility `σ/(1+π)`). Each year'
 
 | Mix | Nominal geometric (input) | Volatility | Real geometric | Real arithmetic (MC mean) |
 | --- | --- | --- | --- | --- |
-| 100/0 | 6.87% | 12.57% | 4.67% | 5.38% |
-| 80/20 | 6.29% | 10.62% | 4.10% | 4.62% |
-| **60/40 (retirement default)** | **5.67%** | **8.79%** | **3.50%** | **3.85%** |
-| 40/60 | 5.01% | 7.17% | 2.85% | 3.09% |
+| 100/0 | 6.40% | 12.00% | 4.21% | 4.86% |
+| 80/20 | 5.97% | 9.91% | 3.79% | 4.24% |
+| **60/40 (retirement default)** | **5.50%** | **7.93%** | **3.33%** | **3.62%** |
+| 40/60 | 4.98% | 6.17% | 2.82% | 3.00% |
+
+> The historical validation in §§3–5 and the glide-path figures were generated with the earlier presets (60/40 at 5.67% / 8.79%, 3.50% real) and have not been re-run. Treat their levels as illustrative; the comparisons between methods still hold.
 
 Custom returns are treated the same way (as nominal compound rates), with volatility taken from the calibrated `investmentAnnualVolPct` curve. Path counts:
 
