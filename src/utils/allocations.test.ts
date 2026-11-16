@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ALLOCATIONS, blendAllocation } from "./allocations";
+import { ALLOCATIONS, blendAllocation, volatilityForReturn } from "./allocations";
 
 describe("blendAllocation", () => {
   it("returns the stock and bond assumptions at the endpoints", () => {
@@ -16,5 +16,24 @@ describe("blendAllocation", () => {
   it("falls steadily as the bond share rises", () => {
     const returns = Object.values(ALLOCATIONS).map((a) => a.returnPct);
     for (let i = 1; i < returns.length; i++) expect(returns[i]).toBeLessThan(returns[i - 1]);
+  });
+});
+
+describe("volatilityForReturn", () => {
+  it("returns the volatility of the mix that compounds at the entered return", () => {
+    // 80/20 compounds at ~5.98% with ~9.99% vol, so a 5.98% input should map to that vol.
+    expect(volatilityForReturn(5.98)).toBeCloseTo(9.99, 1);
+    expect(volatilityForReturn(6.4)).toBeCloseTo(12, 6);
+    expect(volatilityForReturn(3.8)).toBeCloseTo(5.5, 6);
+  });
+
+  it("rises with the expected return", () => {
+    const vols = [4, 4.5, 5, 5.5, 6, 6.2].map(volatilityForReturn);
+    for (let i = 1; i < vols.length; i++) expect(vols[i]).toBeGreaterThan(vols[i - 1]);
+  });
+
+  it("clamps to the all-bond and all-stock volatilities outside the CMA range", () => {
+    expect(volatilityForReturn(0)).toBeCloseTo(5.5, 6);
+    expect(volatilityForReturn(10)).toBeCloseTo(12, 6);
   });
 });

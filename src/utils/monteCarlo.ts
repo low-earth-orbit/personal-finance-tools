@@ -1,3 +1,4 @@
+import { volatilityForReturn } from "./allocations";
 import {
   calculateMonthlyMortgageInterestRate,
   calculateMonthlyMortgagePayment,
@@ -23,7 +24,8 @@ export const SIMULATION_HORIZON_YEARS = 30;
 
 // Annual return volatility derived from the expected return: a higher expected
 // return implies more equity exposure, which implies more year-to-year risk.
-// Modelled as a exponential function.
+// Modelled as a exponential function. Rent-vs-buy uses volatilityForReturn (the
+// stock/bond CMA) instead; the retirement tool still uses this curve.
 export function investmentAnnualVolPct(nominalReturnPct: number): number {
   return 1.92 * Math.exp(0.271 * nominalReturnPct);
 }
@@ -97,7 +99,7 @@ function drawScenario(userInput: UserInput, normalRandom: Normal): Scenario {
     mortgageRateNow: userInput.annualMortgageInterestRate,
     // From the entered return, not the drawn mean: being wrong about the long-run return
     // doesn't change how risky the portfolio is year to year.
-    investmentVolPct: investmentAnnualVolPct(userInput.investmentReturnRate),
+    investmentVolPct: volatilityForReturn(userInput.investmentReturnRate),
     maintenanceMean: Math.max(0, userInput.maintPct),
     insuranceMean: Math.max(0, userInput.insurancePct),
     propertyTaxMean: Math.max(0, userInput.propertyTaxRate),
