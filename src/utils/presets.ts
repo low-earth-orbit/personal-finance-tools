@@ -46,7 +46,7 @@ export const DEFAULTS = {
   holdingPeriod: 12,
   // 80/20 global index portfolio after ~0.2% fund fees: equities ~6.8%, bonds ~3.8%.
   investmentReturnRate: 6,
-  dividendYield: 2.4,
+  dividendYield: 1.8,
   dividendTaxRate: 22.5,
   capitalGainTaxRate: 15.6,
   /**
