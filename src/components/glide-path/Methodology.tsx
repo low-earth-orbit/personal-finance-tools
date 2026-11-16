@@ -102,9 +102,7 @@ export default function Methodology() {
               The tool prefers the best single <Strong>constant</Strong> equity weight unless the
               optimized glide path beats it by more than 3% of CE income or 1 point of full-path
               shortfall. Smaller gaps are inside the model’s own uncertainty, and one fixed
-              allocation is easier to hold through market swings. Guaranteed income starts at the
-              age you set; before then (a “bridge” after an earlier retirement) the portfolio funds
-              your whole target.
+              allocation is easier to hold through market swings.
             </Text>
           </Stack>
 
@@ -113,17 +111,19 @@ export default function Methodology() {
               What the model finds
             </Title>
             <Point heading="The return model sets the equity level.">
-              With independent returns, constant-dollar spending derisks into a moderate “bond tent”
-              near retirement. With historical sequences, where equities partly recover while long
-              nominal bonds suffer bad decades, the optimum is about 100% equity. The two can
-              disagree by 20 percentage points, so compare both settings of the return model.
+              With independent returns, constant-dollar spending builds a moderate “bond tent” near
+              retirement. With historical sequences, the optimum is about 100% equity. The two can
+              differ by 20 percentage points, so compare both settings of the return model.
             </Point>
             <Point heading="About 100% equity is a scenario, not the default.">
               That result leans on pre-1990 monetary regimes, surviving developed markets, and long
-              nominal bonds being the only alternative. An idealized real, short-duration holding
-              (such as a short inflation-linked bond fund) drops the optimum to roughly 55–70%
-              equity in our tests, but with realistic assumptions about a fund’s return and equity
-              correlation it is back at 80–100%.
+              nominal bonds being the only alternative. The app’s bond is nominal, and real-return
+              bonds are research only. An idealized one (the long bonds’ mean and volatility, with
+              no equity correlation or persistence) lowers the default to 70% equity and an
+              overfunded plan to 45%. A conservative real return (1% or 2% a year after inflation,
+              both below current inflation-linked yields) does less: at 1%, the default stays near
+              100% equity and an overfunded plan ($200k saved, $20k a year) moves to about 55%; at
+              2%, they move to about 60% and 30%.
             </Point>
             <Point heading="The shape is worth little; the level matters.">
               Out of sample, the optimized glide path beats the best constant weight by only about
@@ -137,7 +137,7 @@ export default function Methodology() {
             <Point heading="How well funded you are sets the tent.">
               The more your savings exceed what the spending target needs, the less upside you can
               use and the more the optimizer protects the floor. If every allocation already
-              delivers your target, the tool says the plan is over-funded: the weight shown is the
+              delivers your target, the tool says the plan is overfunded: the weight shown is the
               middle of a tie.
             </Point>
             <Point heading="Flexible spending holds about 100% equity.">
@@ -151,19 +151,15 @@ export default function Methodology() {
               A larger guaranteed income (CPP + OAS + DB) lets the portfolio take more equity risk.
               With none, rare depleted years dominate the score, so the tool requires at least
               $10,000 a year. If it covers your whole target and spending is fixed, no allocation is
-              better than another and the tool asks you to adjust the inputs. Starting it after you
-              retire lowers income: retiring at 60 with CPP/OAS from 65 cost about 9% in our
-              example.
+              better than another and the tool asks you to adjust the inputs. Before it starts (a
+              bridge after an earlier retirement) the portfolio funds your whole target. Starting it
+              after you retire lowers income: retiring at 60 with CPP/OAS from 65 cost about 9% in
+              our example.
             </Point>
             <Point heading="Leverage earns little.">
               For a young saver, allowing up to 150% equity raised CE income by under 1% under both
               return models, and only in the first decade of saving, before margin calls, rate
               changes or nerves. In this model, equity above about 110% is unrewarded.
-            </Point>
-            <Point heading="Bonds here are nominal.">
-              The app’s bond asset is an ordinary (nominal) bond. Our research finds that a mostly
-              real-return bond sleeve pairs with a lower equity weight, but that rests on an assumed
-              real-bond series and is not an option in the app.
             </Point>
           </Stack>
         </SimpleGrid>
