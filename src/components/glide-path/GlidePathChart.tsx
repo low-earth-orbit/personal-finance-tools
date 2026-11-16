@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Box, Card, Group, Paper, SegmentedControl, Text } from "@mantine/core";
+import { Box, Card, Group, Paper, Text } from "@mantine/core";
 import {
   ComposedChart,
   Line,
@@ -18,16 +17,10 @@ import { CHART_AXIS, generateTicks } from "@/utils/charts";
 const ACCENT = "var(--pf-accent)";
 const INK = "var(--pf-ink)";
 
-type ChartView = "stepped" | "smoothed";
-
 interface ChartPoint {
   age: number;
   equity: number;
   phase: "accum" | "retire";
-}
-
-interface SmoothedPoint extends ChartPoint {
-  equitySmooth: number;
 }
 
 export function buildEquityAxis(maxEquityPct: number) {
@@ -65,43 +58,16 @@ export function buildGlidePathChartData(
   return data;
 }
 
-/**
- * Add a centered moving average of the equity series. The raw optimized weights jump between
- * 5%-grid blocks (the welfare surface is near-flat, so the step-to-step shape is mostly Monte
- * Carlo noise); the smoothed series shows the underlying trend/level the steps wobble around.
- */
-export function withSmoothed(data: ChartPoint[], window: number): SmoothedPoint[] {
-  const half = Math.floor(Math.max(1, window) / 2);
-  return data.map((p, i) => {
-    let sum = 0;
-    let count = 0;
-    const lo = Math.max(0, i - half);
-    const hi = Math.min(data.length - 1, i + half);
-    for (let j = lo; j <= hi; j++) {
-      sum += data[j].equity;
-      count++;
-    }
-    return { ...p, equitySmooth: Math.round((sum / count) * 10) / 10 };
-  });
-}
-
-function ChartTooltip({
-  view,
-  payload,
-}: {
-  view?: ChartView;
-  payload?: { payload: SmoothedPoint }[];
-}) {
+function ChartTooltip({ payload }: { payload?: { payload: ChartPoint }[] }) {
   if (!payload || payload.length === 0) return null;
   const p = payload[0].payload;
-  const value = view === "smoothed" ? p.equitySmooth : p.equity;
   return (
     <Paper px="md" py="sm" shadow="md" style={{ border: "1px solid var(--pf-border)" }}>
       <Text fw={600} mb={2}>
         Age {p.age}
       </Text>
       <Text size="sm" c="ledger">
-        Equity {value.toFixed(0)}%{view === "smoothed" ? " (trend)" : ""}
+        Equity {p.equity.toFixed(0)}%
       </Text>
       <Text size="xs" c="dimmed">
         {p.phase === "accum" ? "Accumulation" : "Retirement"}
@@ -120,11 +86,8 @@ export default function GlidePathChart({
   /** Hide the constant-equity reference line when that constant is itself degenerate. */
   showConstant?: boolean;
 }) {
-  const [view, setView] = useState<ChartView>("stepped");
   const retireAge = input.startAge + result.params.accumYears;
-  // Window scales with the step size so it bridges adjacent blocks without erasing the macro shape.
-  const smoothWindow = Math.min(13, Math.max(5, 2 * result.params.interval + 1));
-  const data = withSmoothed(buildGlidePathChartData(input, result), smoothWindow);
+  const data = buildGlidePathChartData(input, result);
   const lastAge = data.length ? data[data.length - 1].age : retireAge;
   const levCap = result.params.maxLeverage * 100;
   const { yMax, ticks: equityTicks } = buildEquityAxis(levCap);
@@ -144,20 +107,9 @@ export default function GlidePathChart({
 
   return (
     <Card withBorder radius="md" padding="md">
-      <Group justify="space-between" align="center" mb="md" wrap="wrap" gap="xs">
-        <Text fw={600}>Model-optimized equity allocation by age</Text>
-        <SegmentedControl
-          size="xs"
-          w={{ base: "100%", xs: "auto" }}
-          value={view}
-          onChange={(v) => setView(v as ChartView)}
-          data={[
-            { label: "Stepped", value: "stepped" },
-            { label: "Smoothed", value: "smoothed" },
-          ]}
-          aria-label="Chart view"
-        />
-      </Group>
+      <Text fw={600} mb="md">
+        Model-optimized equity allocation by age
+      </Text>
       <div
         role="img"
         aria-label="Model-optimized equity weight by age"
@@ -198,7 +150,7 @@ export default function GlidePathChart({
               tickFormatter={(v) => `${v}%`}
               {...CHART_AXIS}
             />
-            <Tooltip content={<ChartTooltip view={view} />} />
+            <Tooltip content={<ChartTooltip />} />
             <ReferenceLine x={retireAge} stroke={ACCENT} strokeDasharray="4 4" />
             {showConstant && (
               <ReferenceLine
@@ -215,8 +167,8 @@ export default function GlidePathChart({
               />
             )}
             <Line
-              type={view === "smoothed" ? "monotone" : "stepAfter"}
-              dataKey={view === "smoothed" ? "equitySmooth" : "equity"}
+              type="stepAfter"
+              dataKey="equity"
               stroke={ACCENT}
               strokeWidth={2.5}
               dot={false}
@@ -241,10 +193,7 @@ export default function GlidePathChart({
           </Group>
         )}
         <Text size="xs" c="dimmed">
-          Vertical line marks retirement.{" "}
-          {view === "smoothed"
-            ? "Smoothed view is a moving average that averages out the step-to-step Monte Carlo noise to show the trend — the actual schedule is the stepped view."
-            : `Equity is held flat within each ${result.params.interval}-year step.`}
+          {`Vertical line marks retirement. Equity is held flat within each ${result.params.interval}-year step.`}
         </Text>
       </Group>
       <Text size="xs" c="dimmed" mt="xs">
