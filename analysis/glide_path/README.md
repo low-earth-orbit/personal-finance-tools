@@ -13,8 +13,8 @@ Python engine and research scripts for the Lifetime Allocation Optimizer (`/glid
 | `interactive.py` | Prompt flow (`-i`): builds a CLI argument list, runs it, prints the reproduction command |
 | `cli.py` | Flag CLI behind `analysis/recommend_glide.py`, incl. `--compare-modes` |
 | `research.py` | iid research sweep (methodology §2) |
-| `research_history.py` | History, bond-persistence decomposition, bond-menu, short-TIPS stress, sleeve-blend, regime-mixture, CPI-basis and GIC-ladder, regret and funding sections (methodology §3–§4) |
-| `doc_figures.py` | Methodology Figures 1–3 as light/dark SVGs in `docs/glide-path/img/` (needs matplotlib) |
+| `research_history.py` | History, bond-persistence decomposition, bond-menu, short-TIPS stress, sleeve-blend, regime-mixture, CPI-basis, regret and funding sections (methodology §3–§4), plus the GIC-ladder section, which is code only and not reported in the note |
+| `doc_figures.py` | Methodology Figures 1–2 as light/dark SVGs in `docs/glide-path/img/` (needs matplotlib). It also writes the bond-persistence decomposition figure, which the note no longer embeds |
 | `generate_bundle.py` | Writes `src/utils/glide-path/jstData.ts` (forward-rescaled JST history) |
 
 Shared helpers live in `analysis/shared/` (`jst_history.py` for JST loading, rescaling, block sampling and variance ratios; `returns.py` for geometric ↔ arithmetic conversion).

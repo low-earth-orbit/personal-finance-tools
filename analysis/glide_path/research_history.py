@@ -672,9 +672,11 @@ def run_tips_stress(args):
         ("phi 0.30", bd_m, bd_v, 0.30, 0.0),
         ("phi 0.50", bd_m, bd_v, 0.50, 0.0),
         ("mean 1.00% real (no term premium)", 0.010, bd_v, 0.0, 0.0),
+        ("mean 2.00% real", 0.020, bd_v, 0.0, 0.0),
         ("vol 3.0% (short-fund amplitude)", bd_m, 0.030, 0.0, 0.0),
         ("phi 0.80 (real-rate cycle, near random-walk real yield)", bd_m, bd_v, 0.80, 0.0),
         ("combined: 1.00% / 3.0% / phi 0.30 / corr 0.29", 0.010, 0.030, 0.30, 0.29),
+        ("combined: 2.00% / 3.0% / phi 0.30 / corr 0.29", 0.020, 0.030, 0.30, 0.29),
         (f"harsh: 1.00% / {pct(bd_v):.2f}% / phi 0.50 / corr 0.50", 0.010, bd_v, 0.50, 0.50),
     ]
     print("\n" + "=" * 100)
