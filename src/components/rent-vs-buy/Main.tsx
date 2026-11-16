@@ -13,7 +13,6 @@ import { migrateInput } from "@/utils/inputMigration";
 import {
   loadInput,
   saveInput,
-  clearInput,
   loadExpandedFields,
   saveExpandedFields,
   consumeLegacyAdvanced,
@@ -116,8 +115,11 @@ const Main = () => {
   }
 
   function handlePreset(preset: Preset) {
-    setUserInput(normalizeInput(preset.values));
-    clearInput();
+    // Persist the inputs along with the preset id: on remount, the id is read back as the base
+    // preset, so the inputs must match it or the bar shows a spurious "Edited from …".
+    const next = normalizeInput(preset.values);
+    setUserInput(next);
+    saveInput(next);
     setActivePresetId(preset.id);
     setRecentlyDeleted(null);
   }
