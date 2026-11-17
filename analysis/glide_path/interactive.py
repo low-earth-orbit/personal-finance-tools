@@ -200,7 +200,7 @@ def run_interactive():
     from analysis.glide_path.cli import main as cli_main  # lazy: cli imports this module lazily
 
     print("\n╔══════════════════════════════════════════════════╗")
-    print("║   Lifetime Allocation — interactive    ║")
+    print("║        Lifecycle Allocation — interactive        ║")
     print("╚══════════════════════════════════════════════════╝")
     print("  Press Enter to accept the default shown in (  ).")
     print("  All dollar amounts are in today's real dollars.")

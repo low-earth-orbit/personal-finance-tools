@@ -78,14 +78,14 @@ test("swr shows the safe withdrawal rate table", async ({ page }) => {
   await expect(table.getByRole("row").filter({ hasText: "60/40" })).toBeVisible();
 });
 
-test("lifetime allocation generates a recommendation under both return models", async ({
+test("lifecycle allocation generates a recommendation under both return models", async ({
   page,
 }) => {
   // Two optimizer runs in a dev-mode worker; allow for a slow CI machine.
   test.setTimeout(120_000);
   await page.goto("/glide-path");
 
-  await expect(page.getByRole("heading", { name: "Lifetime Allocation" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Lifecycle Allocation" })).toBeVisible();
 
   const generate = page.getByRole("button", { name: "Generate allocation paths" });
   await generate.click();

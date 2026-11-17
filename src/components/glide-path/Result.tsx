@@ -20,6 +20,8 @@ import {
   FULLPATH_RISK_HIGHLIGHT_THRESHOLD,
   LOW_DRAWDOWN_SHORTFALL_THRESHOLD,
   pickRecommendation,
+  SIMPLICITY_CE_THRESHOLD,
+  SIMPLICITY_SHORTFALL_THRESHOLD,
 } from "@/utils/glide-path/recommendation";
 import type { GlidePathInput, GlidePathResult, SlopeDir } from "@/utils/glide-path/types";
 
@@ -416,7 +418,7 @@ export default function Result({
         ? "The model prefers the constant allocation because the glide path's CE income is tail-dominated."
         : result.overFunded
           ? "The model prefers the constant allocation because every allocation gives about the same income; this weight is the middle of that tie."
-          : "The model prefers the constant allocation because the optimized glide path is not clearly better (within 3% on CE income and 1 point on shortfall)."
+          : `The model prefers the constant allocation because the optimized glide path is not clearly better (within ${SIMPLICITY_CE_THRESHOLD * 100}% on CE income and ${SIMPLICITY_SHORTFALL_THRESHOLD * 100} point on shortfall).`
       : reco.flatBad
         ? "The model prefers the glide path because the constant allocation's CE income is tail-dominated."
         : "The model prefers the glide path because the constant allocation trails it.";

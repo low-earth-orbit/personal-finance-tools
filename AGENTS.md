@@ -57,7 +57,7 @@ No peer-review step: do not spawn reviewer/verifier subagents or second-opinion 
 | --- | --- | --- |
 | `/rent-vs-buy` | Rent vs Buy | Year-by-year net worth comparison, MC bands, win probability |
 | `/retirement` | When can I retire? | Portfolio projection in real $; grows to retirement, draws to target income |
-| `/glide-path` | Lifetime Allocation | MC coordinate ascent, CRRA utility, optimized vs constant allocation |
+| `/glide-path` | Lifecycle Allocation | MC coordinate ascent, CRRA utility, optimized vs constant allocation |
 | `/acb` | ACB Calculator | Computes adjusted cost basis from Wealthsimple activity CSV export |
 | `/allocator` | Where to invest: TFSA, RRSP or Non-Reg? | Invests one lump sum now across TFSA, RRSP, and non-registered accounts |
 | `/swr` | Safe withdrawal rates | SWR table by stock/bond mix × horizon from user CMAs; optional VR(10) dynamics |

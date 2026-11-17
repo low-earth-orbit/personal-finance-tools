@@ -105,7 +105,7 @@ describe("glide-path Result", () => {
 
   it("shows the expected balance and year-1 draw of the preferred allocation", () => {
     // Constant preferred: its own balance, not the glide path's.
-    const { unmount } = renderResult(makeResult({ flatCeIncome: 49500 }));
+    const { unmount } = renderResult(makeResult({ flatCeIncome: 49600 }));
     expect(screen.getByText(/Expected retirement balance ≈ \$1,100,000/)).toHaveTextContent(
       "Year-1 portfolio draw ≈ $48,000 (4.4% of the expected retirement balance)",
     );
@@ -149,9 +149,11 @@ describe("glide-path Result", () => {
   });
 
   it("prefers the constant allocation when CE income is within 1%", () => {
-    renderResult(makeResult({ flatCeIncome: 49500 }));
+    renderResult(makeResult({ flatCeIncome: 49600 }));
     expect(screen.getByText(/preferred allocation/i)).toBeInTheDocument();
-    expect(screen.getByText(/The model prefers the constant allocation/i)).toBeInTheDocument();
+    expect(screen.getByText(/The model prefers the constant allocation/i)).toHaveTextContent(
+      "within 1% on CE income and 1 point on shortfall",
+    );
   });
 
   it("reports comparable outcomes for both allocation options", () => {
@@ -195,7 +197,7 @@ describe("glide-path Result", () => {
     renderResult(
       makeResult({
         ceIncome: 60000,
-        flatCeIncome: 59400,
+        flatCeIncome: 59500,
         drawdownDepletion: 0.05,
         flatDrawdownDepletion: 0.054,
         depletion: 0.1,
@@ -210,7 +212,7 @@ describe("glide-path Result", () => {
     renderResult(
       makeResult({
         ceIncome: 60000,
-        flatCeIncome: 59400,
+        flatCeIncome: 59500,
         drawdownDepletion: 0.05,
         flatDrawdownDepletion: 0.05,
         depletion: 0.1,
@@ -225,7 +227,7 @@ describe("glide-path Result", () => {
     renderResult(
       makeResult({
         ceIncome: 60000,
-        flatCeIncome: 59400,
+        flatCeIncome: 59500,
         drawdownDepletion: 0.05,
         flatDrawdownDepletion: 0.05,
         depletion: 0.1,
