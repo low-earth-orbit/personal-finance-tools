@@ -1,5 +1,6 @@
 /**
- * Stationary block bootstrap sampler for the forward-block glide-path engine.
+ * Stationary block bootstrap sampler over the pooled JST history, shared by the glide-path
+ * forward-block engine and the SWR historical-sequences model.
  *
  * Port of the Politis-Romano stationary bootstrap in `analysis/shared/jst_history.py`
  * (`sample_indices`, mode="historical-block"). Blocks wrap circularly within segment
@@ -8,7 +9,7 @@
  * Pre-computed segment arrays (JST_SEG_START, JST_SEG_LEN) live in jstData.ts.
  */
 
-import { mulberry32 } from "../rng";
+import { mulberry32 } from "@/utils/rng";
 import { JST_BOND, JST_EQUITY, JST_OBSERVATIONS, JST_SEG_LEN, JST_SEG_START } from "./jstData";
 
 /** Average block length (years) — matches the Python default. */

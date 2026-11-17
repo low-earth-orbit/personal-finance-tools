@@ -22,9 +22,9 @@
  */
 
 import { fillNormals } from "../rng";
-import { sampleBlockPaths } from "./blockBootstrap";
+import { sampleBlockPaths } from "@/utils/jst/blockBootstrap";
 import { DEFAULT_ALLOC_CURVE, GRID_STEP, type AllocAnchor } from "./presets";
-import { JST_BOND, JST_EQUITY } from "./jstData";
+import { JST_BOND, JST_EQUITY } from "@/utils/jst/jstData";
 import { arithmeticToGeometric, realArithmeticFromNominalGeometric } from "@/utils/returns";
 import type {
   GlidePathInput,

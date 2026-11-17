@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sampleBlockIndices, sampleBlockPaths } from "./blockBootstrap";
 import { JST_BOND, JST_EQUITY, JST_OBSERVATIONS, JST_SEG_LEN, JST_SEG_START } from "./jstData";
-import { DEFAULTS, DEFAULT_ALLOC_CURVE } from "./presets";
+import { DEFAULTS, DEFAULT_ALLOC_CURVE } from "@/utils/glide-path/presets";
 import { realArithmeticFromNominalGeometric } from "@/utils/returns";
 
 const N_YEARS = 60;

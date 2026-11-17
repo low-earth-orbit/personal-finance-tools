@@ -1,21 +1,23 @@
 "use client";
 
-import { Accordion, Button, Group, Stack, Text } from "@mantine/core";
+import { Accordion, Button, Group, SegmentedControl, Stack, Text } from "@mantine/core";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import SectionSummary, { summaryValue } from "@/components/shared/SectionSummary";
 import FieldHeader from "@/components/shared/FieldHeader";
 import UserInputFormItem from "@/components/shared/UserInputFormItem";
 import FormResetButton from "@/components/shared/FormResetButton";
 import { fieldRowClasses } from "@/components/shared/fieldRow";
-import { SUCCESS_RATE_PRESETS } from "@/utils/swr/presets";
+import { HISTORY_DYNAMICS, SUCCESS_RATE_PRESETS } from "@/utils/swr/presets";
 import { FIELD_CONSTRAINTS } from "@/utils/swr/validation";
-import type { SwrErrors, SwrInput, SwrInputKey } from "@/utils/swr/types";
+import type { SwrErrors, SwrInput, SwrInputKey, SwrReturnModel } from "@/utils/swr/types";
 import type { FieldValue } from "@/types";
 
 interface InputFormProps {
   input: SwrInput;
+  returnModel: SwrReturnModel;
   errors: SwrErrors;
   onChange: (key: SwrInputKey, value: FieldValue) => void;
+  onReturnModelChange: (model: SwrReturnModel) => void;
   onReset: () => void;
 }
 
@@ -35,7 +37,15 @@ function Warning({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function InputForm({ input, errors, onChange, onReset }: InputFormProps) {
+export default function InputForm({
+  input,
+  returnModel,
+  errors,
+  onChange,
+  onReturnModelChange,
+  onReset,
+}: InputFormProps) {
+  const historical = returnModel === "historical";
   const isSameRate = (value: FieldValue, presetValue: number) =>
     typeof value === "number" && Math.abs(value - presetValue) < 0.001;
 
@@ -89,11 +99,13 @@ export default function InputForm({ input, errors, onChange, onReset }: InputFor
                 labelHelperText="Annual standard deviation of bond returns."
                 suffix="%"
               />
-              <UserInputFormItem
-                {...correlation}
-                label="Stock-bond correlation"
-                labelHelperText="Correlation between stock and bond returns in the same year."
-              />
+              {!historical && (
+                <UserInputFormItem
+                  {...correlation}
+                  label="Stock-bond correlation"
+                  labelHelperText="Correlation between stock and bond returns in the same year."
+                />
+              )}
               <Stack gap={4}>
                 <UserInputFormItem {...num("inflationRate")} label="Inflation" suffix="%" />
                 {(input.inflationRate > 2.5 || input.inflationRate < 2) && (
@@ -145,20 +157,50 @@ export default function InputForm({ input, errors, onChange, onReset }: InputFor
         <Accordion.Item value="dynamics">
           <Accordion.Control>
             Return dynamics
-            <SectionSummary>{`VR(10) ${summaryValue(input.stockVr)} stocks / ${summaryValue(input.bondVr)} bonds`}</SectionSummary>
+            <SectionSummary>
+              {historical
+                ? "historical sequences"
+                : `simulated · VR(10) ${summaryValue(input.stockVr)} stocks / ${summaryValue(input.bondVr)} bonds`}
+            </SectionSummary>
           </Accordion.Control>
           <Accordion.Panel>
             <Stack gap={0}>
-              <UserInputFormItem
-                {...num("stockVr")}
-                label="Stock VR(10)"
-                description="Variance ratio over 10 years. Below 1: a bad decade tends to be followed by recovery. 1 means independent years."
-              />
-              <UserInputFormItem
-                {...num("bondVr")}
-                label="Bond VR(10)"
-                description="Above 1: bond returns persist, so a bad decade tends to continue. 1 means independent years."
-              />
+              <Stack gap={4} className={`${fieldRowClasses.frame} ${fieldRowClasses.block}`}>
+                <FieldHeader
+                  label="Return model"
+                  description="Simulated draws each year from your inputs. Historical sequences replays runs of real years from 16 countries (1871–2020), rescaled to your returns and volatilities."
+                />
+                <SegmentedControl
+                  value={returnModel}
+                  onChange={(v) => onReturnModelChange(v as SwrReturnModel)}
+                  data={[
+                    { value: "simulated", label: "Simulated" },
+                    { value: "historical", label: "Historical sequences" },
+                  ]}
+                  size="sm"
+                  mt={6}
+                />
+              </Stack>
+              {historical ? (
+                <Text size="xs" c="dimmed" className={fieldRowClasses.frame}>
+                  History sets the stock-bond correlation ({HISTORY_DYNAMICS.correlation}) and the
+                  memory, VR(10): {HISTORY_DYNAMICS.stockVr} stocks, {HISTORY_DYNAMICS.bondVr}{" "}
+                  bonds.
+                </Text>
+              ) : (
+                <>
+                  <UserInputFormItem
+                    {...num("stockVr")}
+                    label="Stock VR(10)"
+                    description="Variance ratio over 10 years. Below 1: a bad decade tends to be followed by recovery. 1 means independent years."
+                  />
+                  <UserInputFormItem
+                    {...num("bondVr")}
+                    label="Bond VR(10)"
+                    description="Above 1: bond returns persist, so a bad decade tends to continue. 1 means independent years."
+                  />
+                </>
+              )}
             </Stack>
           </Accordion.Panel>
         </Accordion.Item>

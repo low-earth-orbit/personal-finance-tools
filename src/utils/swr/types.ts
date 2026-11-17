@@ -12,6 +12,13 @@ export type SwrErrors = Partial<Record<SwrInputKey, string>>;
 
 export type SwrHorizon = (typeof SWR_HORIZONS)[number];
 
+/**
+ * How the year-by-year returns are generated. "simulated": per-asset AR(1) from the user's
+ * correlation and VR(10) inputs. "historical": stationary block bootstrap of JST history (16
+ * countries, 1871-2020), each asset rescaled to the user's return and volatility.
+ */
+export type SwrReturnModel = "simulated" | "historical";
+
 export interface SwrAllocation {
   /** "60/40" (stocks / bonds). */
   label: string;
@@ -20,22 +27,28 @@ export interface SwrAllocation {
 }
 
 export interface SwrResult {
+  /** The return model this table was computed with. */
+  returnModel: SwrReturnModel;
   horizons: readonly number[];
   allocations: SwrAllocation[];
   /** rates[allocation][horizon]: safe withdrawal rate as a fraction of the starting portfolio. */
   rates: number[][];
-  /** AR(1) coefficients implied by the variance ratios. */
-  phiStock: number;
-  phiBond: number;
-  /** Correlation between the two assets' yearly shocks (after adjusting for the AR(1) terms). */
-  innovationCorrelation: number;
-  /** True when the shock correlation had to be capped at +/-0.99. */
+  /** AR(1) coefficients implied by the variance ratios; null in historical mode. */
+  phiStock: number | null;
+  phiBond: number | null;
+  /**
+   * Correlation between the two assets' yearly shocks (after adjusting for the AR(1) terms);
+   * null in historical mode.
+   */
+  innovationCorrelation: number | null;
+  /** True when the shock correlation had to be capped at +/-0.99 (never in historical mode). */
   correlationClamped: boolean;
 }
 
 export interface SwrWorkerRequest {
   requestId: number;
   input: SwrInput;
+  returnModel: SwrReturnModel;
 }
 
 export interface SwrWorkerResponse {

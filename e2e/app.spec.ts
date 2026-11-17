@@ -75,7 +75,15 @@ test("swr shows the safe withdrawal rate table", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Safe Withdrawal Rates" })).toBeVisible();
   const table = page.getByRole("table");
   await expect(table).toBeVisible();
-  await expect(table.getByRole("row").filter({ hasText: "60/40" })).toBeVisible();
+  const row = table.getByRole("row").filter({ hasText: "60/40" });
+  await expect(row).toBeVisible();
+  const simulated = await row.textContent();
+
+  // The historical model runs in the same worker; it hides the VR inputs and labels the table.
+  await page.getByText("Historical sequences", { exact: true }).click();
+  await expect(page.getByText(/· historical sequences$/)).toBeVisible();
+  await expect(row).not.toHaveText(simulated ?? "");
+  await expect(page.locator("#stockVr")).toHaveCount(0);
 });
 
 test("lifecycle allocation generates a recommendation under both return models", async ({

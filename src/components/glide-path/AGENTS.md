@@ -14,8 +14,7 @@ MC coordinate ascent → welfare-maximizing equity allocation curve (accumulatio
 ## Engine (`src/utils/glide-path/`)
 
 - `engine.ts` — coordinate ascent optimizer, CRRA utility, forward-block bootstrap
-- `blockBootstrap.ts` — stationary block bootstrap over JST history
-- `jstData.ts` — **generated bundle** (JST pooled history; do not edit manually — regenerate via `python3 -m analysis.glide_path.generate_bundle`)
+- `src/utils/jst/` (shared with the SWR tool): `blockBootstrap.ts` — stationary block bootstrap over JST history; `jstData.ts` — **generated bundle** (JST pooled history; do not edit manually — regenerate via `python3 -m analysis.glide_path.generate_bundle`)
 - `recommendation.ts` — glide vs constant pick (simplicity bias, degenerate-CE guard)
 - `presets.ts`, `validation.ts`, `storage.ts`, `types.ts`; the seeded RNG is the shared `src/utils/rng.ts`
 

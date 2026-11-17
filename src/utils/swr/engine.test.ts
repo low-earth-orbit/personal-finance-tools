@@ -3,13 +3,16 @@ import {
   SWR_ALLOCATIONS,
   computeSwrTable,
   generateAssetPaths,
+  generateHistoricalPaths,
   innovationCorrelation,
   phiFromVr,
   swrFromPaths,
   vrFromPhi,
 } from "./engine";
-import { DEFAULTS, SWR_HORIZONS } from "./presets";
+import { DEFAULTS, HISTORY_DYNAMICS, SWR_HORIZONS } from "./presets";
 import type { SwrInput } from "./types";
+import { JST_BOND, JST_EQUITY, JST_SEG_LEN } from "@/utils/jst/jstData";
+import { realArithmeticFromNominalGeometric } from "@/utils/returns";
 
 const input: SwrInput = { ...DEFAULTS };
 const row = (label: string) => SWR_ALLOCATIONS.findIndex((a) => a.label === label);
@@ -146,5 +149,94 @@ describe("computeSwrTable", () => {
 
     const direct = swrFromPaths(assets, successRate, [years], [{ label: "60/40", equity }])[0][0];
     expect(direct).toBeCloseTo(lo, 3);
+  });
+});
+
+const mean = (values: ArrayLike<number>) => {
+  let sum = 0;
+  for (let i = 0; i < values.length; i++) sum += values[i];
+  return sum / values.length;
+};
+const variance = (values: ArrayLike<number>) => {
+  const m = mean(values);
+  let sum = 0;
+  for (let i = 0; i < values.length; i++) sum += (values[i] - m) ** 2;
+  return sum / values.length;
+};
+
+/** Pooled VR(q) within each country's run, as `variance_ratio` in analysis/shared/jst_history.py. */
+function historyVr(values: Float32Array, q = 10): number {
+  const sums: number[] = [];
+  for (let start = 0; start < values.length; start += JST_SEG_LEN[start]) {
+    const len = JST_SEG_LEN[start];
+    for (let i = start; i + q <= start + len; i++) {
+      let sum = 0;
+      for (let k = 0; k < q; k++) sum += values[i + k];
+      sums.push(sum);
+    }
+  }
+  return variance(sums) / (q * variance(values));
+}
+
+describe("historical sequences", () => {
+  const historical = computeSwrTable(input, { returnModel: "historical" });
+
+  it("matches the documented history dynamics", () => {
+    const covariance =
+      mean(Array.from(JST_EQUITY, (e, i) => e * JST_BOND[i])) - mean(JST_EQUITY) * mean(JST_BOND);
+    const correlation = covariance / Math.sqrt(variance(JST_EQUITY) * variance(JST_BOND));
+    expect(correlation).toBeCloseTo(HISTORY_DYNAMICS.correlation, 2);
+    expect(historyVr(JST_EQUITY)).toBeCloseTo(HISTORY_DYNAMICS.stockVr, 2);
+    expect(historyVr(JST_BOND)).toBeCloseTo(HISTORY_DYNAMICS.bondVr, 2);
+  });
+
+  it("rescales each asset to the input return and volatility", () => {
+    const assets = generateHistoricalPaths(input, 2000);
+    const stock = realArithmeticFromNominalGeometric(
+      input.stockReturn,
+      input.stockVol,
+      input.inflationRate,
+    );
+    const bond = realArithmeticFromNominalGeometric(
+      input.bondReturn,
+      input.bondVol,
+      input.inflationRate,
+    );
+    // Sampled paths, so the moments match only to sampling noise.
+    expect(mean(assets.stock)).toBeCloseTo(stock.mean, 2);
+    expect(Math.sqrt(variance(assets.stock))).toBeCloseTo(stock.vol, 2);
+    expect(mean(assets.bond)).toBeCloseTo(bond.mean, 2);
+    expect(Math.sqrt(variance(assets.bond))).toBeCloseTo(bond.vol, 2);
+  });
+
+  it("reproduces the block-bootstrap check of the methodology (section 5)", () => {
+    // 20,000-path Python bootstrap, 30 / 50 years; 10,000 paths here.
+    const documented: [string, number, number][] = [
+      ["100/0", 3.96, 2.98],
+      ["60/40", 3.79, 2.73],
+      ["0/100", 3.1, 1.92],
+    ];
+    for (const [label, at30, at50] of documented) {
+      expect(Math.abs(rate(historical, label, 30) - at30)).toBeLessThan(0.05);
+      expect(Math.abs(rate(historical, label, 50) - at50)).toBeLessThan(0.05);
+    }
+    expect(historical.returnModel).toBe("historical");
+    expect(historical.phiStock).toBeNull();
+    expect(historical.correlationClamped).toBe(false);
+  });
+
+  it("ignores the correlation and VR inputs", () => {
+    const other = computeSwrTable(
+      { ...input, correlation: -0.5, stockVr: 2, bondVr: 0.6 },
+      { returnModel: "historical" },
+    );
+    expect(other.rates).toEqual(historical.rates);
+  });
+
+  it("follows the return inputs and is deterministic", () => {
+    const richer = computeSwrTable({ ...input, stockReturn: 8 }, { returnModel: "historical" });
+    expect(rate(richer, "100/0", 30)).toBeGreaterThan(rate(historical, "100/0", 30));
+    expect(computeSwrTable(input, { returnModel: "historical" }).rates).toEqual(historical.rates);
+    expect(computeSwrTable(input, { paths: 200 }).returnModel).toBe("simulated");
   });
 });

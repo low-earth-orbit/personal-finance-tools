@@ -1,7 +1,9 @@
+import { sampleBlockIndices } from "@/utils/jst/blockBootstrap";
+import { JST_BOND, JST_EQUITY } from "@/utils/jst/jstData";
 import { realArithmeticFromNominalGeometric } from "@/utils/returns";
 import { fillNormals } from "@/utils/rng";
 import { SWR_HORIZONS, SWR_PATHS } from "./presets";
-import type { SwrAllocation, SwrInput, SwrResult } from "./types";
+import type { SwrAllocation, SwrInput, SwrResult, SwrReturnModel } from "./types";
 
 const VR_LAG = 10;
 const PHI_LIMIT = 0.95;
@@ -9,6 +11,7 @@ const MAX_INNOVATION_CORRELATION = 0.99;
 const YEARS = Math.max(...SWR_HORIZONS);
 const STOCK_SEED = 20_241_001;
 const BOND_SEED = 20_241_002;
+const HISTORY_SEED = 20_241_003;
 
 /** Variance ratio at lag q of an AR(1) process with coefficient phi (unit-variance stationary). */
 export function vrFromPhi(phi: number, q: number = VR_LAG): number {
@@ -47,13 +50,16 @@ export function innovationCorrelation(
   return { value, clamped: Math.abs(raw) > MAX_INNOVATION_CORRELATION };
 }
 
-export interface AssetPaths {
+export interface ReturnPaths {
   /** Real stock returns, indexed [path * years + t]. */
   stock: Float64Array;
   /** Real bond returns, same layout. */
   bond: Float64Array;
   years: number;
   paths: number;
+}
+
+export interface AssetPaths extends ReturnPaths {
   phiStock: number;
   phiBond: number;
   innovationCorrelation: number;
@@ -127,6 +133,62 @@ export function generateAssetPaths(
   };
 }
 
+/** Population mean and standard deviation, the convention of the Python rescale. */
+function moments(values: Float32Array): { mean: number; sd: number } {
+  let sum = 0;
+  for (const v of values) sum += v;
+  const mean = sum / values.length;
+  let squares = 0;
+  for (const v of values) squares += (v - mean) ** 2;
+  return { mean, sd: Math.sqrt(squares / values.length) };
+}
+
+const STOCK_HISTORY = moments(JST_EQUITY);
+const BOND_HISTORY = moments(JST_BOND);
+
+/**
+ * Draw real return paths by stationary block bootstrap of the pooled JST history (16 countries,
+ * 1871-2020; blocks of 10 years on average that never cross a country boundary). Stocks and bonds
+ * come from the same country-year. Each asset is rescaled to the user's real arithmetic mean and
+ * volatility, r' = m + (sigma / sd) * (r - mean). The map is affine, so it keeps the order of years,
+ * each asset's memory and the stock-bond correlation of history; the correlation and VR inputs
+ * are not used. The same paths feed every allocation.
+ */
+export function generateHistoricalPaths(
+  input: SwrInput,
+  paths: number = SWR_PATHS,
+  years: number = YEARS,
+): ReturnPaths {
+  const stock = realArithmeticFromNominalGeometric(
+    input.stockReturn,
+    input.stockVol,
+    input.inflationRate,
+  );
+  const bond = realArithmeticFromNominalGeometric(
+    input.bondReturn,
+    input.bondVol,
+    input.inflationRate,
+  );
+  const stockScale = stock.vol / STOCK_HISTORY.sd;
+  const bondScale = bond.vol / BOND_HISTORY.sd;
+
+  // The sampler is year-major (index = t * paths + p); the paths here are path-major.
+  const indices = sampleBlockIndices(years, paths, HISTORY_SEED);
+  const rStock = new Float64Array(paths * years);
+  const rBond = new Float64Array(paths * years);
+  for (let t = 0; t < years; t++) {
+    const row = t * paths;
+    for (let p = 0; p < paths; p++) {
+      const idx = indices[row + p];
+      const k = p * years + t;
+      rStock[k] = stock.mean + stockScale * (JST_EQUITY[idx] - STOCK_HISTORY.mean);
+      rBond[k] = bond.mean + bondScale * (JST_BOND[idx] - BOND_HISTORY.mean);
+    }
+  }
+
+  return { stock: rStock, bond: rBond, years, paths };
+}
+
 /** Stock weights 100/0 ... 0/100 in steps of 10. */
 export const SWR_ALLOCATIONS: SwrAllocation[] = Array.from({ length: 11 }, (_, i) => ({
   label: `${100 - i * 10}/${i * 10}`,
@@ -143,7 +205,7 @@ export const SWR_ALLOCATIONS: SwrAllocation[] = Array.from({ length: 11 }, (_, i
  * (maximum rate 0).
  */
 export function swrFromPaths(
-  assets: AssetPaths,
+  assets: ReturnPaths,
   successRate: number,
   horizons: readonly number[] = SWR_HORIZONS,
   allocations: SwrAllocation[] = SWR_ALLOCATIONS,
@@ -183,12 +245,30 @@ export function swrFromPaths(
 }
 
 /** The full table for the current inputs; deterministic for identical inputs. */
-export function computeSwrTable(input: SwrInput, options: { paths?: number } = {}): SwrResult {
-  const assets = generateAssetPaths(input, options.paths ?? SWR_PATHS);
+export function computeSwrTable(
+  input: SwrInput,
+  options: { paths?: number; returnModel?: SwrReturnModel } = {},
+): SwrResult {
+  const paths = options.paths ?? SWR_PATHS;
+  const returnModel = options.returnModel ?? "simulated";
+  const successRate = input.successRate / 100;
+  const table = { returnModel, horizons: SWR_HORIZONS, allocations: SWR_ALLOCATIONS };
+
+  if (returnModel === "historical") {
+    return {
+      ...table,
+      rates: swrFromPaths(generateHistoricalPaths(input, paths), successRate),
+      phiStock: null,
+      phiBond: null,
+      innovationCorrelation: null,
+      correlationClamped: false,
+    };
+  }
+
+  const assets = generateAssetPaths(input, paths);
   return {
-    horizons: SWR_HORIZONS,
-    allocations: SWR_ALLOCATIONS,
-    rates: swrFromPaths(assets, input.successRate / 100),
+    ...table,
+    rates: swrFromPaths(assets, successRate),
     phiStock: assets.phiStock,
     phiBond: assets.phiBond,
     innovationCorrelation: assets.innovationCorrelation,

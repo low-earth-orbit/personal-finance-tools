@@ -9,9 +9,21 @@ import ColumnHeader from "@/components/shared/ColumnHeader";
 import layout from "@/components/shared/TwoColumn.module.css";
 import { DEFAULTS } from "@/utils/swr/presets";
 import { computeSwrTable } from "@/utils/swr/engine";
-import { loadInput, saveInput } from "@/utils/swr/storage";
+import {
+  DEFAULT_RETURN_MODEL,
+  loadInput,
+  loadReturnModel,
+  saveInput,
+  saveReturnModel,
+} from "@/utils/swr/storage";
 import { validateSwrInput } from "@/utils/swr/validation";
-import type { SwrInput, SwrInputKey, SwrResult, SwrWorkerResponse } from "@/utils/swr/types";
+import type {
+  SwrInput,
+  SwrInputKey,
+  SwrResult,
+  SwrReturnModel,
+  SwrWorkerResponse,
+} from "@/utils/swr/types";
 import type { FieldValue } from "@/types";
 
 // Without Worker support (e.g. the unit-test DOM), compute on the main thread instead.
@@ -19,17 +31,18 @@ const hasWorker = typeof Worker !== "undefined";
 
 export default function Main() {
   const [input, setInput] = useState<SwrInput>(() => loadInput());
+  const [returnModel, setReturnModel] = useState<SwrReturnModel>(() => loadReturnModel());
   const workerRef = useRef<Worker | null>(null);
   const requestIdRef = useRef(0);
   const [workerResult, setWorkerResult] = useState<SwrResult | null>(null);
   const [workerFailed, setWorkerFailed] = useState(false);
 
-  const errors = validateSwrInput(input);
+  const errors = validateSwrInput(input, returnModel);
 
   // The simulation is heavier than a single keystroke, so debounce the inputs that drive it.
   // Field errors still track the live input for instant feedback.
   const [debouncedInput] = useDebouncedValue(input, 150);
-  const debouncedValid = Object.keys(validateSwrInput(debouncedInput)).length === 0;
+  const debouncedValid = Object.keys(validateSwrInput(debouncedInput, returnModel)).length === 0;
 
   // Drop the last table when inputs turn invalid, so a later valid edit shows the loader
   // rather than a table computed for older inputs (render-time state adjustment).
@@ -59,15 +72,16 @@ export default function Main() {
     workerRef.current.postMessage({
       requestId: requestIdRef.current,
       input: debouncedInput,
+      returnModel,
     });
-  }, [debouncedInput, debouncedValid]);
+  }, [debouncedInput, debouncedValid, returnModel]);
 
   // While a newer request is in flight the previous table stays on screen.
   const onMainThread = !hasWorker || workerFailed;
   const result = !debouncedValid
     ? null
     : onMainThread
-      ? computeSwrTable(debouncedInput)
+      ? computeSwrTable(debouncedInput, { returnModel })
       : workerResult;
   const loading = debouncedValid && result == null;
 
@@ -80,10 +94,16 @@ export default function Main() {
     });
   }
 
+  function handleReturnModelChange(model: SwrReturnModel) {
+    setReturnModel(model);
+    saveReturnModel(model);
+  }
+
   function handleReset() {
     const fresh: SwrInput = { ...DEFAULTS };
     setInput(fresh);
     saveInput(fresh);
+    handleReturnModelChange(DEFAULT_RETURN_MODEL);
   }
 
   return (
@@ -91,7 +111,14 @@ export default function Main() {
       <Grid gap="xl">
         <Grid.Col span={{ base: 12, lg: 5 }}>
           <ColumnHeader title="Inputs" />
-          <InputForm input={input} errors={errors} onChange={handleChange} onReset={handleReset} />
+          <InputForm
+            input={input}
+            returnModel={returnModel}
+            errors={errors}
+            onChange={handleChange}
+            onReturnModelChange={handleReturnModelChange}
+            onReset={handleReset}
+          />
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 7 }} className={layout.result} id="result">
           <ColumnHeader title="Result" note="Updates as you change inputs" />

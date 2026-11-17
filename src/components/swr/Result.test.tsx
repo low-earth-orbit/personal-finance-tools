@@ -45,4 +45,10 @@ describe("swr Result", () => {
     renderWithMantine(<Result input={input} result={{ ...result, correlationClamped: true }} />);
     expect(screen.getByText("Correlation adjusted")).toBeInTheDocument();
   });
+
+  it("names the historical model in the eyebrow", () => {
+    const historical = computeSwrTable(input, { paths: 500, returnModel: "historical" });
+    renderWithMantine(<Result input={input} result={historical} />);
+    expect(screen.getByText(/· historical sequences$/)).toBeInTheDocument();
+  });
 });
