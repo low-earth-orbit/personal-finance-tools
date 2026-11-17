@@ -1,6 +1,6 @@
-# Lifetime Allocation Optimizer — Methodology
+# Lifetime Allocation — Methodology
 
-Research note for the Lifetime Allocation Optimizer (`/glide-path`). The question: **what equity weight should a household hold at each age, before and after retirement?**
+Research note for Lifetime Allocation (`/glide-path`). The question: **what equity weight should a household hold at each age, before and after retirement?**
 
 It assumes you know personal-finance basics (asset allocation, safe withdrawal rates, real versus nominal returns), not the statistics behind the tool. Terms are defined in [Key terms](#key-terms).
 

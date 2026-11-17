@@ -1,6 +1,6 @@
 # analysis/glide_path
 
-Python engine and research scripts for the Lifetime Allocation Optimizer (`/glide-path`). Method and results: [`docs/glide-path/methodology.md`](../../docs/glide-path/methodology.md). The web app's TypeScript engine (`src/utils/glide-path/engine.ts`) implements the same model.
+Python engine and research scripts for Lifetime Allocation (`/glide-path`). Method and results: [`docs/glide-path/methodology.md`](../../docs/glide-path/methodology.md). The web app's TypeScript engine (`src/utils/glide-path/engine.ts`) implements the same model.
 
 ## Modules
 
