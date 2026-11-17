@@ -37,55 +37,27 @@ export default function Methodology() {
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing={48} verticalSpacing="lg">
           <Stack gap="md">
             <Text size="sm" c="dimmed">
-              Most glide-path rules (“100 minus your age”, target-date funds) are heuristics with no
-              link to your income target, risk tolerance or guaranteed income. This model derives an
-              allocation from stated preferences and return assumptions instead.
+              Common allocation rules (“100 minus your age”, target-date funds) ignore your income
+              target, risk tolerance and guaranteed income. This model derives an allocation from
+              them instead.
             </Text>
 
             <Title order={3} fz="md">
-              What “optimal” means here
+              How it works
             </Title>
             <Text size="sm" c="dimmed">
-              The optimizer picks the equity weight for each 5-year step that maximizes the{" "}
-              <Strong>expected utility of retirement spending</Strong>, scored with a{" "}
-              <Strong>CRRA (constant relative risk aversion)</Strong> function: a dollar counts for
-              more when you would otherwise fall short than when you are already comfortable. The
-              result is the best <Strong>risk-adjusted outcome for the inputs entered</Strong>, not
-              the highest expected return and not the least volatile.
+              For each 5-year step, the optimizer picks the equity weight that maximizes the{" "}
+              <Strong>expected utility of retirement spending</Strong> (CRRA): a dollar counts for
+              more when you would otherwise fall short. <Strong>γ</Strong> sets how much you dislike
+              uncertain spending, and <Strong>β</Strong> how much later years count. It maximizes
+              welfare, not the success rate, and money left at the end has no value.
             </Text>
             <Text size="sm" c="dimmed">
-              Two preferences shape it. <Strong>γ</Strong> sets how much you dislike uncertain
-              retirement spending: a higher γ gives safer, lower-equity plans once spending is
-              flexible, but barely moves the allocation with constant-dollar spending, because that
-              plan is driven by avoiding shortfall years. <Strong>β</Strong> sets how much later
-              retirement years count compared with earlier ones.
-            </Text>
-            <Text size="sm" c="dimmed">
-              It maximizes welfare, not success rate. Where no stock/bond mix can close a funding
-              gap, the fix is in your inputs (retire later, spend less, save more), not the
-              allocation. Money left at the end of the plan has no value in the model.
-            </Text>
-
-            <Title order={3} fz="md">
-              How it optimizes
-            </Title>
-            <Text size="sm" c="dimmed">
-              <Strong>Monte Carlo coordinate ascent</Strong>: hold every step’s weight fixed but
-              one, try every candidate weight for that step on the same simulated market paths
-              (common random numbers), keep the best, and cycle through the steps until nothing
-              improves. No shape (flat, rising, falling) is assumed.
-            </Text>
-            <Text size="sm" c="dimmed">
-              By default each year’s return is an independent draw from our capital-market
-              assumptions (stocks {CMA.stockReturn}% with {CMA.stockVol}% volatility, bonds{" "}
-              {CMA.bondReturn}% with {CMA.bondVol}%, correlation {CMA.correlation}), in real
-              (today’s) dollars. Those assumptions are <Strong>compound (geometric)</Strong>{" "}
-              returns, so the simulation converts each one to the matching average annual return;
-              otherwise volatility drag would make every mix compound below its stated rate. The
-              Historical sequences option instead replays stock and bond sequences from the JST
-              Macrohistory cross-country panel, rescaled to the same assumptions and
-              block-bootstrapped. That keeps history’s multi-year patterns: crashes followed by
-              recoveries, and inflation decades.
+              Returns come from our capital-market assumptions (stocks {CMA.stockReturn}% a year
+              with {CMA.stockVol}% volatility, bonds {CMA.bondReturn}% with {CMA.bondVol}%, before
+              inflation), and results are in today’s dollars. By default each year is drawn
+              independently. Historical sequences instead replays runs of real years from 16
+              countries, 1871–2020, rescaled to the same assumptions.
             </Text>
 
             <Title order={3} fz="md">
@@ -94,15 +66,14 @@ export default function Methodology() {
             <Text size="sm" c="dimmed">
               <Strong>CE income</Strong> (certainty-equivalent income) is the steady yearly income
               that would feel as good as the uncertain plan. <Strong>Shortfall</Strong> is the share
-              of simulated retirements with at least one year the portfolio cannot fund your target.
-              It is reported from the median retirement balance (drawdown) and from today
-              (full-path), which adds the luck of markets before you retire.
+              of simulated retirements with at least one year the portfolio cannot fund your target,
+              counted from retirement (drawdown) and from today (full path).
             </Text>
             <Text size="sm" c="dimmed">
-              The tool prefers the best single <Strong>constant</Strong> equity weight unless the
-              optimized glide path beats it by more than 1% of CE income or 1 point of full-path
-              shortfall. Smaller gaps are about the size of the glide’s usual edge and of simulation
-              noise, and one fixed allocation is easier to hold through market swings.
+              The tool recommends the best single <Strong>constant</Strong> equity weight unless the
+              optimized path beats it by more than 1% of CE income or 1 point of full-path
+              shortfall. Smaller gaps are within the model’s noise, and one fixed mix is easier to
+              hold.
             </Text>
           </Stack>
 
@@ -111,54 +82,30 @@ export default function Methodology() {
               What the model finds
             </Title>
             <Point heading="The return model sets the equity level.">
-              With independent returns, constant-dollar spending builds a moderate “bond tent” near
-              retirement. With historical sequences, the optimum is about 100% equity. The two can
-              differ by 20 percentage points, so compare both settings of the return model.
+              With independent returns, fixed spending builds a moderate “bond tent” near
+              retirement. With historical sequences, the optimum is about 100% equity. Compare both.
             </Point>
             <Point heading="About 100% equity is a scenario, not the default.">
-              That result leans on pre-1990 monetary regimes, surviving developed markets, and long
-              nominal bonds being the only alternative. Those bonds’ worst years mostly came in wars
-              and inflations that also hit stocks. The app’s bond is nominal, and real-return bonds
-              are research only. A long real-return bond earning 1.5% a year after inflation, a
-              little below the nominal bond, keeps the default near 100% equity and moves an
-              overfunded plan ($200k saved, $20k a year) to about 65–70%, worth at most 1.4% of CE
-              income. At 2%, the two plans move to about 80–85% and 55% equity, worth at most 1% and
-              2.5%.
+              It leans on pre-1990 history, markets that survived, and long nominal bonds as the
+              only alternative, whose worst years came in the same wars and inflations that hit
+              stocks.
             </Point>
-            <Point heading="The shape is worth little; the level matters.">
-              Out of sample, the optimized glide path beats the best constant weight by only about
-              1% of CE income with independent returns, and by essentially nothing with historical
-              sequences.
+            <Point heading="The level matters more than the shape.">
+              Out of sample, the optimized path beats the best constant weight by about 1% of CE
+              income or less.
             </Point>
-            <Point heading="A wrong guess about the regime costs little.">
-              Any constant weight from 90% to 100% equity cost at most about 1.2% of CE income in
-              every regime we tested.
-            </Point>
-            <Point heading="How well funded you are sets the tent.">
-              The more your savings exceed what the spending target needs, the less upside you can
-              use and the more the optimizer protects the floor. If every allocation already
-              delivers your target, the tool says the plan is overfunded: the weight shown is the
-              middle of a tie.
+            <Point heading="Funding sets the tent.">
+              The more your savings exceed what your target needs, the more the optimizer protects
+              the floor. If every allocation already meets your target, the plan is overfunded and
+              the weight shown is the middle of a tie.
             </Point>
             <Point heading="Flexible spending holds about 100% equity.">
-              That is true under both return models. Compare spending rules at the same spending
-              level, though: a 4% draw on a large balance can be well above a constant-dollar
-              target, so part of a flexible plan’s higher CE income is spending more, not spending
-              flexibly. Check the year-1 portfolio draw shown with your result. At the same starting
-              draw, flexibility is worth about $6–9k a year in our default case.
+              Part of its higher CE income can be higher spending, so compare the year-1 portfolio
+              draw shown with your result.
             </Point>
             <Point heading="Guaranteed income is your bond floor.">
-              A larger guaranteed income (CPP + OAS + DB) lets the portfolio take more equity risk.
-              With none, rare depleted years dominate the score, so the tool requires at least
-              $10,000 a year. If it covers your whole target and spending is fixed, every allocation
-              ties and the tool asks you to change the inputs. If it starts after you retire, the
-              portfolio funds your whole target until then: retiring at 60 with CPP/OAS from 65 cost
-              about 9% of CE income in our example.
-            </Point>
-            <Point heading="Leverage earns little.">
-              For a young saver, allowing up to 150% equity raised CE income by under 1% under both
-              return models, and only in the first decade of saving, before margin calls, rate
-              changes or nerves. In this model, equity above about 110% is unrewarded.
+              More CPP, OAS or pension income lets the portfolio take more risk. The tool needs at
+              least $10,000 a year; with none, rare depleted years dominate the score.
             </Point>
           </Stack>
         </SimpleGrid>
@@ -170,7 +117,7 @@ export default function Methodology() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            glide-path analysis note
+            Lifecycle Allocation research note
           </Anchor>
           . Runs in your browser; nothing is sent anywhere. This is a research model for education,
           not financial advice or a recommendation for any portfolio.

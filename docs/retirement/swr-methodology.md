@@ -141,7 +141,7 @@ Each column of the results table answers one question by combining three choices
 | **Block sequencing** | block bootstrap: §C world, §E pooled | forward-block: §F world, §G pooled |
 
 - **Overlapping windows** run a retirement from every historical start year. They keep history's sequencing within each window but have few independent windows.
-- **Block bootstrap** resamples runs of consecutive years (stationary bootstrap, 10-year mean block length), keeping multi-year patterns while producing many paths. The [glide-path note's Figure 2](../glide-path/methodology.md#how-sequencing-differs-from-iid) shows one simulated path.
+- **Block bootstrap** resamples runs of consecutive years (stationary bootstrap, 10-year mean block length), keeping multi-year patterns while producing many paths. The [Lifecycle Allocation research note's Figure 2](../glide-path/methodology.md#how-sequencing-differs-from-iid) shows one simulated path.
 - **Forward-block** first affine-rescales each asset's history to real arithmetic anchors (equity 4.86% / 11.75%, bonds 1.81% / 5.39%: the real arithmetic means and vols of the stock and bond CMA in §1.2), so only the sequencing is historical.
 
 The **§G vs §H** pair is the key test. Both have the same average returns, and they differ only in whether years follow historical patterns or are independent.
