@@ -95,14 +95,14 @@ export default function Methodology() {
               <Strong>CE income</Strong> (certainty-equivalent income) is the steady yearly income
               that would feel as good as the uncertain plan. <Strong>Shortfall</Strong> is the share
               of simulated retirements with at least one year the portfolio cannot fund your target.
-              It is reported from the expected retirement balance (drawdown) and from today
+              It is reported from the median retirement balance (drawdown) and from today
               (full-path), which adds the luck of markets before you retire.
             </Text>
             <Text size="sm" c="dimmed">
               The tool prefers the best single <Strong>constant</Strong> equity weight unless the
-              optimized glide path beats it by more than 3% of CE income or 1 point of full-path
-              shortfall. Smaller gaps are inside the model’s own uncertainty, and one fixed
-              allocation is easier to hold through market swings.
+              optimized glide path beats it by more than 1% of CE income or 1 point of full-path
+              shortfall. Smaller gaps are about the size of the glide’s usual edge and of simulation
+              noise, and one fixed allocation is easier to hold through market swings.
             </Text>
           </Stack>
 
@@ -117,13 +117,13 @@ export default function Methodology() {
             </Point>
             <Point heading="About 100% equity is a scenario, not the default.">
               That result leans on pre-1990 monetary regimes, surviving developed markets, and long
-              nominal bonds being the only alternative. The app’s bond is nominal, and real-return
-              bonds are research only. An idealized one (the long bonds’ mean and volatility, with
-              no equity correlation or persistence) lowers the default to 70% equity and an
-              overfunded plan to 45%. A conservative real return (1% or 2% a year after inflation,
-              both below current inflation-linked yields) does less: at 1%, the default stays near
-              100% equity and an overfunded plan ($200k saved, $20k a year) moves to about 55%; at
-              2%, they move to about 60% and 30%.
+              nominal bonds being the only alternative. Those bonds’ worst years mostly came in wars
+              and inflations that also hit stocks. The app’s bond is nominal, and real-return bonds
+              are research only. A long real-return bond earning 1.5% a year after inflation, a
+              little below the nominal bond, keeps the default near 100% equity and moves an
+              overfunded plan ($200k saved, $20k a year) to about 65–70%, worth at most 1.4% of CE
+              income. At 2%, the two plans move to about 80–85% and 55% equity, worth at most 1% and
+              2.5%.
             </Point>
             <Point heading="The shape is worth little; the level matters.">
               Out of sample, the optimized glide path beats the best constant weight by only about
@@ -150,11 +150,10 @@ export default function Methodology() {
             <Point heading="Guaranteed income is your bond floor.">
               A larger guaranteed income (CPP + OAS + DB) lets the portfolio take more equity risk.
               With none, rare depleted years dominate the score, so the tool requires at least
-              $10,000 a year. If it covers your whole target and spending is fixed, no allocation is
-              better than another and the tool asks you to adjust the inputs. Before it starts (a
-              bridge after an earlier retirement) the portfolio funds your whole target. Starting it
-              after you retire lowers income: retiring at 60 with CPP/OAS from 65 cost about 9% in
-              our example.
+              $10,000 a year. If it covers your whole target and spending is fixed, every allocation
+              ties and the tool asks you to change the inputs. If it starts after you retire, the
+              portfolio funds your whole target until then: retiring at 60 with CPP/OAS from 65 cost
+              about 9% of CE income in our example.
             </Point>
             <Point heading="Leverage earns little.">
               For a young saver, allowing up to 150% equity raised CE income by under 1% under both

@@ -36,6 +36,14 @@ describe("pickRecommendation", () => {
     expect(r.preferConstant).toBe(false);
   });
 
+  it("puts the CE threshold at 1%", () => {
+    // 58,000 vs 57,400 is a 1.05% lead; vs 57,450 it is 0.96%.
+    expect(pickRecommendation(DEFAULTS, result({ flatCeIncome: 57400 })).preferConstant).toBe(
+      false,
+    );
+    expect(pickRecommendation(DEFAULTS, result({ flatCeIncome: 57450 })).preferConstant).toBe(true);
+  });
+
   it("prefers the constant when it wins on CE and shortfall", () => {
     const r = pickRecommendation(DEFAULTS, result({ flatCeIncome: 58100, flatDepletion: 0.02 }));
     expect(r.preferConstant).toBe(true);

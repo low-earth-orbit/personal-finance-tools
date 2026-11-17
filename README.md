@@ -10,7 +10,7 @@ A small collection of free, sensible personal finance calculators for Canadians.
 | --- | --- | --- |
 | **Rent vs Buy** — compare renting vs owning a home | `/rent-vs-buy` | Live |
 | **When can I retire?** — quick retirement reality check | `/retirement` | Live |
-| **Lifetime Allocation** — find your optimal lifetime stock allocation | `/glide-path` | New |
+| **Lifecycle Allocation** — change your stock share with age, or hold one mix? | `/glide-path` | New |
 | **ACB Calculator** — adjusted cost base from a Wealthsimple activity export | `/acb` | Preview |
 | **Where to invest: TFSA, RRSP or Non-Reg?** — split a lump sum across account types | `/allocator` | Preview |
 | **Safe withdrawal rates** — first-year withdrawal rate (then indexed to inflation) by stock/bond mix and retirement length | `/swr` | New |
@@ -20,7 +20,7 @@ The site is a single statically-exported Next.js app: a hub landing page at `/` 
 
 The Safe withdrawal rates tool follows the 4% rule logic from the Trinity study: each cell is the first-year withdrawal as a % of the starting portfolio, raised with inflation every year after, at your chosen success rate (80–99%). You set stock and bond returns, volatilities, their correlation and inflation, and each asset's 10-year variance ratio, VR(10), which sets mean reversion or persistence.
 
-The Lifetime Allocation tool finds the optimal stock allocation across your lifetime. It also compares that path with the best constant allocation and reports drawdown-only depletion separately from full-path shortfall so the trade-offs between both choices remain visible.
+The Lifecycle Allocation tool is a research model. It searches for the stock allocation at each age, before and after retirement, that maximizes risk-adjusted retirement spending (CRRA utility), under either independent yearly returns or historical sequences. It compares that path with the best constant allocation and recommends the constant unless the path is clearly better (by more than 1% of certainty-equivalent income or 1 point of shortfall). Shortfall is reported both from the retirement date (drawdown only) and from today (full path).
 
 ## Disclaimer
 
@@ -48,14 +48,14 @@ src/
   app/
     page.tsx              # hub landing page (lists tools)
     rent-vs-buy/page.tsx  # rent-vs-buy tool route
-    glide-path/page.tsx   # Lifetime Allocation route
+    glide-path/page.tsx   # Lifecycle Allocation route
     allocator/page.tsx    # Where to invest: TFSA, RRSP or Non-Reg? route
     swr/page.tsx          # Safe withdrawal rates route
     expected-return/page.tsx # Expected stock returns route
   components/
     shared/               # reusable chrome + form primitives (Header, Footer, inputs)
     rent-vs-buy/          # rent-vs-buy-specific components
-    glide-path/           # Lifetime Allocation components
+    glide-path/           # Lifecycle Allocation components
     allocator/            # Where to invest: TFSA, RRSP or Non-Reg? components
     swr/                  # Safe withdrawal rates components
     expected-return/      # Expected stock returns components

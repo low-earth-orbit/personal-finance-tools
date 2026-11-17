@@ -6,18 +6,19 @@ import Methodology from "@/components/glide-path/Methodology";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/glide-path" },
-  title: "Lifetime Allocation",
-  description: "A research model of how stock allocation could change over a lifetime.",
+  title: "Lifecycle Allocation",
+  description:
+    "Should your stock share change with age, or stay constant? A research model built on return assumptions and market history.",
 };
 
 export default function GlidePathPage() {
   return (
     <>
       <Header
-        title="Lifetime Allocation"
-        subtitle="A research model of how your stock allocation could change over a lifetime, compared with a constant allocation."
+        title="Lifecycle Allocation"
+        subtitle="Should your stock share change with age, or stay constant? A research model that answers from your plan, return assumptions and market history."
         showHomeLink
-        eyebrow="03 / Lifetime Allocation"
+        eyebrow="03 / Lifecycle Allocation"
         status="new"
         tags={["Research model", "CRRA utility"]}
       />

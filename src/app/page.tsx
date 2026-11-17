@@ -28,9 +28,9 @@ const TOOLS: Tool[] = [
     href: "/retirement",
   },
   {
-    title: "Lifetime Allocation",
+    title: "Lifecycle Allocation",
     description:
-      "A research model of how stock allocation could change over a lifetime. For nerds.",
+      "Should your stock share change with age, or stay constant? A research model. For nerds.",
     href: "/glide-path",
     status: "new",
   },

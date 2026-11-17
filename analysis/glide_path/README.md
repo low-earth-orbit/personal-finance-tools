@@ -1,6 +1,6 @@
 # analysis/glide_path
 
-Python engine and research scripts for Lifetime Allocation (`/glide-path`). Method and results: [`docs/glide-path/methodology.md`](../../docs/glide-path/methodology.md). The web app's TypeScript engine (`src/utils/glide-path/engine.ts`) implements the same model.
+Python engine and research scripts for Lifecycle Allocation (`/glide-path`). Method and results: [`docs/glide-path/methodology.md`](../../docs/glide-path/methodology.md). The web app's TypeScript engine (`src/utils/glide-path/engine.ts`) implements the same model.
 
 ## Modules
 
@@ -13,7 +13,7 @@ Python engine and research scripts for Lifetime Allocation (`/glide-path`). Meth
 | `interactive.py` | Prompt flow (`-i`): builds a CLI argument list, runs it, prints the reproduction command |
 | `cli.py` | Flag CLI behind `analysis/recommend_glide.py`, incl. `--compare-modes` |
 | `research.py` | iid research sweep (methodology §2) |
-| `research_history.py` | History, bond-persistence decomposition, bond-menu, short-TIPS stress, sleeve-blend, regime-mixture, CPI-basis, regret and funding sections (methodology §3–§4), plus the GIC-ladder section, which is code only and not reported in the note |
+| `research_history.py` | History, bond-persistence decomposition, real-versus-nominal bond legs with a historical real-bond proxy (`real-leg`), sleeve-blend, regime-mixture, CPI-basis, regret and funding sections (methodology §3–§4), plus the GIC-ladder section, which is code only and not reported in the note |
 | `doc_figures.py` | Methodology Figures 1–2 as light/dark SVGs in `docs/glide-path/img/` (needs matplotlib). It also writes the bond-persistence decomposition figure, which the note no longer embeds |
 | `generate_bundle.py` | Writes `src/utils/glide-path/jstData.ts` (forward-rescaled JST history) |
 
@@ -32,7 +32,7 @@ python3 analysis/recommend_glide.py --start-age 35 --accum 25 --retire 35 \
 python3 -m analysis.glide_path.interactive --demo        # lever sweep (writes figures)
 python3 -m analysis.glide_path.research                  # §2 sweep (~5 min)
 python3 -m analysis.glide_path.research_history --quick  # all history sections, low fidelity
-python3 -m analysis.glide_path.research_history --sections tips-stress  # one section
+python3 -m analysis.glide_path.research_history --sections real-leg  # one section
 python3 -m analysis.glide_path.doc_figures                # regenerate methodology SVGs
 python3 -m unittest discover -s analysis -p 'test_*.py'
 ```

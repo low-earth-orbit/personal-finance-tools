@@ -5,18 +5,20 @@
  */
 import type { GlidePathInput, GlidePathResult } from "./types";
 
-// Simplicity rule: recommend the constant weight unless the glide beats it by more than 3% on
+// Simplicity rule: recommend the constant weight unless the glide beats it by more than 1% on
 // CE income or by more than 1 point on full-path shortfall. A bequest weight enters the
 // objective that picks both allocations, but the gate compares spending CE only: welfare CE
 // inverts u near the CRRA bound for well-funded plans, where tiny utility gaps (and Monte Carlo
 // noise) become large CE gaps.
 // Calibration (methodology §1.5, §2e, §3d): the glide's out-of-sample CE edge is typically
-// ≤ ~0.5%, while the era/mode brackets move CE by 2–3%. A 72-case input grid (both return
-// modes, savings $100k–$800k, target $50k/$75k, flex 0/0.5/1, γ 3/6, two seeds each, 2026-11)
-// gave a largest glide edge of 1.7% and seed-to-seed swings of up to 2.3%; every CE threshold
-// ≥ 2% gave the same seed-stable picks, and the constant never added more than 0.3pp full-path
-// shortfall.
-export const SIMPLICITY_CE_THRESHOLD = 0.03;
+// ≤ ~1% (0.9% at the default 30-year horizon, §2e), and Monte Carlo noise ~0.3%. A 72-case input grid (both return modes, savings
+// $100k–$800k, target $50k/$75k, flex 0/0.5/1, γ 3/6, two seeds each, 2026-11) gave a largest
+// glide edge of 1.7% and seed-to-seed swings of up to 2.3%; every CE threshold ≥ 2% gave the
+// same seed-stable picks, and the constant never added more than 0.3pp full-path shortfall.
+// The gate was lowered from 3% to 1% (2026-11-17) so the glide is shown when it clearly beats
+// its usual edge. Cases with an edge of 1–1.7% now get the glide, and with seed swings above
+// 1% those picks can change with the seed.
+export const SIMPLICITY_CE_THRESHOLD = 0.01;
 export const SIMPLICITY_SHORTFALL_THRESHOLD = 0.01;
 export const DRAWDOWN_RISK_HIGHLIGHT_THRESHOLD = 0.15;
 export const FULLPATH_RISK_HIGHLIGHT_THRESHOLD = 0.3;

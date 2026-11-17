@@ -12,14 +12,13 @@ Sections (choose with --sections; default all):
   blocks  : block-length sweep (sequencing strength) on the pooled dataset
   channels: which ingredient flips the answer — corr, marginal shapes, equity-only or
             bond-only sequencing, vs the full joint sequence structure
-  menu    : replace the nominal-bond leg with synthetic real assets (idealized real asset and
-            short-TIPS/RRB ladder) — how much of flat-100% is the bond menu?
-  tips-etf: the real leg as an AR(1) at a measured short-TIPS-ETF persistence (--tips-phi)
-  tips-stress: cell (b) with one assumption changed at a time (correlation, phi, mean, vol)
   bills-block: a real-bill leg that keeps its own historical persistence
   gamma   : risk-aversion sweep across the key modes
   vr      : variance-ratio diagnostic (mean reversion) for world vs pooled
   bond-decomp: bond VR(10) split into carry, rate-cycle (price) and inflation terms by era
+  real-leg: real vs nominal bonds — the simulated real bond's mean x persistence grid, the
+            nominal-CMA and VR-matched rows (with and without the historical bond's own yearly
+            returns), and a historical real-bond proxy (the JST bond without its inflation term)
   sleeve-blend: fixed nominal/real bond sleeve — CE by real share and equity weight, per regime
   era-seq : 1990-2020 vs full history under block vs iid draws of the same years
   regime-mix: constant-weight regret when the 1990-2020 regime holds with probability p
@@ -35,6 +34,7 @@ Sections (choose with --sections; default all):
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ProcessPoolExecutor
 
 import numpy as np
 
@@ -232,61 +232,6 @@ def run_channels(args):
     print(summary_row("f) forward-block (joint)", recommend_glide_path(**fwd)))
 
 
-def run_menu(args):
-    """Replace the nominal-bond leg with a synthetic VR=1 real asset (corr 0, iid).
-
-    Equity keeps its forward-block sequencing throughout; only the non-equity asset changes:
-      a) forward-block              : rescaled historical long nominal bonds (joint structure)
-      b) idealized real asset       : VR=1 at the bond mean/vol, zero equity correlation
-      c) idealized short-TIPS ladder   : iid normal, bond mean, 2% vol
-      d) idealized ladder @2% real     : c) with a 2.0% real yield
-
-    Cells (c)/(d) are idealized: no real-rate duration risk, no equity correlation, no
-    liquidity/issuance constraints (Canada stopped RRB issuance in 2022). The 2% vol in (c) is the
-    LADDER property (hold-to-maturity pull-to-par), not a property of being short or real. Read c/d
-    as upper bounds. (b) is generous to a real fund on correlation, persistence and mean and
-    conservative on volatility; ``tips-stress`` varies each.
-    """
-    eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
-    rescaled = J.rescale_to_targets(
-        J.load_pooled_country_returns(),
-        equity_mean=eq_m, equity_vol=eq_v,
-        fixed_income_mean=bd_m, fixed_income_vol=bd_v,
-        label_suffix="forward-CMA rescaled",
-    )
-
-    def with_synth_bond(mean, vol, seed=11):
-        rng = np.random.default_rng(seed)
-        synth = J._affine_to_target(
-            mean + vol * rng.standard_normal(rescaled.observations), mean, vol
-        )
-        return J.ReturnHistory(
-            years=rescaled.years, equity=rescaled.equity, fixed_income=synth,
-            label="synth-bond", country_count=rescaled.country_count,
-            segment_ids=rescaled.segment_ids,
-        )
-
-    print("\n" + "=" * 100)
-    print("BOND-MENU EXPERIMENT  (equity keeps forward-block sequencing; only the safe asset changes)")
-    print("  Reads: b) holds bond risk constant and removes only its sequencing+corr — if the optimum")
-    print("  drops from 100%, the flat-100% result is about the bond menu, not equity's merit.")
-    print("=" * 100)
-
-    print(summary_row("a) nominal bonds (forward-block)", recommend_glide_path(
-        **base_kwargs(args, return_mode="forward-block", dataset="pooled",
-                      block_years=args.block_years))))
-    cells = [
-        ("b) idealized real asset (VR=1, 0 corr, bond mean/vol)", bd_m, bd_v),
-        ("c) idealized short-TIPS ladder (2% vol)", bd_m, 0.02),
-        ("d) idealized ladder @2% real", 0.02, 0.02),
-    ]
-    for label, mean, vol in cells:
-        rec = recommend_glide_path(**base_kwargs(
-            args, return_mode="historical-block", dataset="pooled", block_years=args.block_years,
-            history=with_synth_bond(mean, vol), sampler=split_sampler("equity")))
-        print(summary_row(label, rec))
-
-
 def run_gamma_sweep(args):
     print("\n" + "=" * 100)
     print("RISK-AVERSION SWEEP  (does the mode ranking hold across γ?)")
@@ -346,7 +291,7 @@ def run_variance_ratios(args):
     print("\n" + "=" * 100)
     print("VARIANCE RATIO  (arithmetic-return basis; VR<1 = mean reversion)")
     print("  bills = empirical short asset: real return on rolling gov bills (nominal,")
-    print("          bill_rate deflated by CPI) — the menu's synthetic VR=1 leg made real")
+    print("          bill_rate deflated by CPI)")
     print("=" * 100)
     horizons = [1, 2, 5, 10, 15]
     disaster_windows = _parse_windows(DISASTER_YEARS)
@@ -441,6 +386,12 @@ def run_variance_ratios(args):
                   f"{joint[0]:.2f} [{joint[1][0]:.2f}, {joint[1][1]:.2f}] vs observed {observed:.2f}")
 
 
+def _rolling_sums(values, segments, years=10):
+    """Overlapping ``years``-year sums of ``values``, never spanning a segment boundary."""
+    runs = [r for r in J._split_segments(values, segments) if len(r) >= years]
+    return np.concatenate([np.convolve(r, np.ones(years), "valid") for r in runs])
+
+
 def run_bond_decomposition(args):
     """Split pooled real-bond (and bill) persistence into rate and inflation terms.
 
@@ -467,12 +418,8 @@ def run_bond_decomposition(args):
         contrib = J.variance_decomposition(total, parts, 10, segments)
         vr = J.variance_ratio(total, 10, segments)
         cells = "  ".join(f"{contrib[n]:>4.2f} {contrib[n] / vr:>4.0%}" for n in names)
-
-        def sums10(values):
-            runs = [r for r in J._split_segments(values, segments) if len(r) >= 10]
-            return np.concatenate([np.convolve(r, np.ones(10), "valid") for r in runs])
-
-        corr = np.corrcoef(sums10(parts["price"]), sums10(parts["inflation"]))[0, 1]
+        corr = np.corrcoef(_rolling_sums(parts["price"], segments),
+                           _rolling_sums(parts["inflation"], segments))[0, 1]
         infl_vr = J.variance_ratio(parts["inflation"], 10, segments)
         print(f"  {cut_name:<24} {len(total):>5} {vr:>8.2f}  {cells}   {corr:>17.2f}  {infl_vr:>14.2f}")
 
@@ -492,11 +439,10 @@ def run_bond_decomposition(args):
 def run_bills_block(args):
     """Block bootstrap with a real **bills** leg carrying its OWN historical persistence.
 
-    Unlike the menu cells (which force the safe asset iid, VR=1), this replaces the long-bond leg
-    with JST's empirical real short-bill series — rescaled to the given bills marginals (default
+    This replaces the long-bond leg with JST's empirical real short-bill series — rescaled to the given bills marginals (default
     0.75% real / 2% vol) — and block-bootstraps it jointly with equity. So the bills leg keeps its
-    real-world inflation persistence (arithmetic VR(10y) printed below): the honest "real-world GIC/bill ladder" answer,
-    vs the menu's idealized VR=1 short asset.
+    real-world inflation persistence (arithmetic VR(10y) printed below): the honest
+    "real-world GIC/bill ladder" answer.
     """
     eq_m, eq_v, _, _ = forward_anchors(CMA_CURVE, 2.1, True)
     bill_m, bill_v = args.bills_mean / 100.0, args.bills_vol / 100.0
@@ -531,7 +477,7 @@ def run_bills_block(args):
     print("\n" + "=" * 100)
     print("BLOCK BOOTSTRAP with a REAL BILLS leg (bills keep their own historical persistence)")
     print(f"  bills marginals: {args.bills_mean:.2f}% real / {args.bills_vol:.2f}% vol; "
-          f"equity keeps full forward-block sequencing. Compare to menu cell (a) nominal bonds.")
+          f"equity keeps full forward-block sequencing. Compare to the nominal-bond forward-block run.")
     print(f"  bills VR(10y) = {J.variance_ratio(joint.fixed_income, 10, joint.segment_ids):.2f} "
           f"(iid null = 1.0; >1 = persistent inflation bleed)")
     print("=" * 100)
@@ -555,75 +501,6 @@ def run_bills_block(args):
     print(summary_row("bills (iid, VR=1 — for contrast)", rec_iid))
 
 
-def run_tips_etf(args):
-    """Data-anchored realistic short-TIPS-ETF leg (e.g. XSTH/VTIP), not the idealized VR=1 cell.
-
-    Menu cell (b) assumes the buyable real asset is VR=1. Annual VTIP returns (2012-, deflated by
-    US CPI) suggest short-TIPS real returns are only mildly persistent: AR(1) phi ~= 0.13, i.e.
-    VR(2y) ~= 1.13. That estimate rests on ~13 annual observations (standard error ~0.27), so it
-    cannot rule out phi = 0 or phi ~= 0.5; ``tips-stress`` sweeps phi. For comparison, JST real
-    bills have arithmetic VR(2y) ~= 1.50 pooled / 1.74 world (VR(10y) ~= 3.3 pooled). This builds
-    the safe leg as an AR(1) at the given phi/marginals (--tips-mean/--tips-vol/--tips-phi),
-    block-sampled jointly so it carries that persistence while equity keeps its JST forward-block
-    sequencing.
-    """
-    eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
-    # Default the TIPS marginals to the forward bond anchors so phi=0 reproduces menu cell (b).
-    tips_m = bd_m if args.tips_mean is None else args.tips_mean / 100.0
-    tips_v = bd_v if args.tips_vol is None else args.tips_vol / 100.0
-    phi = args.tips_phi
-
-    raw_hist = J.load_pooled_country_returns()
-    # Match menu cell (b): equity uses the forward-CMA arithmetic mean/vol while retaining
-    # pooled historical sequencing. The old version accidentally used raw 6.94% real / 22.3%
-    # equity, making this comparison incomparable.
-    hist = J.rescale_to_targets(
-        raw_hist,
-        equity_mean=eq_m,
-        equity_vol=eq_v,
-        fixed_income_mean=tips_m,
-        fixed_income_vol=tips_v,
-        label_suffix="forward-CMA equity rescaled",
-    )
-    n = hist.observations
-    seg = hist.segment_ids if hist.segment_ids is not None else np.zeros(n, dtype=int)
-
-    def ar1(seed):
-        """AR(1) with the given phi at (tips_m, tips_v) marginals; restart each segment."""
-        rng = np.random.default_rng(seed)
-        innov_sd = tips_v * np.sqrt(1 - phi * phi)
-        out = np.empty(n)
-        prev, x = None, 0.0
-        for i in range(n):
-            if seg[i] != prev:
-                x = rng.standard_normal() * tips_v
-                prev = seg[i]
-            else:
-                x = phi * x + rng.standard_normal() * innov_sd
-            out[i] = tips_m + x
-        return out
-
-    def make_hist(series, label):
-        return J.ReturnHistory(years=hist.years, equity=hist.equity, fixed_income=series,
-                               label=label, country_count=hist.country_count,
-                               segment_ids=hist.segment_ids)
-
-    print("\n" + "=" * 100)
-    print("REALISTIC short-TIPS-ETF leg (data-anchored AR(1), not idealized VR=1)")
-    print(f"  marginals {tips_m * 100:.2f}% real / {tips_v * 100:.2f}% vol, AR(1) phi={phi:.2f} "
-          f"(VTIP-measured); equity keeps JST forward-block sequencing.")
-    print("=" * 100)
-    for label, ph, seed in [(f"realistic XSTH (phi={phi:.2f}, VR(2y)~{1 + phi:.2f})", phi, 7),
-                            ("idealized VR=1 (phi=0, = menu cell b)", 0.0, 7)]:
-        series = ar1(seed) if ph == phi else (
-            tips_m + tips_v * np.random.default_rng(seed).standard_normal(n))
-        # Both legs share the same block indices (the default historical-block sampler).
-        rec = recommend_glide_path(**base_kwargs(
-            args, return_mode="historical-block", dataset="pooled", block_years=args.block_years,
-            history=make_hist(series, label)))
-        print(summary_row(label, rec))
-
-
 def real_leg(hist, mean, vol, phi, corr, seed=7):
     """Synthetic real-asset return series aligned row-for-row with ``hist``.
 
@@ -644,56 +521,6 @@ def real_leg(hist, mean, vol, phi, corr, seed=7):
         ar[i] = x
     mixed = corr * z_eq + np.sqrt(1 - corr * corr) * ar
     return J._affine_to_target(mixed, mean, vol)
-
-
-def run_tips_stress(args):
-    """Stress the short-TIPS cell: which of its generous assumptions carries the 100% -> ~50% drop?
-
-    Menu cell (b) gives the real asset three favourable properties at once: zero equity
-    correlation, no persistence (VR=1) and the long-bond forward mean, while keeping the long-bond
-    volatility (an unfavourable choice for a short fund). Each row changes one of them, then the
-    last row combines the unfavourable settings. The leg is a standardized AR(1) mixed with the
-    (rescaled) equity series to hit the target correlation, then affine-mapped to the exact target
-    mean/vol, and block-sampled jointly with equity so the correlation and persistence survive.
-    """
-    eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
-    hist = J.rescale_to_targets(
-        J.load_pooled_country_returns(),
-        equity_mean=eq_m, equity_vol=eq_v,
-        fixed_income_mean=bd_m, fixed_income_vol=bd_v,
-        label_suffix="forward-CMA rescaled",
-    )
-
-    pct = lambda x: x * 100.0  # noqa: E731
-    rows = [
-        ("b) menu cell: corr 0, phi 0, bond mean/vol", bd_m, bd_v, 0.0, 0.0),
-        ("corr 0.29 (nominal bonds' historical)", bd_m, bd_v, 0.0, 0.29),
-        ("corr 0.50 (stress; the curve implies 0.30)", bd_m, bd_v, 0.0, 0.50),
-        ("phi 0.30", bd_m, bd_v, 0.30, 0.0),
-        ("phi 0.50", bd_m, bd_v, 0.50, 0.0),
-        ("mean 1.00% real (no term premium)", 0.010, bd_v, 0.0, 0.0),
-        ("mean 2.00% real", 0.020, bd_v, 0.0, 0.0),
-        ("vol 3.0% (short-fund amplitude)", bd_m, 0.030, 0.0, 0.0),
-        ("phi 0.80 (real-rate cycle, near random-walk real yield)", bd_m, bd_v, 0.80, 0.0),
-        ("combined: 1.00% / 3.0% / phi 0.30 / corr 0.29", 0.010, 0.030, 0.30, 0.29),
-        ("combined: 2.00% / 3.0% / phi 0.30 / corr 0.29", 0.020, 0.030, 0.30, 0.29),
-        (f"harsh: 1.00% / {pct(bd_v):.2f}% / phi 0.50 / corr 0.50", 0.010, bd_v, 0.50, 0.50),
-    ]
-    print("\n" + "=" * 100)
-    print("SHORT-TIPS STRESS  (equity keeps forward-block sequencing; real leg varied one knob at a time)")
-    print(f"  base leg: {pct(bd_m):.2f}% real / {pct(bd_v):.2f}% vol, iid, zero equity correlation")
-    print("=" * 100)
-    for label, mean, vol, phi, corr in rows:
-        series = real_leg(hist, mean, vol, phi, corr)
-        realized_corr = float(np.corrcoef(hist.equity, series)[0, 1])
-        vr2 = J.variance_ratio(series, 2, hist.segment_ids)
-        history = J.ReturnHistory(years=hist.years, equity=hist.equity, fixed_income=series,
-                                  label=label, country_count=hist.country_count,
-                                  segment_ids=hist.segment_ids)
-        rec = recommend_glide_path(**base_kwargs(
-            args, return_mode="historical-block", dataset="pooled", block_years=args.block_years,
-            history=history))
-        print(summary_row(f"{label} [corr {realized_corr:.2f}, VR2 {vr2:.2f}]", rec))
 
 
 def _regret_regimes(args):
@@ -838,13 +665,14 @@ def run_funding(args):
     print(f"  flex=1 withdrawal sweep: best wr {best_flex[1]:g}%, CE ${best_flex[0]:,.0f}")
 
 
-# Sleeve-blend / regime-mixture inputs: the 1990-2020 cut and two real-leg variants
-# (mean, vol, phi, equity corr). "realistic" is the tips-stress combined row.
+# Sleeve-blend / regime-mixture inputs: the 1990-2020 cut, the base simulated real bond
+# (arithmetic real mean, vol, phi, equity corr; methodology note §4c-§4d) and the path seeds that
+# every real-leg result is averaged over. The base mean, 1.50%, sits 0.3pp below the nominal
+# bond CMA's 1.81% real: a small inflation risk premium and a Canadian investor's costs.
 POST_1990 = [(1871, 1989)]
-REAL_LEGS = {
-    "idealized": lambda bd_m, bd_v: (bd_m, bd_v, 0.0, 0.0),
-    "realistic": lambda bd_m, bd_v: (0.010, 0.030, 0.30, 0.29),
-}
+REAL_VOL, REAL_CORR = 0.055, 0.30  # the nominal CMA's volatility and equity correlation
+REAL_LEG_PARAMS = {"base 1.50%": (0.015, REAL_VOL, 0.30, REAL_CORR)}
+LEG_SEEDS = tuple(range(1, 11))
 SLEEVE_SHARES = (0.0, 0.25, 0.5, 0.75, 1.0)
 CONSTANT_WEIGHTS = (30, 40, 50, 60, 70, 80, 90, 100)
 
@@ -858,10 +686,9 @@ def _forward_rescaled(**load_kwargs):
     )
 
 
-def _blended(hist, share, variant):
+def _blended(hist, share, variant, seed=7):
     """History whose non-equity leg is (1 - share) nominal bonds + share synthetic real asset."""
-    _, _, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
-    real = real_leg(hist, *REAL_LEGS[variant](bd_m, bd_v))
+    real = real_leg(hist, *REAL_LEG_PARAMS[variant], seed=seed)
     return J.ReturnHistory(years=hist.years, equity=hist.equity,
                            fixed_income=(1 - share) * hist.fixed_income + share * real,
                            label=f"{variant} s={share:g}", country_count=hist.country_count,
@@ -896,6 +723,13 @@ def run_era_sequencing(args):
             print(f"  {label:<15} corr {corr:+.2f} {mode:<17} best {best:>3}%  {cells}")
 
 
+def _mean_ce(args, hist, share, variant):
+    """Constant-weight CE averaged over the real leg's path seeds (a nominal-only row needs one)."""
+    seeds = LEG_SEEDS if share > 0 else LEG_SEEDS[:1]
+    ces = [_constant_ce(args, _blended(hist, share, variant, seed=s)) for s in seeds]
+    return {w: float(np.mean([c[w] for c in ces])) for w in CONSTANT_WEIGHTS}
+
+
 def run_sleeve_blend(args):
     """Fixed nominal/real bond sleeve: CE by real share s and constant equity weight, per regime.
 
@@ -907,12 +741,12 @@ def run_sleeve_blend(args):
     print("SLEEVE BLEND  (non-equity leg = (1-s) nominal bonds + s synthetic real asset; constant-$)")
     print("  cells: CE income $k per constant equity weight; best = best weight on that row")
     print("=" * 100)
-    for variant in REAL_LEGS:
+    for variant in REAL_LEG_PARAMS:
         for regime, hist in regimes.items():
             print(f"\n  {variant} real leg, {regime}")
             print(f"  {'s':>5} " + " ".join(f"{w:>6}%" for w in CONSTANT_WEIGHTS) + "    best")
             for share in SLEEVE_SHARES:
-                ce = _constant_ce(args, _blended(hist, share, variant))
+                ce = _mean_ce(args, hist, share, variant)
                 best = max(ce, key=ce.get)
                 print(f"  {share:>5.2f} " + " ".join(f"{ce[w] / 1e3:>7.1f}" for w in CONSTANT_WEIGHTS)
                       + f"    {best}% (${ce[best]:,.0f})")
@@ -947,6 +781,19 @@ def mixture_sampler(n_first, p_second, switch_years=None):
     return sample
 
 
+def _stacked_regimes(full, recent, share, variant, seed):
+    """The full-history and 1990-2020 cuts, each with its own real leg, stacked into one history."""
+    a = _blended(full, share, variant, seed=seed)
+    b = _blended(recent, share, variant, seed=seed)
+    return J.ReturnHistory(
+        years=np.concatenate([a.years, b.years]),
+        equity=np.concatenate([a.equity, b.equity]),
+        fixed_income=np.concatenate([a.fixed_income, b.fixed_income]),
+        label="regime mixture", country_count=a.country_count,
+        segment_ids=np.concatenate([a.segment_ids, b.segment_ids + a.segment_ids.max() + 1]),
+    )
+
+
 def run_regime_mix(args):
     """Regret of constant weights when the 1990-2020 regime holds with probability p.
 
@@ -958,21 +805,17 @@ def run_regime_mix(args):
     print("\n" + "=" * 100)
     print("REGIME MIXTURE  (p = probability the 1990-2020 regime holds; regret % of that p's best CE)")
     print("=" * 100)
-    for variant in REAL_LEGS:
+    for variant in REAL_LEG_PARAMS:
         for share in (0.0, 0.5, 1.0):
-            if variant == "idealized" and share == 0.0:
-                continue  # s=0 has no real leg; printed once under the realistic variant
-            a, b = _blended(full, share, variant), _blended(recent, share, variant)
-            stacked = J.ReturnHistory(
-                years=np.concatenate([a.years, b.years]),
-                equity=np.concatenate([a.equity, b.equity]),
-                fixed_income=np.concatenate([a.fixed_income, b.fixed_income]),
-                label="regime mixture", country_count=a.country_count,
-                segment_ids=np.concatenate([a.segment_ids, b.segment_ids + a.segment_ids.max() + 1]),
-            )
+            seeds = LEG_SEEDS if share > 0 else LEG_SEEDS[:1]
+            stacks = [_stacked_regimes(full, recent, share, variant, s) for s in seeds]
             for switch in (None, 30):
-                curves = {p: _constant_ce(args, stacked, mixture_sampler(full.observations, p, switch))
-                          for p in probs}
+                curves = {p: {w: 0.0 for w in CONSTANT_WEIGHTS} for p in probs}
+                for stacked in stacks:
+                    for p in probs:
+                        ce = _constant_ce(args, stacked, mixture_sampler(full.observations, p, switch))
+                        for w in CONSTANT_WEIGHTS:
+                            curves[p][w] += ce[w] / len(stacks)
                 tag = "fixed per path" if switch is None else f"switch ~{switch}y"
                 print(f"\n  {'nominal only' if share == 0 else variant + ' real leg'}, s={share:g}, {tag}")
                 print(f"  {'weight':>6} " + " ".join(f"p={p:<4g}" for p in probs) + "   max")
@@ -1049,7 +892,8 @@ def run_gic_ladder(args):
 
     Equity and bonds are rescaled to the forward anchors; the ladder keeps its own history,
     shifted to the given real mean with its volatility scaled by the same factor as bonds'.
-    The XSTH leg is the realistic real leg. Mixes step by 25%; constant equity weights."""
+    The XSTH leg is a short-TIPS leg (1.00% real, 3.0% vol, phi 0.30, equity corr 0.29). Mixes
+    step by 25%; constant equity weights."""
     eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
     panel = _ladder_panel()
     print("\n" + "=" * 100)
@@ -1067,7 +911,7 @@ def run_gic_ladder(args):
             label_suffix="forward-CMA rescaled")
         ladder_raw = rows["ladder"].to_numpy(float)
         ladder_vol = bd_v * ladder_raw.std() / rows["fixed_income"].to_numpy(float).std()
-        tips = real_leg(hist, *REAL_LEGS["realistic"](bd_m, bd_v))
+        tips = real_leg(hist, 0.010, 0.030, 0.30, 0.29)  # short-TIPS ETF: 3% vol, nominal-like corr
         for gic_mean in (0.0125, 0.02):
             gic = J._affine_to_target(ladder_raw, gic_mean, ladder_vol)
             print(f"\n  {regime}, GIC {gic_mean * 100:.2f}% real / {ladder_vol * 100:.2f}% vol, "
@@ -1090,19 +934,169 @@ def run_gic_ladder(args):
                 print(f"  {xsth:>5.2f} {zgb:>5.2f} {gic_share:>5.2f}   {best:>3}%  ${ce_best:,.0f}")
 
 
+# Real-leg grid (methodology note §4c): arithmetic real means, net of costs (1.50% is the base),
+# at the nominal CMA's volatility and equity correlation, each at two persistence levels.
+REAL_GRID_MEANS = (0.010, 0.015, 0.020)
+REAL_GRID_PHIS = (0.0, 0.30)
+VR_MATCHED_PHI = 0.54  # realized leg VR(10) ~2.7, against the nominal historical bond's 2.66
+REAL_FUNDINGS = (("default  $100k / $15k", 100_000.0, 15_000.0),
+                 ("overfunded $200k / $20k", 200_000.0, 20_000.0))
+
+
+def _real_leg_args(args, savings, contrib):
+    """Methodology-note setup: 30 years saving, 30 years of constant-dollar retirement, 5-year steps."""
+    return argparse.Namespace(
+        accum=30, retire=30, flex=0.0, savings=savings, contrib=contrib,
+        guaranteed_income=20_000.0, target_income=60_000.0, gamma=args.gamma, interval=5,
+        block_years=args.block_years, paths=args.paths, passes=args.passes,
+    )
+
+
+def _solve_with_bond(args, hist, fixed_income):
+    """Glide-path recommendation with ``fixed_income`` as the non-equity leg (historical-block)."""
+    history = J.ReturnHistory(years=hist.years, equity=hist.equity, fixed_income=fixed_income,
+                              label="real-leg", country_count=hist.country_count,
+                              segment_ids=hist.segment_ids)
+    return recommend_glide_path(**base_kwargs(
+        args, return_mode="historical-block", dataset="pooled", block_years=args.block_years,
+        history=history))
+
+
+def _shape_mapped(series, target):
+    """``series``'s ordering filled with ``target``'s values (same length), rank for rank.
+
+    The result is a permutation of ``target``: the same mean, volatility, skew and tails, with
+    the persistence and rank correlation of ``series``."""
+    return np.sort(target)[np.argsort(np.argsort(series))]
+
+
+def _timing_stats(equity, bond, segments):
+    """How a bond's returns line up with equity's, in crises and over decades.
+
+    Returns equity's mean z-score in the bond's worst 2% of years; the share of the bond's
+    worst-decile years that are also equity's worst decile (0.10 if the two were independent);
+    and the correlation of the two assets' overlapping 10-year sums."""
+    ze = (equity - equity.mean()) / equity.std()
+    zb = (bond - bond.mean()) / bond.std()
+    worst2 = zb <= np.quantile(zb, 0.02)
+    both = (zb <= np.quantile(zb, 0.10)) & (ze <= np.quantile(ze, 0.10))
+    corr10 = np.corrcoef(_rolling_sums(equity, segments), _rolling_sums(bond, segments))[0, 1]
+    return float(ze[worst2].mean()), float(both.mean() / 0.10), float(corr10)
+
+
+def real_bond_proxy():
+    """Historical real-bond proxy, row-aligned with the pooled history.
+
+    The JST nominal bond's real return without its inflation term: (carry + price) / (1 + CPI).
+    It keeps the rate cycle, rate-driven rallies and sovereign-stress years, and drops the
+    erosion of the nominal claim. It is an approximation: carry still includes expected
+    inflation and price still reacts to changes in it, and deflation no longer helps it."""
+    panel, _ = J.load_pooled_bond_components()
+    if not np.allclose(panel["fixed_income"].to_numpy(), J.load_pooled_country_returns().fixed_income):
+        raise AssertionError("bond components diverge from the pooled history")
+    return (panel["carry"] + panel["price"]).to_numpy()
+
+
+def _leg_row(args, hist, series):
+    """Best constant, glide and realized statistics for one non-equity leg."""
+    rec = _solve_with_bond(args, hist, series)
+    eq_tail, both10, corr10 = _timing_stats(hist.equity, series, hist.segment_ids)
+    return {
+        "best": rec["flat_equity_pct"], "flat_ce": rec["flat_ce_income"], "glide_ce": rec["ce_income"],
+        "vr10": J.variance_ratio(series, 10, hist.segment_ids, basis="arithmetic"),
+        "corr": float(np.corrcoef(hist.equity, series)[0, 1]), "corr10": corr10,
+        "eq_tail": eq_tail, "both10": both10,
+    }
+
+
+HISTORICAL_BOND = "historical nominal bond (step 4)"
+LABEL_WIDTH = 44
+
+
+def _real_leg_task(task):
+    """One job at one funding level: every synthetic leg on one path seed, or (seed None) the
+    deterministic historical rows: the nominal bond and the real-bond proxy."""
+    seed, args = task
+    hist = _forward_rescaled()
+    _, _, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
+    if seed is None:
+        proxy = real_bond_proxy()
+        legs = {HISTORICAL_BOND: hist.fixed_income,
+                "real-bond proxy, nominal mean": J._affine_to_target(proxy, bd_m, bd_v)}
+        legs.update({f"real-bond proxy {m * 100:.2f}%": J._affine_to_target(proxy, m, REAL_VOL)
+                     for m in REAL_GRID_MEANS})
+    else:
+        legs = {}
+        # Labels follow the §4a steps; the phi 0 hist.-returns row is printed but not in the note.
+        for phi, label, mapped in ((0.0, "simulated, phi 0 (step 1)", "simulated, phi 0, hist. returns"),
+                                   (VR_MATCHED_PHI, "simulated, phi 0.54 (step 2)",
+                                    "simulated, phi 0.54, hist. returns (step 3)")):
+            normal = real_leg(hist, bd_m, bd_v, phi, REAL_CORR, seed=seed)
+            legs[label] = normal
+            legs[mapped] = _shape_mapped(normal, hist.fixed_income)
+        legs.update({f"simulated real {m * 100:.2f}%, phi {phi:.2f}":
+                     real_leg(hist, m, REAL_VOL, phi, REAL_CORR, seed=seed)
+                     for m in REAL_GRID_MEANS for phi in REAL_GRID_PHIS})
+    return {label: _leg_row(args, hist, series) for label, series in legs.items()}
+
+
+def _print_leg(label, rows, base_ce):
+    """Best constant (mean and range over rows), CE gain over the nominal historical bond's best
+    constant, the glide's edge over its own best constant, then realized leg statistics."""
+    best = [r["best"] for r in rows]
+
+    def avg(key):
+        return float(np.mean([r[key] for r in rows]))
+
+    print(f"  {label:<{LABEL_WIDTH}} {np.mean(best):>6.1f}% ({min(best):.0f}-{max(best):.0f})"
+          f" {avg('flat_ce') - base_ce:>+9,.0f} {avg('glide_ce') - avg('flat_ce'):>+7,.0f}"
+          f" {avg('vr10'):>6.2f} {avg('corr'):>6.2f} {avg('corr10'):>6.2f} {avg('eq_tail'):>7.2f}"
+          f" {avg('both10'):>7.2f}", flush=True)
+
+
+def run_real_leg(args):
+    """Real versus nominal bonds (methodology note §4a, §4c), at both funding levels.
+
+    Synthetic legs are an AR(1) at the given persistence, mixed with the rescaled equity to hit
+    the target correlation and affine-mapped to the target arithmetic mean and volatility; the
+    "hist. returns" variants refill them, rank for rank, with the historical bond's own yearly
+    returns. They are averaged over LEG_SEEDS path seeds. The historical rows (nominal bond and
+    real-bond proxy) need no seed. All legs are block-sampled jointly with equity."""
+    print("\n" + "=" * 100)
+    print("REAL VS NOMINAL BONDS  (equity keeps historical sequencing; constant dollar, 30y+30y, 5y steps)")
+    print(f"  synthetic legs: equity corr {REAL_CORR:.2f}, averaged over {len(LEG_SEEDS)} path seeds; "
+          f"grid and proxy legs at {REAL_VOL * 100:.1f}% vol; means arithmetic, net of fees")
+    print("  CE gain: best constant's CE minus the nominal historical bond's; glide: optimized glide's")
+    print("  edge over its own best constant; corr10: correlation of 10-year sums with equity; eq|tail:")
+    print("  equity's mean z in the leg's worst 2% of years; both10: share of the leg's worst-decile")
+    print("  years that are also equity's worst decile (0.10 = independent)")
+    print("=" * 100)
+    for name, savings, contrib in REAL_FUNDINGS:
+        fund_args = _real_leg_args(args, savings, contrib)
+        tasks = [(None, fund_args)] + [(seed, fund_args) for seed in LEG_SEEDS]
+        with ProcessPoolExecutor(max_workers=min(len(tasks), 10)) as pool:
+            historical, *per_seed = pool.map(_real_leg_task, tasks)
+        base_ce = historical[HISTORICAL_BOND]["flat_ce"]
+        print(f"\n  {name}: historical nominal bond CE ${base_ce:,.0f}")
+        print(f"  {'leg':<{LABEL_WIDTH}} {'best const (range)':>18} {'CE gain':>9} {'glide':>7} {'VR10':>6} "
+              f"{'corr':>6} {'corr10':>6} {'eq|tail':>7} {'both10':>7}")
+        for label, row in historical.items():
+            _print_leg(label, [row], base_ce)
+        for label in per_seed[0]:
+            _print_leg(label, [rows[label] for rows in per_seed], base_ce)
+
+
 SECTIONS = {
     "matrix": run_matrix,
     "blocks": run_block_sweep,
     "channels": run_channels,
-    "menu": run_menu,
     "bills-block": run_bills_block,
-    "tips-etf": run_tips_etf,
     "gamma": run_gamma_sweep,
     "vr": run_variance_ratios,
     "bond-decomp": run_bond_decomposition,
     "regret": run_regret,
     "funding": run_funding,
-    "tips-stress": run_tips_stress,
+    "real-leg": run_real_leg,
     "sleeve-blend": run_sleeve_blend,
     "era-seq": run_era_sequencing,
     "regime-mix": run_regime_mix,
@@ -1133,12 +1127,6 @@ def main(argv=None):
                     help="bills-block: real bill mean return %% (default 0.75)")
     ap.add_argument("--bills-vol", type=float, default=2.0,
                     help="bills-block: real bill vol %% (default 2.0)")
-    ap.add_argument("--tips-mean", type=float, default=None,
-                    help="tips-etf: real arithmetic mean %% (default: forward bond anchor, = menu cell b)")
-    ap.add_argument("--tips-vol", type=float, default=None,
-                    help="tips-etf: real vol %% (default: forward bond anchor, = menu cell b)")
-    ap.add_argument("--tips-phi", type=float, default=0.13,
-                    help="tips-etf: annual AR(1) phi (default 0.13, VTIP-measured)")
     ap.add_argument("--paths", type=int, default=6_000)
     ap.add_argument("--passes", type=int, default=10)
     ap.add_argument("--quick", action="store_true",
