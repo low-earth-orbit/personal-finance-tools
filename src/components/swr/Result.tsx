@@ -97,11 +97,11 @@ export default function Result({ input, result, loading }: ResultProps) {
       )}
 
       <Text size="xs" c="dimmed">
-        Each cell is the <strong>first-year withdrawal as a % of the starting portfolio</strong>.
-        After year 1, the dollar amount rises with inflation each year (the 4% rule method from the
-        Trinity study), so spending power stays level. The chance of lasting the full horizon is{" "}
-        {input.successRate}%. The portfolio is rebalanced yearly. It is a generic benchmark that
-        excludes CPP, OAS and pensions.
+        Each cell is the first-year withdrawal as a % of the starting portfolio. After year 1, the
+        dollar amount rises with inflation each year (the 4% rule method from the Trinity study), so
+        spending power stays level. The chance of lasting the full horizon is {input.successRate}%.
+        The portfolio is rebalanced yearly. It is a generic benchmark that excludes CPP, OAS and
+        pensions.
       </Text>
     </Stack>
   );
