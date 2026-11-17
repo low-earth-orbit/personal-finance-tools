@@ -10,6 +10,13 @@ export const SWR_HORIZONS = [20, 25, 30, 35, 40, 45, 50] as const;
 export const SWR_PATHS = 10_000;
 
 /**
+ * Dynamics of the pooled JST history (16 countries, 1871-2020) that the historical model keeps:
+ * the same-year stock-bond correlation and each asset's 10-year variance ratio. Shown on the page;
+ * a test checks them against the bundled data.
+ */
+export const HISTORY_DYNAMICS = { correlation: 0.29, stockVr: 0.91, bondVr: 2.66 } as const;
+
+/**
  * Default numeric inputs. Returns and volatilities are nominal geometric (compound) percentages.
  */
 export const DEFAULTS = {

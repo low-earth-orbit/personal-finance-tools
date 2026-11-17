@@ -28,7 +28,7 @@ import numpy as np
 
 _DEFAULT_OUT = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "src", "utils", "glide-path", "jstData.ts",
+    "src", "utils", "jst", "jstData.ts",
 )
 
 

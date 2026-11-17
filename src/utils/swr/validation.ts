@@ -1,5 +1,5 @@
 import { DEFAULTS } from "./presets";
-import type { SwrErrors, SwrInput, SwrInputKey } from "./types";
+import type { SwrErrors, SwrInput, SwrInputKey, SwrReturnModel } from "./types";
 
 interface Constraint {
   min: number;
@@ -23,10 +23,18 @@ export const FIELD_CONSTRAINTS: Record<SwrInputKey, Constraint> = {
 
 const KEYS = Object.keys(DEFAULTS) as SwrInputKey[];
 
-export function validateSwrInput(input: SwrInput): SwrErrors {
-  const errors: SwrErrors = {};
+/** Inputs the historical model takes from history instead; hidden and not validated there. */
+export const SIMULATED_ONLY_KEYS: readonly SwrInputKey[] = ["correlation", "stockVr", "bondVr"];
 
-  for (const key of KEYS) {
+export function validateSwrInput(
+  input: SwrInput,
+  returnModel: SwrReturnModel = "simulated",
+): SwrErrors {
+  const errors: SwrErrors = {};
+  const keys =
+    returnModel === "historical" ? KEYS.filter((key) => !SIMULATED_ONLY_KEYS.includes(key)) : KEYS;
+
+  for (const key of keys) {
     const value = input[key];
     const { min, max, label } = FIELD_CONSTRAINTS[key];
 

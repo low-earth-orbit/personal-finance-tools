@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { DEFAULTS } from "./presets";
-import { loadInput, saveInput } from "./storage";
+import { loadInput, loadReturnModel, saveInput, saveReturnModel } from "./storage";
 
 afterEach(() => localStorage.clear());
 
@@ -26,5 +26,19 @@ describe("swr storage", () => {
   it("ignores corrupt data", () => {
     localStorage.setItem("swr_input", "{nope");
     expect(loadInput()).toEqual(DEFAULTS);
+  });
+});
+
+describe("swr return model storage", () => {
+  it("defaults to simulated, including for inputs saved before the switch existed", () => {
+    saveInput({ ...DEFAULTS });
+    expect(loadReturnModel()).toBe("simulated");
+  });
+
+  it("round-trips the model and ignores unknown values", () => {
+    saveReturnModel("historical");
+    expect(loadReturnModel()).toBe("historical");
+    localStorage.setItem("swr_return_model", "bootstrap");
+    expect(loadReturnModel()).toBe("simulated");
   });
 });

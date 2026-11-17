@@ -593,7 +593,7 @@ Where inflation mattered, US-linked bonds hedged about 90% of Canadian 10-year i
 
 **Python** (`analysis/glide_path/`): module roles, API and run commands are in its [README](../../analysis/glide_path/README.md). Research code can pass `history=` (a custom or cut return series) and `sampler=` (a custom index sampler) to `recommend_glide_path`.
 
-**Web** (`src/utils/glide-path/`): `engine.ts` (the same model, one simulation kernel for iid and forward-block), `recommendation.ts` (simplicity rule), `jstData.ts` (generated bundle). The app offers iid-mc and forward-block and requires ≥ $10k of guaranteed income from its start age. It fixes 5-year steps, θ = 0 (no bequest weight), one equity ceiling for all years and 2.1% inflation; those stay adjustable in Python.
+**Web** (`src/utils/glide-path/`): `engine.ts` (the same model, one simulation kernel for iid and forward-block), `recommendation.ts` (simplicity rule); the generated bundle and block sampler are shared with the SWR tool in `src/utils/jst/` (`jstData.ts`, `blockBootstrap.ts`). The app offers iid-mc and forward-block and requires ≥ $10k of guaranteed income from its start age. It fixes 5-year steps, θ = 0 (no bequest weight), one equity ceiling for all years and 2.1% inflation; those stay adjustable in Python.
 
 **CLI.** `python3 analysis/recommend_glide.py -i` prompts for every input and prints the equivalent command. `--guaranteed-start-age AGE` (with `--start-age`) sets the bridge, `--bequest-weight θ` and `--bequest-offset k` the bequest term (the interactive "Leave money to heirs?" prompt maps none / some / strong to θ = 0 / 0.25 / 0.5), and `--compare-modes` prints one table across iid-mc, forward-block, historical-block and historical-block restricted to 1990–2020.
 
@@ -623,7 +623,7 @@ python3 -m analysis.glide_path.research_history --sections sleeve-blend regime-m
 python3 -m analysis.glide_path.research_history --sections sleeve-blend regime-mix \
     --accum 30 --retire 30 --savings 200000 --contrib 20000 --interval 5 --paths 8000   # §4d, overfunded
 python3 -m analysis.glide_path.doc_figures  # variance-ratio, block-bootstrap and bond-persistence SVGs (light and dark)
-python3 -m analysis.glide_path.generate_bundle         # regenerate src/utils/glide-path/jstData.ts
+python3 -m analysis.glide_path.generate_bundle         # regenerate src/utils/jst/jstData.ts
 ```
 
 Historical modes download JST R6 to the gitignored `analysis/.data/` on first use (needs pandas and openpyxl; the figures also need matplotlib).

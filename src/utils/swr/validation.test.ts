@@ -26,4 +26,13 @@ describe("validateSwrInput", () => {
     expect(errors.stockVr).toBe("Must be between 0.5 and 3");
     expect(errors.bondVr).toBe("Must be between 0.5 and 3");
   });
+
+  it("skips the correlation and VR fields in historical mode, where they are hidden", () => {
+    const input = { ...DEFAULTS, correlation: 1.2, stockVr: 5, bondVr: "" as unknown as number };
+    expect(Object.keys(validateSwrInput(input))).toEqual(["correlation", "stockVr", "bondVr"]);
+    expect(validateSwrInput(input, "historical")).toEqual({});
+    expect(validateSwrInput({ ...input, stockVol: 0 }, "historical")).toEqual({
+      stockVol: "Must be between 1 and 40",
+    });
+  });
 });

@@ -14,10 +14,10 @@ const Notes = () => {
         with inflation every year after, regardless of what the market does. Each cell is the
         highest first-year rate that still lasts the whole horizon in your chosen share of 10,000
         simulated markets. Because the amount is indexed to inflation, it is the same spending power
-        in today&apos;s dollars every year. Stocks and bonds are simulated separately from the
-        nominal compound returns, volatilities, correlation and inflation you set, and the portfolio
-        is rebalanced every year. The same simulated markets feed every row, so rows change
-        smoothly.
+        in today&apos;s dollars every year. In the default simulated model, stocks and bonds are
+        drawn separately from the nominal compound returns, volatilities, correlation and inflation
+        you set. The portfolio is rebalanced every year. The same simulated markets feed every row,
+        so rows change smoothly.
       </Text>
       <Text size="sm" pb="xs" c="dimmed">
         The variance ratio over 10 years, VR(10), measures memory: 1 means each year is drawn
@@ -31,6 +31,12 @@ const Notes = () => {
           methodology notes
         </Anchor>
         .
+      </Text>
+      <Text size="sm" pb="xs" c="dimmed">
+        Historical sequences replays blocks of about 10 consecutive years from 16 countries,
+        1871–2020, rescaled to your returns and volatilities, so only the order of years and how
+        stocks and bonds moved together come from history. 150 years of data hold few independent
+        50-year runs, so treat the longest horizons with care.
       </Text>
     </ToolNotes>
   );

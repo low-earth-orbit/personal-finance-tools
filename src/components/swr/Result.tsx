@@ -48,7 +48,7 @@ export default function Result({ input, result, loading }: ResultProps) {
   return (
     <Stack gap="md">
       <JumpToResult targetId="result">{jumpText}</JumpToResult>
-      <Eyebrow>{`First-year withdrawal rate, then indexed to inflation · ${input.successRate}% success`}</Eyebrow>
+      <Eyebrow>{`First-year withdrawal rate, then indexed to inflation · ${input.successRate}% success${result.returnModel === "historical" ? " · historical sequences" : ""}`}</Eyebrow>
 
       <Table.ScrollContainer minWidth={520}>
         <Table className={classes.table} verticalSpacing={6} horizontalSpacing="sm">

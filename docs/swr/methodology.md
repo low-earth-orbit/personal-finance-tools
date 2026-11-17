@@ -1,13 +1,13 @@
 # Safe withdrawal rate table — Methodology
 
-Research note for the **Safe withdrawal rates** tool (`/swr`). It shows the safe withdrawal rate (SWR) for eleven stock/bond mixes (100/0 to 0/100) over seven horizons (20 to 50 years), from capital-market assumptions the user sets. Code: engine [`src/utils/swr/engine.ts`](../../src/utils/swr/engine.ts), defaults [`src/utils/swr/presets.ts`](../../src/utils/swr/presets.ts). For the definition of SWR and the evidence for the default return assumptions, see the [retirement SWR methodology](../retirement/swr-methodology.md).
+Research note for the **Safe withdrawal rates** tool (`/swr`). It shows the safe withdrawal rate (SWR) for eleven stock/bond mixes (100/0 to 0/100) over seven horizons (20 to 50 years), from capital-market assumptions the user sets. Paths come from one of two return models: **simulated** (the default, §3) or **historical sequences** (§6). Code: engine [`src/utils/swr/engine.ts`](../../src/utils/swr/engine.ts), defaults [`src/utils/swr/presets.ts`](../../src/utils/swr/presets.ts). For the definition of SWR and the evidence for the default return assumptions, see the [retirement SWR methodology](../retirement/swr-methodology.md).
 
 ## 1. Model
 
-- **Assets.** Stocks and bonds are simulated separately. Nominal geometric returns and volatilities are converted to real arithmetic means and volatilities with `realArithmeticFromNominalGeometric` (`src/utils/returns.ts`), the same conversion as the other tools.
+- **Assets.** Two assets, stocks and bonds. Nominal geometric returns and volatilities are converted to real arithmetic means and volatilities with `realArithmeticFromNominalGeometric` (`src/utils/returns.ts`), the same conversion as the other tools.
 - **Portfolio.** Rebalanced every year: `r = w·rS + (1−w)·rB`.
 - **Withdrawal.** The SWR `w` is the **first-year withdrawal as a fraction of the starting portfolio**; each later year the dollar amount rises with inflation, so it is constant in real terms. This is the Bengen / Trinity-study "4% rule" convention. The model works in real dollars, so the recursion is mid-year as in the retirement engine: `B' = B(1+r) − w(1+r/2)`. There is no spending adjustment for market performance (no guardrails).
-- **Paths.** 10,000 paths of 50 years, drawn once with the seeded RNG (`src/utils/rng.ts`) and shared by every allocation (common random numbers). Rows therefore move smoothly, and identical inputs give an identical table.
+- **Paths.** 10,000 paths of 50 years, drawn once with the seeded RNG (`src/utils/rng.ts`) and shared by every allocation (common random numbers). Rows therefore move smoothly, and identical inputs give an identical table. Both return models use the same number of paths and the same SWR calculation (§2); they differ only in how the yearly returns are generated.
 
 ## 2. Exact SWR without a search
 
@@ -17,7 +17,7 @@ Divide the balance recursion by the cumulative growth `G_t = Π(1+r)`:
 
 `S_H` only grows with `H`, so a path lasts `H` years exactly when `w < 1/S_H`. The SWR at success rate `p` is the `(1−p)` quantile of `1/S_H` across paths. One pass per allocation records every horizon. A path whose portfolio return reaches −100% has maximum rate 0 from then on. A test checks one cell against a brute-force bisection on `w` over the same paths.
 
-## 3. Return dynamics: VR(10) → AR(1)
+## 3. Simulated model: VR(10) → AR(1)
 
 Each asset's deviation from its mean follows an AR(1) process, with its persistence set by the user's VR(10) input (VR = 1 is independent years):
 
@@ -49,4 +49,17 @@ The AR(1) model was compared with a pooled forward-block bootstrap of the JST hi
 - **The defaults are milder than history on bonds.** A bond VR of 1.5 instead of 2.66 raises the bond-heavy rows above the bootstrap (0/100 at 30 years: 3.24% against 3.10%) and puts 60/40 about 0.1 points above it (3.91% against 3.79%). Moving the bond VR toward 2.66 closes that gap.
 - **The equal-weight world series is harsher than the pooled one.** Its bond VR(10) is about 3.7, and 60/40 gives 3.51% over 30 years on the same rescaled inputs, so pooled sequencing is the more generous comparator.
 
-The figures come from a one-off comparison script that is not committed. It reuses the loaders and `rescale_to_targets` in `analysis/shared/jst_history.py` and the block sampler in `analysis/retirement/jst_swr_bootstrap.py`; differences under about 0.05 points are within sampling noise.
+The figures come from a one-off comparison script that is not committed. It reuses the loaders and `rescale_to_targets` in `analysis/shared/jst_history.py` and the block sampler in `analysis/retirement/jst_swr_bootstrap.py`; differences under about 0.05 points are within sampling noise. The historical-sequences model (§6) now runs the same bootstrap in the page.
+
+## 6. Historical sequences model
+
+The second return model replaces the AR(1) paths with the block bootstrap of §5.
+
+- **Data.** The pooled JST bundle shared with the Lifecycle Allocation tool, [`src/utils/jst/jstData.ts`](../../src/utils/jst/jstData.ts): 2,212 real stock and bond returns, 16 countries, 1871–2020, generated by `analysis/glide_path/generate_bundle.py`.
+- **Sampling.** `sampleBlockIndices` in [`src/utils/jst/blockBootstrap.ts`](../../src/utils/jst/blockBootstrap.ts), the Politis–Romano stationary bootstrap with a mean block of 10 years. Blocks wrap within a country's run, never across a country or a data gap, and stocks and bonds share each sampled country-year. The 10,000 × 50 paths have their own seed and are shared by every allocation.
+- **Rescaling.** Each asset is mapped to the user's real arithmetic mean `m` and volatility `σ` (the §1 conversion): `r' = m + (σ / sd)(r − mean)`, with the population mean and sd of the pooled bundle, as `rescale_to_targets` does. The map is affine, so it keeps the order of years, each asset's VR(10) (0.91 stocks, 2.66 bonds) and the stock-bond correlation (0.29). The correlation and VR inputs are hidden and not used. Only the sequencing is historical; return levels come from the user. Rescaled returns keep history's shape, including fat tails and skew, which the normal AR(1) leaves out.
+- **Check.** At the defaults, 10,000 paths reproduce the §5 bootstrap within 0.02 points (30 / 50 years: 100/0 3.96 / 2.97, 60/40 3.77 / 2.72, 0/100 3.09 / 1.93). Tests pin these within 0.05 points and check the bundle's correlation and VR(10) against the figures the page shows. The table takes about 100 ms, like the simulated one.
+- **Limits.**
+  - 150 years hold few independent 50-year runs. A path is about five blocks drawn from the same 2,212 country-years, so cells at long horizons and high success rates rest on fewer distinct episodes than 10,000 paths suggest.
+  - The 16 countries are developed markets with long records; markets that closed, such as Russia in 1917, are not in the data.
+  - The pooled sample is the only era offered. The equal-weight world series is harsher (§5), and the Python research scripts keep the options for other datasets and for excluding countries or years.

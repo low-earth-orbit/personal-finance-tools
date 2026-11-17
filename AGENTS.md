@@ -60,12 +60,12 @@ No peer-review step: do not spawn reviewer/verifier subagents or second-opinion 
 | `/glide-path` | Lifecycle Allocation | MC coordinate ascent, CRRA utility, optimized vs constant allocation |
 | `/acb` | ACB Calculator | Computes adjusted cost basis from Wealthsimple activity CSV export |
 | `/allocator` | Where to invest: TFSA, RRSP or Non-Reg? | Invests one lump sum now across TFSA, RRSP, and non-registered accounts |
-| `/swr` | Safe withdrawal rates | SWR table by stock/bond mix × horizon from user CMAs; optional VR(10) dynamics |
+| `/swr` | Safe withdrawal rates | SWR table by stock/bond mix × horizon from user CMAs; simulated (VR(10) dynamics) or historical sequences (JST block bootstrap) |
 | `/expected-return` | Expected stock returns | Real compound equity return per region from user inputs: yield + growth, CAPE reversion, earnings yield, real bond yield + ERP, history; blended, after costs |
 
 **New tool pattern:** `src/app/<tool>/` + `src/components/<tool>/`. Reuse `src/components/shared/` and `src/utils/`. Import alias: `@/` → `./src/`.
 
-**Glide-path detail:** Web + Python default to `iid-mc` (forward-CMA iid Monte Carlo — the no-recovery baseline); `forward-block` (JST pooled → forward-CMA rescaled → block bootstrap; bundle at `src/utils/glide-path/jstData.ts`) is the historical-sequencing scenario toggle. Python: `analysis/recommend_glide.py` also supports `historical-iid`/`historical-block`; `--dataset pooled|world`; `--exclude-countries/years`. Regenerate bundle: `python3 -m analysis.glide_path.generate_bundle`. Web fixes 5yr interval, no bequest weight, one equity ceiling for all years, 2.1% inflation (`withFixedSettings`), browser caps, ≥$10k guaranteed income. Python keeps research controls.
+**Glide-path detail:** Web + Python default to `iid-mc` (forward-CMA iid Monte Carlo — the no-recovery baseline); `forward-block` (JST pooled → forward-CMA rescaled → block bootstrap; bundle at `src/utils/jst/jstData.ts`, shared with `/swr`) is the historical-sequencing scenario toggle. Python: `analysis/recommend_glide.py` also supports `historical-iid`/`historical-block`; `--dataset pooled|world`; `--exclude-countries/years`. Regenerate bundle: `python3 -m analysis.glide_path.generate_bundle`. Web fixes 5yr interval, no bequest weight, one equity ceiling for all years, 2.1% inflation (`withFixedSettings`), browser caps, ≥$10k guaranteed income. Python keeps research controls.
 
 ## Architecture
 
@@ -95,6 +95,6 @@ See `docs/` for per-tool deep dives:
 
 - [docs/rent-vs-buy/methodology.md](docs/rent-vs-buy/methodology.md) — MC architecture, modeling assumptions, summary tier logic
 - [docs/retirement/swr-methodology.md](docs/retirement/swr-methodology.md) — SWR engine, safe withdrawal assumptions
-- [docs/swr/methodology.md](docs/swr/methodology.md) — SWR table engine, VR→AR(1), exact quantile shortcut
+- [docs/swr/methodology.md](docs/swr/methodology.md) — SWR table engine, VR→AR(1), exact quantile shortcut, historical sequences
 - [docs/glide-path/methodology.md](docs/glide-path/methodology.md) — CRRA utility, coordinate ascent, forward-block bootstrap
 - [docs/expected-return/methodology.md](docs/expected-return/methodology.md) — five-view expected equity return, CAPE half-life, view weights, defaults and sources

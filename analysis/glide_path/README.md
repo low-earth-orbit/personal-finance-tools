@@ -15,7 +15,7 @@ Python engine and research scripts for Lifecycle Allocation (`/glide-path`). Met
 | `research.py` | iid research sweep (methodology §2) |
 | `research_history.py` | History, bond-persistence decomposition, real-versus-nominal bond legs with a historical real-bond proxy (`real-leg`), sleeve-blend, regime-mixture, CPI-basis, regret and funding sections (methodology §3–§4), plus the GIC-ladder section, which is code only and not reported in the note |
 | `doc_figures.py` | Methodology Figures 1–2 as light/dark SVGs in `docs/glide-path/img/` (needs matplotlib). It also writes the bond-persistence decomposition figure, which the note no longer embeds |
-| `generate_bundle.py` | Writes `src/utils/glide-path/jstData.ts` (forward-rescaled JST history) |
+| `generate_bundle.py` | Writes `src/utils/jst/jstData.ts` (forward-rescaled JST history, shared by the glide-path and SWR tools) |
 
 Shared helpers live in `analysis/shared/` (`jst_history.py` for JST loading, rescaling, block sampling and variance ratios; `returns.py` for geometric ↔ arithmetic conversion).
 

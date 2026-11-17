@@ -18,7 +18,7 @@ A small collection of free, sensible personal finance calculators for Canadians.
 
 The site is a single statically-exported Next.js app: a hub landing page at `/` links to each tool, which lives at its own route.
 
-The Safe withdrawal rates tool follows the 4% rule logic from the Trinity study: each cell is the first-year withdrawal as a % of the starting portfolio, raised with inflation every year after, at your chosen success rate (80–99%). You set stock and bond returns, volatilities, their correlation and inflation, and each asset's 10-year variance ratio, VR(10), which sets mean reversion or persistence.
+The Safe withdrawal rates tool follows the 4% rule logic from the Trinity study: each cell is the first-year withdrawal as a % of the starting portfolio, raised with inflation every year after, at your chosen success rate (80–99%). You set stock and bond returns, volatilities and inflation. The years come from one of two return models: simulated, with your stock-bond correlation and each asset's 10-year variance ratio, VR(10), which sets mean reversion or persistence; or historical sequences, which replays runs of real years from 16 countries (1871–2020), rescaled to your returns and volatilities.
 
 The Lifecycle Allocation tool is a research model. It searches for the stock allocation at each age, before and after retirement, that maximizes risk-adjusted retirement spending (CRRA utility), under either independent yearly returns or historical sequences. It compares that path with the best constant allocation and recommends the constant unless the path is clearly better (by more than 1% of certainty-equivalent income or 1 point of shortfall). Shortfall is reported both from the retirement date (drawdown only) and from today (full path).
 
