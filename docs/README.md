@@ -2,7 +2,7 @@
 
 Methodology notes are grouped by calculator:
 
-- [Lifetime Allocation Optimizer methodology](./glide-path/methodology.md)
+- [Lifetime Allocation methodology](./glide-path/methodology.md)
 - [Lump-sum Allocation Optimizer methodology](./allocator/methodology.md)
 - [Retirement SWR methodology](./retirement/swr-methodology.md)
 - [Safe withdrawal rate table methodology](./swr/methodology.md)

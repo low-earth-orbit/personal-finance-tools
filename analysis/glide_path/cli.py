@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Command-line front end for the Lifetime Allocation Optimizer.
+Command-line front end for Lifetime Allocation.
 
 Optimizes (by simulation, not a lookup table) the portfolio allocation per step for YOUR inputs and
 prints the schedule + outcome stats. Supports forward-CMA iid Monte Carlo, raw-history iid or
