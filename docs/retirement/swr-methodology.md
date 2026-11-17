@@ -141,7 +141,7 @@ Each column of the results table answers one question by combining three choices
 | **Block sequencing** | block bootstrap: §C world, §E pooled | forward-block: §F world, §G pooled |
 
 - **Overlapping windows** run a retirement from every historical start year. They keep history's sequencing within each window but have few independent windows.
-- **Block bootstrap** resamples runs of consecutive years (stationary bootstrap, 10-year mean block length), keeping multi-year patterns while producing many paths. The [Lifecycle Allocation research note's Figure 2](../glide-path/methodology.md#how-sequencing-differs-from-iid) shows one simulated path.
+- **Block bootstrap** resamples runs of consecutive years (stationary bootstrap, 10-year mean block length), keeping multi-year patterns while producing many paths. The [Lifecycle Allocation research note's Figure 2](../glide-path/methodology.md#what-history-adds-to-iid) shows one simulated path.
 - **Forward-block** first affine-rescales each asset's history to real arithmetic anchors (equity 4.86% / 11.75%, bonds 1.81% / 5.39%: the real arithmetic means and vols of the stock and bond CMA in §1.2), so only the sequencing is historical.
 
 The **§G vs §H** pair is the key test. Both have the same average returns, and they differ only in whether years follow historical patterns or are independent.
@@ -185,7 +185,7 @@ SWR at 90% success, 60/40, 20,000 paths:
 
 ### 3.4 Caveats
 
-These follow from the shared JST data ([glide-path methodology §6](../glide-path/methodology.md#6-caveats)):
+These follow from the shared JST data ([Lifecycle Allocation research note §6](../glide-path/methodology.md#6-caveats)):
 
 - **Survivorship.** JST covers 16 developed markets that survived with usable data; the world floor and the within-country recoveries behind §G partly reflect that.
 - **Tiny effective sample.** ~120 overlapping 30-year windows per series contain only 4–5 independent windows per country, heavily correlated across countries (the same wars, the same inflation waves). No column difference has a confidence interval.
@@ -208,7 +208,7 @@ The **variance ratio** measures this structure. Under iid returns, the spread of
   <img alt="Two panels of cumulative real return against years held, in units of one-year standard deviation. Left, equities: the ±1 s.d. band (VR(10y) ≈ 0.91) runs just inside the dashed iid ±√years band. Right, long bonds: the band (VR(10y) ≈ 2.66) fans out well beyond the iid band, to about 1.6 times its width at 10 years. Thin grey lines are 40 actual 10-year historical windows." src="../glide-path/img/variance-ratio-light.svg">
 </picture>
 
-_The coloured band is ±1 standard deviation of the cumulative real return after each number of years held, in units of the one-year standard deviation; the dashed band is the iid ±√years. Pooled JST history, arithmetic returns. From the [glide-path methodology](../glide-path/methodology.md#how-sequencing-differs-from-iid), which decomposes the bond persistence._
+_The coloured band is ±1 standard deviation of the cumulative real return after each number of years held, in units of the one-year standard deviation; the dashed band is the iid ±√years. Pooled JST history, arithmetic returns. From the [Lifecycle Allocation research note](../glide-path/methodology.md#what-history-adds-to-iid), which decomposes the bond persistence._
 
 `RETURN_AUTOCORRELATION` is the engine's AR(1) coefficient φ on the annual return deviation. Over long horizons an AR(1) process has variance ratio **(1+φ)/(1−φ)**, which is the limit VR(q) approaches as q grows.
 

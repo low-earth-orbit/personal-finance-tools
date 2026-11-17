@@ -33,7 +33,7 @@ Default household: age 35, $100k saved, $15k/yr contributions for 30 years, a $6
 2. **Flexible spenders hold ~100% equity** throughout, in both models (§2b, §3a).
 3. **The glide's shape is worth little; its level matters more.** Out of sample, the optimized glide beats the best constant weight by ≤ ~1% of certainty-equivalent (CE) income under iid, and by ≈ $0 under forward-block (§2e, §3a).
 4. **The iid tent depends on how well funded the plan is.** The default plan's first-year withdrawal is ~3.5% of its median retirement balance, and the optimizer still guards the floor (tent bottom 60%). At a ~2.6% draw the tent is 40%, at ~3.8% a shallow dip to 70%, and at ~4.3% a dip to 90% (§2f).
-5. **Flat 100% is partly a verdict on long nominal bonds: their bad years came at the wrong time.** Most fell in wars and inflations that also hit stocks (§4a). A long real bond earning 1.50% after inflation, 0.3pp below the nominal bond, leaves the default plan at 97–100% equity and moves an overfunded plan ($200k / $20k, 2.6% draw) to 65–70%, worth 0.8–1.4% of CE. At 1.00% it is worth at most 0.5% of CE; at 2.00%, up to 1.0% for the default plan and 2.5% overfunded. Each range runs from the real-bond proxy, which keeps history's interest-rate cycle, to the simulated real bond, whose bad years rarely coincide with stocks' (§4c).
+5. **Flat 100% is partly a verdict on long nominal bonds: their bad years came at the wrong time.** Most fell in wars and inflations that also hit stocks (§3, §4a). A long real bond earning 1.50% after inflation, 0.3pp below the nominal bond, leaves the default plan at 97–100% equity and moves an overfunded plan ($200k / $20k, 2.6% draw) to 65–70%, worth 0.8–1.4% of CE. At 1.00% it is worth at most 0.5% of CE; at 2.00%, up to 1.0% for the default plan and 2.5% overfunded. Each range runs from the real-bond proxy, which keeps history's interest-rate cycle, to the simulated real bond, whose bad years rarely coincide with stocks' (§4c).
 6. **Mixing in real bonds is insurance, not a free gain.** Real bonds help over the full history (item 5) but cost 0.7–0.9% of CE in 1990–2020, when nominal bonds did well. Their main benefit is a smaller worst case when the regime is unknown: at most 0.2% of CE lost, against 0.4–0.9% with nominal bonds only (§4d).
 7. **Guessing the regime wrong costs little.** Any constant weight from 90% to 100% costs at most ~1.2% of CE in any regime tested (80% costs up to ~3%; §3d), so a weight between the two models' answers is a safe choice.
 8. **γ barely matters with constant-dollar spending.** Consumption is then almost always the full target or the guaranteed floor, so every γ ranks allocations the same way (§2d).
@@ -63,6 +63,7 @@ The app recommends what the selected model's simulation produces: the optimized 
 | **Monte Carlo** | Simulating thousands of possible market paths and averaging the outcomes. |
 | **iid** | Independent and identically distributed: each year's return is a fresh draw, unrelated to earlier years. |
 | **Sequencing** | The order in which good and bad years arrive, such as crashes followed by recoveries, or inflation decades. iid removes it. _Sequence-of-returns risk_ is a retiree's exposure to it: an early crash does more damage than a later one. |
+| **Timing** | Whether stocks' and bonds' bad years, and bad decades, arrive together. The yearly correlation measures it only on average; history's worst years lined up more often than that correlation implies (§3). |
 | **Block bootstrap** | Simulating from history while keeping sequencing: paths are stitched from runs (blocks) of consecutive historical years. The _stationary_ version uses random block lengths with a set mean (here 10 years). |
 | **Forward-block** | This note's historical-sequencing model: JST history rescaled to the forward-looking assumptions, then block-bootstrapped (§1.3). |
 | **Variance ratio, VR(q)** | Variance of q-year cumulative returns ÷ (q × variance of one-year returns). It is 1 for iid returns. |
@@ -161,7 +162,7 @@ The curve's volatilities imply a stock/bond correlation of ≈0.30, the CMA's in
 - **History:** JST R6 real stock and long-government-bond returns (16 countries, 1871–2020), deflated by each country's CPI.
 - **Datasets:** `pooled` (default) strings together each country's own sequence, so a block is consecutive years of one country: the sequence risk a single-country investor actually lived. `world` averages countries within each year. Pooled runs accept country and year exclusions. Blocks never cross countries or data gaps; at the end of a country's run they wrap to its first year.
 - **Stationary block bootstrap:** each simulated year continues the current historical run with probability `1 − 1/L` or jumps to a random year with probability `1/L`, so blocks average `L` years (default 10, an annual analogue of ACO's 120 months). Figure 2 in §3 shows one path.
-- **Rescaling** (forward-block) gives each asset's series the forward mean and volatility. It keeps the year-to-year pattern and the stock/bond correlation, so any difference from iid comes from sequencing and return shape, not from history's higher returns. Only the endpoints (100% stocks, 100% bonds) are matched to the curve; mixes in between follow the historical correlation (≈0.29), close to the curve's 0.30.
+- **Rescaling** (forward-block) gives each asset's series the forward mean and volatility. It keeps the year-to-year pattern, the stock/bond correlation and which years were bad for both, so any difference from iid comes from timing, sequencing and return shape, not from history's higher returns. Only the endpoints (100% stocks, 100% bonds) are matched to the curve; mixes in between follow the historical correlation (≈0.29), close to the curve's 0.30.
 - **Leverage:** above 100% equity the return is `w·stock − (w−1)·real borrowing cost`; a wipeout is ruin.
 
 The historical modes are annual sequencing checks, not an ACO replication (ACO bootstraps a monthly four-asset panel, with mortality-weighted horizons and terminal wealth in the objective).
@@ -318,25 +319,26 @@ At a matched draw, flexibility is worth **+$6.3k to +$9.4k/yr**. If each rule al
 
 ## 3. Results under historical sequencing (forward-block)
 
-**In brief.** History has patterns iid ignores: stocks partly recover after crashes, while long nominal bonds suffer bad decades. Keep both patterns, at the same forward-looking averages, and the bond tent largely disappears: the optimum becomes ~100% equity. CE rises 2% at 30 years and 4–5% at 40–50.
+**In brief.** History has three features iid drops. In order of how much they matter: long nominal bonds had their worst years and decades at the same time as stocks, in wars and inflations (**timing**); their bad years came in runs (**persistence**); and their worst years were extreme (**tails**), which matters only because of when they came. Keep these, at the same forward-looking averages, and the bond tent largely disappears: the optimum becomes ~100% equity. CE rises 2% at 30 years and 4–5% at 40–50.
 
-### How sequencing differs from iid
+### What history adds to iid
 
-Forward-block replays JST single-country sequences, rescaled to iid's forward return levels. It keeps two patterns that iid removes, both measured by the **variance ratio** (how widely q-year returns spread compared with independent years):
+Forward-block replays JST single-country sequences, rescaled to iid's forward return levels, with stocks and bonds from the same country and year. iid already matches history's average stock/bond correlation (0.30 against 0.29). Three features differ, in order of how much they move the answer (§3b, §4a):
 
-- **Equity mean reversion** (VR(10y) ≈ 0.91). Bad stretches are partly followed by recovery, so the 10-year spread is about 0.95× the iid spread. A modest effect.
-- **Long-bond persistence** (VR(10y) ≈ 2.7). Bad years cluster into bad decades, so the 10-year spread is about 1.6× the iid spread. Over the full sample two-thirds of this comes from inflation; after 1950, about half comes from the interest-rate cycle (§4b).
+1. **Timing: bonds' bad years came with stocks'.** 37% of the bond's worst 10% of years were also among stocks' worst 10%. Unrelated assets would give 10%, and a normal pair with the same 0.29 correlation 21%. 70 of these 81 years fall in four decades: the 1910s, 1920s, 1940s and 1970s, the world wars and the great inflations. Over decades the link is tighter: the two assets' 10-year returns correlate 0.42, against 0.29 year to year.
+2. **Persistence: bad years came in runs.** Measured by the **variance ratio** (how widely q-year returns spread compared with independent years). Long bonds: VR(10y) ≈ 2.7, so bad years cluster into bad decades and the 10-year spread is about 1.6× the iid spread. Over the full sample two-thirds of this comes from inflation; after 1950, about half comes from the interest-rate cycle (§4b). Equities lean slightly the other way, toward mean reversion: VR(10y) ≈ 0.91, a 10-year spread about 0.95× the iid spread, a modest effect.
+3. **Tails: some years were extreme.** Rescaled bonds have a long left tail from hyperinflations (worst year −8.6 s.d.); rescaled equity is right-skewed. On their own, extreme years matter little (§3b).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/variance-ratio-dark.svg">
   <img alt="Two panels of cumulative real return against years held, in units of one-year standard deviation. Left, equities: the ±1 s.d. band (VR(10y) ≈ 0.91) runs just inside the dashed iid ±√years band. Right, long bonds: the band (VR(10y) ≈ 2.66) fans out well beyond the iid band, to about 1.6 times its width at 10 years. Thin grey lines are 40 actual 10-year historical windows." src="img/variance-ratio-light.svg">
 </picture>
 
-_Figure 1. The coloured band is ±1 standard deviation of the cumulative real return after each number of years held, in units of the one-year standard deviation. The dashed band is the iid value, ±√years. VR < 1 pulls the band inside (mean reversion); VR > 1 pushes it outside (persistence). Thin lines are 40 random actual 10-year windows from the pooled history._
+_Figure 1. Persistence (feature 2). The coloured band is ±1 standard deviation of the cumulative real return after each number of years held, in units of the one-year standard deviation. The dashed band is the iid value, ±√years. VR < 1 pulls the band inside (mean reversion); VR > 1 pushes it outside (persistence). Thin lines are 40 random actual 10-year windows from the pooled history._
 
-Why this matters: the bond leg is the part of a retirement plan meant to be safe. If its bad years cluster, as in an inflation decade, it fails exactly when needed, while equity's partial recoveries make high equity less dangerous than iid suggests.
+Why this matters: the bond leg is the part of a retirement plan meant to be safe. In history it failed when it was needed, because its worst years and decades came in the same wars and inflations as stocks'. VR(10) measures each asset on its own, so it cannot show this; the timing is what matters most.
 
-Each block is a run of consecutive real years, so the patterns survive in full over a few years and partly over a decade (a 10-year window lies inside one 10-year-average block only ~40% of the time):
+Each block is a run of consecutive real years, stocks and bonds together, so timing and persistence survive in full over a few years and partly over a decade (a 10-year window lies inside one 10-year-average block only ~40% of the time):
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/block-bootstrap-dark.svg">
@@ -372,44 +374,49 @@ Out of sample the best constant weight is 100% in every row, and the glide's edg
 
 iid-mc gives 80%. Forward-block reaches 100% on either dataset, so pooling is not the driver. Pooling matters only for raw history, where single-country disasters hit at full size; the forward rescale shrinks them to forward volatility.
 
-**Sequencing is not what flips it.** By mean block length: 1y → 95%, 3y–40y → 100%. A 1-year mean block is nearly an iid resample of rescaled history (cell c below: 100%).
+**Multi-year sequencing is not what flips it at the default plan.** By mean block length: 1y → 95%, 3y–40y → 100%. A 1-year mean block is nearly an iid resample of rescaled history (cell c below: 100%).
 
-**Return shape does most of it at this funding level.** Forward-block differs from iid in three ingredients at once: the shape of yearly returns (normal vs history's skew and fat tails), equity sequencing (VR(10y) 0.91 vs 1) and bond sequencing (2.66 vs 1). The stock/bond correlation is now about the same in both (0.30 vs 0.29). The `channels` section switches the ingredients on one at a time, with each asset's forward mean and volatility held fixed.
+**Timing does most of it, through the worst years.** Forward-block differs from iid in four ingredients at once: the shape of yearly returns (normal vs history's skew and fat tails), timing (which years were bad for both assets), equity sequencing (VR(10y) 0.91 vs 1) and bond sequencing (2.66 vs 1). The stock/bond correlation is about the same in both (0.30 vs 0.29). The `channels` section switches the ingredients on one at a time, with each asset's forward mean and volatility held fixed. "Worst together" is the share of the bond's worst-decile years that are also equity's worst decile (10% if unrelated).
 
-| Cell | Return draws | Stock/bond corr. | Return shape | Equity VR(10y) | Bond VR(10y) | Best constant |
-| --- | --- | --- | --- | --- | --- | --- |
-| a | iid-mc baseline (the app's default) | 0.30 (curve) | normal | 1 | 1 | 80% |
-| b1 | synthetic iid normals, two-asset | 0.30 | normal | 1 | 1 | 85% |
-| b2 | synthetic iid normals, two-asset | 0.29 | normal | 1 | 1 | 85% |
-| c | rescaled history, single years resampled iid | 0.29 | **historical** | 1 | 1 | 100% |
-| d | equity in historical blocks, bond years shuffled | ≈0 | historical | **0.91** | 1 | 70% |
-| e | bonds in historical blocks, equity years shuffled | ≈0 | historical | 1 | **2.66** | 80% |
-| f | full forward-block (both in the same blocks) | 0.29 | historical | **0.91** | **2.66** | 100% |
+| Cell | Return draws | Stock/bond corr. | Return shape | Timing (worst together) | Equity VR(10y) | Bond VR(10y) | Best constant |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| a | iid-mc baseline (the app's default) | 0.30 (curve) | normal | normal | 1 | 1 | 80% |
+| b1 | synthetic iid normals, two-asset | 0.30 | normal | normal (25%) | 1 | 1 | 85% |
+| b2 | synthetic iid normals, two-asset | 0.29 | normal | normal (24%) | 1 | 1 | 85% |
+| c | rescaled history, single years resampled iid | 0.29 | **historical** | **historical (37%)** | 1 | 1 | 100% |
+| c1 | cell c's values in b2's timing | 0.29 | **historical** | normal (24%) | 1 | 1 | 85% |
+| c2 | cell c's timing with normal values | 0.33 | normal | **historical (37%)** | 1 | 1 | 90% |
+| d | equity in historical blocks, bond years shuffled | ≈0 | historical | broken | **0.91** | 1 | 70% |
+| e | bonds in historical blocks, equity years shuffled | ≈0 | historical | broken | 1 | **2.66** | 80% |
+| f | full forward-block (both in the same blocks) | 0.29 | historical | historical | **0.91** | **2.66** | 100% |
 
 - **a → b1: engine check.** Building iid from the two endpoint assets gives 85% against the curve's 80%, one grid step apart (CE within 0.2%).
-- **b1 → b2: correlation.** The curve's correlation (0.30) is now almost history's (0.29), so this step changes nothing: 85%.
-- **b2 → c: return shape.** Rescaled equity is right-skewed (+0.85); rescaled bonds have a long left tail from hyperinflations (skew −1.06, excess kurtosis 11, worst year −8.6 s.d.). Bonds look worse in the tail, and the optimum moves to 100% on this change alone. The shape here is joint: cell c keeps each year's stock and bond returns together, so the bond's worst years stay paired with bad equity years. §4a finds that pairing matters more than the bond's own tail.
-- **c → d, c → e: one asset's sequencing.** Keeping one asset's order while shuffling the other's years also removes their correlation (≈0), which by itself favours bonds. With equity sequenced, the optimum falls to 70%: lost correlation plus history's short-run equity momentum (VR(2y) ≈ 1.1). With bonds sequenced it is 80%: persistent bonds without the correlation do not reach 100% either.
-- **c → f: both together.** Sequencing both assets in the same simulated years, with history's correlation, is back at 100%: sequencing adds little once the return shape is in. Which ingredient decides depends on funding. At the ~3.0% draw of the $200k / $15k row in §2f, shape alone gave 80% and only the joint structure reached 100% (`--savings 200000 --contrib 15000`).
+- **b1 → b2: correlation.** The curve's correlation (0.30) is now almost history's (0.29), so this step changes nothing: 85%. Their simulated samples realize 0.32–0.33, about c2's 0.33, so c2's gain over b2 is not a correlation effect.
+- **b2 → c: history's own years.** Cell c draws whole historical years, stock and bond together, and the optimum moves to 100%. Two things change at once. The values: rescaled equity is right-skewed (+0.85), and rescaled bonds have a long left tail from hyperinflations (skew −1.06, excess kurtosis 11, worst year −8.6 s.d.). The timing: 37% of the bond's worst years are also equity's, against 24% in b2.
+- **c1, c2: the tails matter only through their timing.** History's values placed in b2's timing (c1) stay at 85%: a bond crash in an ordinary year for stocks costs little. History's timing with normal values (c2) reaches 90%. Only both together reach 100%: the bond's extreme years landing in stocks' bad years. The pattern holds at the better-funded plans of §2f: at $200k / $15k, b2 gives 65%, c1 and c2 70% each, and c 80%; at $200k / $20k, 50%, 55% each and 65%.
+- **c → d, c → e: breaking the timing.** Keeping one asset's order while shuffling the other's years breaks the timing between them (correlation ≈0), which by itself favours bonds. With equity sequenced, the optimum falls to 70%: lost timing plus history's short-run equity momentum (VR(2y) ≈ 1.1). With bonds sequenced it is 80%: persistent bonds without the timing do not reach 100% either.
+- **c → f: sequencing both together.** Blocks add bond persistence and the decade-scale timing (10-year correlation 0.42). At the default plan this changes nothing, since cell c is already at 100%. Better funded, it decides: c → f is 80% → 100% at $200k / $15k and 65% → 100% at $200k / $20k (`--savings 200000 --contrib 15000`, or `--contrib 20000`).
+
+**The ranking.** §4a runs the same test on the bond alone, adding history's features to a simulated bond one at a time at two funding levels. Timing moves the answer most (+13.5pp of equity at the default, +33.5pp overfunded), persistence next (+4.5pp, +16pp) and the bond's own tail least (−1pp, +2.5pp). Cells c1 and c2 agree: the extreme years matter only because they came in stocks' bad years.
 
 ### 3c. Era and country cuts
 
-Each cut restricts the history before rescaling, so only the sequencing changes. VRs are on arithmetic returns (what the engine samples). `bond iid null` is the mean and 5th–95th percentile of bond VR(10y) after shuffling years within each country, since short samples bias VR below 1 even for iid data. That shuffle treats the 16 countries as independent. Where the panel is balanced (post-1950, 1990–2020), a **common-year null** applies the same shuffle of calendar years to every country, which keeps their co-movement and gives the honest width. Bills (short-term government paper) are shown for comparison.
+Each cut restricts the history before rescaling, so the return levels stay fixed and only history's patterns change. "Worst together" is the timing measure of §3b. VRs are on arithmetic returns (what the engine samples). `bond iid null` is the mean and 5th–95th percentile of bond VR(10y) after shuffling years within each country, since short samples bias VR below 1 even for iid data. That shuffle treats the 16 countries as independent. Where the panel is balanced (post-1950, 1990–2020), a **common-year null** applies the same shuffle of calendar years to every country, which keeps their co-movement and gives the honest width. Bills (short-term government paper) are shown for comparison.
 
-| History | bond VR(10y) | bond iid null | bill VR(10y) | equity VR(10y) | best constant | CE gain vs 100% |
-| --- | --- | --- | --- | --- | --- | --- |
-| full 1871–2020 | 2.66 | 1.00 [0.87, 1.15] | 3.29 | 0.91 | 100% | — |
-| post-1950 | 2.21 | 0.94 [0.78, 1.09]; common-year 0.93 [0.65, 1.28] | 4.97 | 0.91 | 100% | — |
-| ex Germany + Japan | 2.54 | 0.99 [0.85, 1.13] | 3.63 | 0.94 | 100% | — |
-| stable six¹ | 1.92 | 0.96 [0.77, 1.19] | 3.23 | 0.73 | 100% | — |
-| 1990–2020 | **0.58** | 0.82 [0.61, 1.08]; common-year 0.79 [0.44, 1.35] | 3.85 | 0.69 | **80%** | +0.9% |
+| History | stock/bond corr. | worst together | bond VR(10y) | bond iid null | bill VR(10y) | equity VR(10y) | best constant | CE gain vs 100% |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| full 1871–2020 | 0.29 | 37% | 2.66 | 1.00 [0.87, 1.15] | 3.29 | 0.91 | 100% | — |
+| post-1950 | 0.24 | 26% | 2.21 | 0.94 [0.78, 1.09]; common-year 0.93 [0.65, 1.28] | 4.97 | 0.91 | 100% | — |
+| ex Germany + Japan | 0.34 | 37% | 2.54 | 0.99 [0.85, 1.13] | 3.63 | 0.94 | 100% | — |
+| stable six¹ | 0.29 | 33% | 1.92 | 0.96 [0.77, 1.19] | 3.23 | 0.73 | 100% | — |
+| 1990–2020 | **0.06** | **6%** | **0.58** | 0.82 [0.61, 1.08]; common-year 0.79 [0.44, 1.35] | 3.85 | 0.69 | **80%** | +0.9% |
 
 ¹ USA, UK, Canada, Australia, Switzerland, Sweden. JST has no return data for Canada, so five countries contribute.
 
-- **Not a disaster artifact.** Dropping Germany and Japan leaves bond persistence about the same (2.54 vs 2.66).
-- **Era-dependent for bonds.** In 1990–2020 bond persistence disappears and stock/bond correlation falls to ≈0 (0.06), and the interior optimum returns. That is one 31-year regime (about three independent decades), and it ends before the 2021–22 inflation shock. §4b explains why.
+- **Not a disaster artifact.** Dropping Germany and Japan leaves the timing (37% worst together) and bond persistence (2.54 vs 2.66) about the same.
+- **Era-dependent for bonds.** In 1990–2020 bonds stopped falling in the same years as stocks (correlation 0.06; 6% of the bond's worst years were also stocks', below the 10% of unrelated assets), bond persistence disappears too, and the interior optimum returns. That is one 31-year regime (about three independent decades), and it ends before the 2021–22 inflation shock. §4b explains why.
 - **The 1990–2020 bond VR is consistent with iid, not evidence of mean reversion.** 0.58 sits at the 2nd percentile of the within-country null but only the ~23rd of the common-year null, because the 16 countries' bond markets moved together. It is below 1 in all 16 countries (0.13–0.86) and in every nearby window (0.41–0.74 for 1980/1985/1995 starts or 2010/2015 ends), so the loss of persistence is robust; the reversion beyond iid is not. The full-history and post-1950 persistence (2.66, 2.21) lie far outside either null.
-- **The ~80% optimum comes from correlation, not sequencing.** Drawing the same 1990–2020 years independently instead of in blocks still gives 70% (`--sections era-seq`); block sequencing only flattens the curve (100% costs ~0.9% of CE with blocks, ~2.7% without). In the full history the optimum is 100% either way, but sequencing widens 100%'s lead over 90% from $0.1k to $0.6k.
+- **The ~80% optimum comes from timing, not sequencing.** Drawing the same 1990–2020 years independently instead of in blocks still gives 70% (`--sections era-seq`); block sequencing only flattens the curve (100% costs ~0.9% of CE with blocks, ~2.7% without). In the full history the optimum is 100% either way, but sequencing widens 100%'s lead over 90% from $0.1k to $0.6k.
 - **Bills stay persistent in every era** (VR 3.2–5.0), through lagging inflation in the long samples and the policy-rate cycle in 1990–2020 (§4b). Short duration removes neither.
 
 ### 3d. Welfare regret across regimes (robustness check)
@@ -565,7 +572,7 @@ Where inflation mattered, US-linked bonds hedged about 90% of Canadian 10-year i
 | ERN / Kitces–Pfau: rising retirement glide | The derisk-then-rise shape appears under iid with rigid spending, and largely vanishes under forward-block. ERN's SWR boost does **not** reproduce under iid (§2a): the rising glide only ties the best constant weight. |
 | Both: beat a declining (target-date) retirement glide | Direction agreed, magnitude small: the glide shape is worth ≤ ~1% of CE. |
 
-**Why our iid path differs from ACO's.** ACO stays at ~100% through accumulation; our iid constant-dollar path falls into the tent. Two levers each close the gap on their own: historical returns, shape and sequencing (§3), and less overfunding (§2f). The third difference is the objective: ACO also values terminal wealth, which removes the "wasted upside" of a capped spender. The fourth is the spending rule: ACO draws 4% of wealth at retirement, while our fixed target creates the funding shortfall that the tent protects against. ACO uses Global Financial Data rather than JST, but the two cover largely the same markets and events, so reproducing ACO is a consistency check, not independent confirmation.
+**Why our iid path differs from ACO's.** ACO stays at ~100% through accumulation; our iid constant-dollar path falls into the tent. Two levers each close the gap on their own: history's timing, sequencing and shape (§3), and less overfunding (§2f). The third difference is the objective: ACO also values terminal wealth, which removes the "wasted upside" of a capped spender. The fourth is the spending rule: ACO draws 4% of wealth at retirement, while our fixed target creates the funding shortfall that the tent protects against. ACO uses Global Financial Data rather than JST, but the two cover largely the same markets and events, so reproducing ACO is a consistency check, not independent confirmation.
 
 **Bond persistence in ACO.** ACO reports bond VR(10) of 1.88 on actual data and 2.16 in its 10-year-block bootstrap. Excluding war and hyperinflation years, our full-history bond VR(10y) is 2.06 (1.77 demeaned), close to ACO's figures; with them it is 2.66. ACO's only era cut is post-WWII (1945–2023), which still gives 100% equity. It does not test an inflation-targeting or post-1990 period, so §4b's 1990–2020 result (bond VR 0.58) has no counterpart in ACO.
 
@@ -576,7 +583,7 @@ Where inflation mattered, US-linked bonds hedged about 90% of Canadian 10-year i
 ## 6. Caveats
 
 - **iid has no valuation signal or mean reversion.** It cannot reproduce ERN's CAPE effect, and it overstates the case for derisking if history's recoveries persist. Neither engine models valuation timing.
-- **The sequencing evidence is statistically weak.** 150 years × 16 correlated countries amount to a handful of independent 60-year lifecycles, and equity VR(10y) ≈ 0.91 is probably not distinguishable from 1. Read §3 as one end of a range, not a point estimate.
+- **The sequencing evidence is statistically weak.** 150 years × 16 correlated countries amount to a handful of independent 60-year lifecycles, and equity VR(10y) ≈ 0.91 is probably not distinguishable from 1. The timing rests on a few episodes: 70 of the 81 years in which bonds and stocks both had a worst-decile year fall in the 1910s, 1920s, 1940s and 1970s. Read §3 as one end of a range, not a point estimate.
 - **Which era describes the next 60 years** (full-sample or 1990–2020 structure) is a judgment about monetary regimes the data cannot settle.
 - **Survivorship.** JST covers markets that survived with usable data; the recoveries behind §3 partly reflect that.
 - **Sequencing is assumed independent of the return level.** Forward-block applies history's crash-and-recovery patterns to a lower forward equity premium. If those patterns came partly from history's higher returns, forward-block overstates them.
@@ -605,7 +612,7 @@ Where each result comes from (`research_history` sections are passed as `--secti
 | §2f | `research_history` `funding` |
 | §3a | `recommend_glide_path(..., interval=1, return_mode="forward-block", n_paths=15_000)` |
 | §3b | `matrix`, `blocks`, `channels` |
-| §3c | `vr` (variance ratios and nulls), `regret` (best constant per cut), `era-seq` (block vs iid draws) |
+| §3c | `vr` (variance ratios, nulls and timing), `regret` (best constant per cut), `era-seq` (block vs iid draws) |
 | §3d | `regret` |
 | §4a, §4c | `real-leg` (both funding levels; 10 simulated series) |
 | §4b | `bond-decomp`, `bills-block` |

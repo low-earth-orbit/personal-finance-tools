@@ -10,8 +10,8 @@ curve are printed alongside as comparators so you can judge for yourself how pea
 Sections (choose with --sections; default all):
   matrix  : the factorial — iid-mc / historical-iid / historical-block / forward-block, world & pooled
   blocks  : block-length sweep (sequencing strength) on the pooled dataset
-  channels: which ingredient flips the answer — corr, marginal shapes, equity-only or
-            bond-only sequencing, vs the full joint sequence structure
+  channels: which ingredient flips the answer — corr, marginal shapes, which years were bad
+            together, equity-only or bond-only sequencing, vs the full joint sequence structure
   bills-block: a real-bill leg that keeps its own historical persistence
   gamma   : risk-aversion sweep across the key modes
   vr      : variance-ratio diagnostic (mean reversion) for world vs pooled
@@ -170,14 +170,19 @@ def run_channels(args):
                                 correlation implied by the curve's 60/40 volatility
     b2) synth-iid (hist corr) : same synthetic marginals with historical pooled correlation
     c) rescaled-hist iid     : forward-rescaled real history sampled iid — correlation +
-                               non-normal marginal shapes, still no sequencing
+                               non-normal marginal shapes + which years were bad together
+                               (history's pairing of stock and bond years), still no sequencing
+    c1) tails, normal timing : b2's draws refilled rank for rank with history's values — c's
+                               marginal shapes with b2's (Gaussian) pairing of the two assets
+    c2) timing, normal tails : history refilled rank for rank with normal values — c's pairing
+                               of stock and bond years with normal marginals
     d) equity-block/bond-iid : block-sample equity only, iid-shuffle bonds — equity sequencing
                                (decade reversion AND short-run momentum) without bond persistence
     e) equity-iid/bond-block : the reverse — bond persistence without equity sequencing
     f) forward-block         : the full joint sequence structure (the scenario mode)
 
     The one-asset cells (d, e) necessarily drop the cross-correlation. b1/b2 isolate only the
-    correlation choice; c adds historical marginal shapes.
+    correlation choice; c adds historical marginal shapes and pairing; c1 and c2 split those two.
     """
     eq_m, eq_v, bd_m, bd_v = forward_anchors(CMA_CURVE, 2.1, True)
     raw = J.load_pooled_country_returns()
@@ -209,10 +214,26 @@ def run_channels(args):
 
     synth_curve = synthetic_corr(curve_corr, f"synthetic normal (curve corr {curve_corr:.2f})")
     synth_history = synthetic_corr(historical_corr, f"synthetic normal (historical corr {historical_corr:.2f})")
+    # c1/c2 swap one half of cell c for b2's: values (tails) or pairing (which years were bad
+    # together), each a rank-for-rank permutation (_shape_mapped).
+    tails_only = J.ReturnHistory(
+        years=synth_history.years,
+        equity=_shape_mapped(synth_history.equity, rescaled.equity),
+        fixed_income=_shape_mapped(synth_history.fixed_income, rescaled.fixed_income),
+        label="history's values, normal pairing", country_count=0,
+    )
+    normal = synthetic_corr(0.0, "normal values", seed=11)
+    timing_only = J.ReturnHistory(
+        years=synth_history.years,
+        equity=_shape_mapped(rescaled.equity, normal.equity),
+        fixed_income=_shape_mapped(rescaled.fixed_income, normal.fixed_income),
+        label="history's pairing, normal values", country_count=0,
+    )
 
     print("\n" + "=" * 100)
     print(f"CHANNEL FACTORIAL  (curve-implied corr={curve_corr:.3f}; historical pooled corr={historical_corr:.3f})")
-    print("  b1/b2 change only correlation at forward arithmetic anchors; c adds marginal shapes;")
+    print("  b1/b2 change only correlation at forward arithmetic anchors; c adds marginal shapes and")
+    print("  history's pairing of stock and bond years; c1 keeps only the shapes, c2 only the pairing;")
     print("  (d, e) sequence one asset only, which also removes their correlation; f sequences both jointly.")
     print("=" * 100)
 
@@ -220,7 +241,9 @@ def run_channels(args):
                       recommend_glide_path(**base_kwargs(args, return_mode="iid-mc"))))
     for label, history in (("b1) synth-iid (curve corr)", synth_curve),
                            ("b2) synth-iid (historical corr)", synth_history),
-                           ("c) rescaled-hist iid", rescaled)):
+                           ("c) rescaled-hist iid", rescaled),
+                           ("c1) tails, normal timing", tails_only),
+                           ("c2) timing, normal tails", timing_only)):
         print(summary_row(label, recommend_glide_path(
             **base_kwargs(args, return_mode="historical-iid", history=history))))
     fwd = base_kwargs(args, return_mode="forward-block", dataset="pooled",
@@ -365,7 +388,10 @@ def run_variance_ratios(args):
         return float(values.mean()), tuple(float(x) for x in np.percentile(values, [5, 95]))
 
     print("\n  Era / country cuts — arithmetic VR(10), plus within-segment iid null (300 permutations)")
-    print(f"  {'cut':<24} {'eqVR':>5} {'bondVR':>6} {'billVR':>6} {'eq null':>17} {'bond null':>19} {'billVol':>7} {'n':>5}")
+    print("  timing: corr = stock/bond correlation; both10 = share of the bond's worst-decile years that")
+    print("  are also equity's worst decile (0.10 if unrelated, ~0.21 for a normal pair at corr 0.29)")
+    print(f"  {'cut':<24} {'eqVR':>5} {'bondVR':>6} {'billVR':>6} {'eq null':>17} {'bond null':>19} {'billVol':>7} {'n':>5}"
+          f" {'corr':>5} {'both10':>6}")
     for cut_i, (cut_name, kw) in enumerate(cuts):
         history = load_pooled_country_returns(**kw)
         bill_series, bill_segments = load_pooled_bills(**kw)
@@ -375,10 +401,12 @@ def run_variance_ratios(args):
         eq_null = iid_null(history.equity, history.segment_ids, seed=20260604 + cut_i * 2)
         bond_null = iid_null(history.fixed_income, history.segment_ids, seed=20260605 + cut_i * 2)
         bill_vol = bill_series.std() * 100
+        corr = float(np.corrcoef(history.equity, history.fixed_income)[0, 1])
+        _, both10, _ = _timing_stats(history.equity, history.fixed_income, history.segment_ids)
         print(f"  {cut_name:<24} {eq_vr:>5.2f} {bond_vr:>6.2f} {bill_vr:>6.2f} "
               f"{eq_null[0]:>5.2f}[{eq_null[1][0]:.2f},{eq_null[1][1]:.2f}] "
               f"{bond_null[0]:>5.2f}[{bond_null[1][0]:.2f},{bond_null[1][1]:.2f}] "
-              f"{bill_vol:>6.1f}% {history.observations:>5}")
+              f"{bill_vol:>6.1f}% {history.observations:>5} {corr:>5.2f} {both10:>6.2f}")
         joint = joint_null(history.fixed_income, history.years, history.segment_ids)
         if joint is not None:
             observed = bond_vr
