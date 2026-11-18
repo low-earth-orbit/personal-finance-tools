@@ -98,9 +98,9 @@ The app recommends what the selected model's simulation produces: the optimized 
 | **Simulated real bond** | §4's favourable version of a real-return bond: a simulated series with a chosen real return, 5.5% volatility, a 0.30 correlation with stocks and mild persistence. Its bad years rarely land with stocks' (§4c). |
 | **Real-bond proxy** | §4's less favourable version: the historical JST bond without its inflation losses, rescaled to a chosen return and volatility. It keeps history's timing against stocks (§4a). |
 | **TIPS / RRB** | Inflation-linked government bonds: US Treasury Inflation-Protected Securities and Canadian Real Return Bonds. VTIP is a US short-TIPS ETF. |
-| **JST** | The Jordà–Schularick–Taylor Macrohistory database (R6): annual returns for 16 countries with both stock and bond series, 1871–2020. |
-| **ACO** | Anarkulova, Cederburg & O'Doherty, whose block-bootstrap study recommends ~100% equity for life (§5). |
-| **ERN, CAPE** | Early Retirement Now, a blog series on safe withdrawal rates (§5). CAPE is the cyclically adjusted price/earnings ratio, a valuation signal. |
+| **JST** | The [Jordà–Schularick–Taylor Macrohistory database](https://www.macrohistory.net/database/) (R6): annual returns for 16 countries with both stock and bond series, 1871–2020. |
+| **ACO** | [Anarkulova, Cederburg & O'Doherty](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4590406), whose block-bootstrap study recommends ~100% equity for life (§5). |
+| **ERN, CAPE** | [Early Retirement Now](https://earlyretirementnow.com/2017/09/20/the-ultimate-guide-to-safe-withdrawal-rates-part-20-more-thoughts-on-equity-glidepaths/), a blog series on safe withdrawal rates (§5). CAPE is the cyclically adjusted price/earnings ratio, a valuation signal. |
 
 ---
 
@@ -283,7 +283,7 @@ CE income ($/yr) on the evaluation sample, constant dollar. `100% saving, optimi
 
 For semi-flexible and flexible spending the best constant weight is 100% at every horizon, and the glide's edge is −$21 to +$48 (noise).
 
-- **Shape:** the glide adds ≤ ~$460/yr (~0.9%) for constant dollar at 30 years, nothing measurable at longer horizons, and ≤ ~$50 (~0.1%) once spending flexes. This matches Estrada's "glidepath illusion": in his historical tests, lifecycle glide paths do no better than a well-chosen fixed mix.
+- **Shape:** the glide adds ≤ ~$460/yr (~0.9%) for constant dollar at 30 years, nothing measurable at longer horizons, and ≤ ~$50 (~0.1%) once spending flexes. This matches [Estrada's](https://doi.org/10.3905/jpm.2014.40.4.052) "glidepath illusion": in his historical tests, lifecycle glide paths do no better than a well-chosen fixed mix.
 - **Level:** the optimum beats 100% equity by up to $690/yr (1.4%) at 30 years, $90 at 40 and nothing at 50. Holding 100% through accumulation costs ~$560/yr at 30 years and less at longer horizons ($60 at 40, nothing at 50).
 
 ### 2f. Funding level and the value of flexibility
@@ -583,13 +583,13 @@ Where inflation mattered, US-linked bonds hedged about 90% of Canadian 10-year i
 
 **ACO's investor profile** (working paper §4.1–4.4):
 
-- A couple of equal age, saving from age 25 with zero starting wealth and retiring at 65 (40 working years). Saving is 10% of labor income, none below $15,000 (2022 USD). Labor income follows Guvenen, Karahan, Ozkan & Song (2021), with persistent AR coefficient ρ = 0.96.
+- A couple of equal age, saving from age 25 with zero starting wealth and retiring at 65 (40 working years). Saving is 10% of labor income, none below $15,000 (2022 USD). Labor income follows [Guvenen, Karahan, Ozkan & Song (2021)](https://doi.org/10.3982/ECTA14603), with persistent AR coefficient ρ = 0.96.
 - Retirement draws 4% of the balance at retirement, then inflation-indexed. This is the main difference from our tool: the spending target scales with wealth, so a funding shortfall of the kind our fixed $60k target creates never arises, and no funding tent appears.
 - Social Security (2022 formulas, with spousal and survivor benefits) and SSA period life tables. The couple's 5th and 95th percentile ages at death are 70.8 and 100.
-- CRRA utility over consumption scaled by √(household size), with δ = 1 and γ = 3.84, plus a De Nardi, French & Jones (2010) bequest term. Pre-retirement consumption is not modeled.
+- CRRA utility over consumption scaled by √(household size), with δ = 1 and γ = 3.84, plus a [De Nardi, French & Jones (2010)](https://doi.org/10.1086/651674) bequest term. Pre-retirement consumption is not modeled.
 - No leverage and non-negative weights over four assets. Returns come from a stationary monthly block bootstrap with an average block of 120 months, drawing all four assets from the same country-month.
 - **ERN**: [earlyretirementnow.com, Part 20](https://earlyretirementnow.com/2017/09/20/the-ultimate-guide-to-safe-withdrawal-rates-part-20-more-thoughts-on-equity-glidepaths/). A US backtest finds a rising retirement glide (e.g. 60%→100%) adds ~0.1–0.3pp to the SWR, but only when CAPE > 20.
-- **Kitces & Pfau** (2014): a rising equity glide through retirement beats a constant or declining one on success rate, by reducing exposure in the early, sequence-sensitive years.
+- **Kitces & Pfau** ([2014](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2324930)): a rising equity glide through retirement beats a constant or declining one on success rate, by reducing exposure in the early, sequence-sensitive years.
 
 | Claim | Verdict |
 | --- | --- |
@@ -666,10 +666,10 @@ Historical modes download JST R6 to the gitignored `analysis/.data/` on first us
 
 - Anarkulova, Cederburg & O'Doherty (2023) — _Beyond the Status Quo: A Critical Assessment of Lifecycle Investment Advice_ ([SSRN 4590406](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4590406)).
 - Early Retirement Now (2017) — [Safe Withdrawal Rate Series, Part 20](https://earlyretirementnow.com/2017/09/20/the-ultimate-guide-to-safe-withdrawal-rates-part-20-more-thoughts-on-equity-glidepaths/) (equity glidepaths).
-- Kitces & Pfau (2014) — "Reducing Retirement Risk with a Rising Equity Glide Path", _Journal of Financial Planning_.
-- Estrada (2014) — "The Glidepath Illusion: An International Perspective", _Journal of Portfolio Management_.
-- Jordà, Knoll, Kuvshinov, Schularick & Taylor (2019) — "The Rate of Return on Everything, 1870–2015", _QJE_ 134(3). This note uses the JST Macrohistory Database R6, which extends the series to 2020.
-- VTIP annual returns — Vanguard's published annual total returns.
+- Kitces & Pfau (2014) — "[Reducing Retirement Risk with a Rising Equity Glide Path](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2324930)", _Journal of Financial Planning_.
+- Estrada (2014) — "[The Glidepath Illusion: An International Perspective](https://doi.org/10.3905/jpm.2014.40.4.052)", _Journal of Portfolio Management_.
+- Jordà, Knoll, Kuvshinov, Schularick & Taylor (2019) — "[The Rate of Return on Everything, 1870–2015](https://doi.org/10.1093/qje/qjz012)", _QJE_ 134(3). This note uses the [JST Macrohistory Database](https://www.macrohistory.net/database/) R6, which extends the series to 2020.
+- VTIP annual returns — [Vanguard's published annual total returns](https://investor.vanguard.com/investment-products/etfs/profile/vtip).
 - FRED, 5-Year Treasury Inflation-Indexed Security, constant maturity (DFII5), [fred.stlouisfed.org/series/DFII5](https://fred.stlouisfed.org/series/DFII5): 2.64% on 12 Nov 2026, accessed 16 Nov 2026.
-- Lo & MacKinlay (1988) — "Stock Market Prices Do Not Follow Random Walks: Evidence from a Simple Specification Test", _Review of Financial Studies_ 1(1) (the variance-ratio test).
-- Politis & Romano (1994) — "The Stationary Bootstrap", _JASA_ 89(428).
+- Lo & MacKinlay (1988) — "[Stock Market Prices Do Not Follow Random Walks: Evidence from a Simple Specification Test](https://doi.org/10.1093/rfs/1.1.41)", _Review of Financial Studies_ 1(1) (the variance-ratio test).
+- Politis & Romano (1994) — "[The Stationary Bootstrap](https://doi.org/10.1080/01621459.1994.10476870)", _JASA_ 89(428).
