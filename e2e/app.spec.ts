@@ -36,15 +36,14 @@ test("allocator requires input review before showing the split", async ({ page }
   await page.getByRole("button", { name: "Show split" }).click();
   await expect(page.getByRole("heading", { name: "Invest about $50,000" })).toBeVisible();
   await expect(page.getByText("Why this split")).toBeVisible();
-  await expect(page.getByText("Model limits")).toBeVisible();
 
   await page.getByLabel("Lump sum to invest now").fill("51000");
   await expect(page.getByRole("heading", { name: "Invest about $50,000" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Invest about $51,000" })).toBeVisible();
 
-  await page.getByRole("link", { name: "Review detailed assumptions" }).click();
-  await expect(page).toHaveURL(/#model-assumptions$/);
-  await expect(page.locator("#model-assumptions details")).toHaveAttribute("open", "");
+  // The assumptions are always on the page, not folded behind a click.
+  await expect(page.getByRole("heading", { name: "Detailed model assumptions" })).toBeVisible();
+  await expect(page.getByText(/Uses 2026 federal, New Brunswick/)).toBeVisible();
 });
 
 test("loads the calculator and renders the net worth chart", async ({ page }) => {

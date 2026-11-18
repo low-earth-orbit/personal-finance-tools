@@ -11,7 +11,7 @@ const Footer = () => {
         </Text>
         <Text size="sm" c="dimmed">
           © 2023–{currentYear}{" "}
-          <Anchor href="https://leohong.dev" target="_blank" rel="noreferrer" c="ledger">
+          <Anchor href="https://leohong.dev" target="_blank" rel="noreferrer">
             Leo Hong
           </Anchor>{" "}
           · Source on{" "}
@@ -19,7 +19,6 @@ const Footer = () => {
             href="https://github.com/low-earth-orbit/personal-finance-tools"
             target="_blank"
             rel="noreferrer"
-            c="ledger"
           >
             GitHub
           </Anchor>

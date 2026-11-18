@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { Anchor, Group, Stack, Table, Text, Title } from "@mantine/core";
-import { IconInfoCircle } from "@tabler/icons-react";
+import { Group, Stack, Table, Text, Title } from "@mantine/core";
 import classes from "./AllocationSplit.module.css";
 import ledger from "@/components/shared/Ledger.module.css";
 import { Eyebrow } from "@/components/shared/Figures";
@@ -308,27 +307,6 @@ export default function AllocationSplit({
           </Stack>
         </details>
       </div>
-
-      <Group gap="sm" wrap="nowrap" align="flex-start">
-        <IconInfoCircle
-          size={18}
-          color="var(--pf-muted)"
-          style={{ flexShrink: 0, marginTop: 3 }}
-          aria-hidden
-        />
-        <Stack gap={4}>
-          <Text fw={600}>Model limits</Text>
-          <Text size="sm" c="dimmed">
-            Only BC, ON, and NB are supported. The model holds returns and tax law constant and
-            excludes annual room accrual, pension adjustments, dividend credits, OAS clawback, and
-            market uncertainty. Small assumption changes can change the split. Check your
-            contribution room and tax details before relying on it.
-          </Text>
-          <Anchor href="#model-assumptions" size="sm" ff="var(--pf-font-figures)" c="ledger" py={6}>
-            Review detailed assumptions →
-          </Anchor>
-        </Stack>
-      </Group>
     </Stack>
   );
 }

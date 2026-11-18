@@ -27,7 +27,7 @@ const UBS_YEARBOOK_URL =
 
 function Source({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Anchor href={href} target="_blank" rel="noreferrer" c="dimmed" underline="always">
+    <Anchor href={href} target="_blank" rel="noreferrer">
       {children}
     </Anchor>
   );
