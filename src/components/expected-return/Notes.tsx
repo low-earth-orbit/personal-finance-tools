@@ -64,10 +64,11 @@ export default function Notes() {
         </Point>
         <Point heading="Earnings yield.">
           1/CAPE, scaled up by 1.075: CAPE’s 10-year earnings average sits about 5 years behind
-          today’s earnings, and 5 years of 1.5% real growth is 1.015^5 ≈ 1.075. If multiples stay
-          put and retained earnings earn the cost of capital, the real return equals the earnings
-          yield, with no growth input needed (AQR averages a version of it with yield + growth). It
-          overstates returns where companies issue many new shares, as in emerging markets.
+          today’s earnings, and 5 years of 1.5% real growth is 1.015<sup>5</sup> ≈ 1.075. If
+          multiples stay put and retained earnings earn the cost of capital, the real return equals
+          the earnings yield, with no growth input needed (AQR averages a version of it with yield +
+          growth). It overstates returns where companies issue many new shares, as in emerging
+          markets.
         </Point>
         <Point heading="Bond + premium.">
           The US 10-year TIPS yield plus an equity risk premium, the same for every region. It ties

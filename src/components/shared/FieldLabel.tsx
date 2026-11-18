@@ -4,7 +4,7 @@ import { IconInfoCircle } from "@tabler/icons-react";
 
 interface FieldLabelProps {
   label: ReactNode;
-  helperText?: string;
+  helperText?: ReactNode;
 }
 
 /** A no-break space: no line break may fall between it and its neighbours. */

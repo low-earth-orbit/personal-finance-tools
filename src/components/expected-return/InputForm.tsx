@@ -280,7 +280,15 @@ export default function InputForm({
               <UserInputFormItem
                 {...field("weightEarningsYield")}
                 suffix="%"
-                labelHelperText="1.075 ÷ CAPE. CAPE's 10-year earnings average sits about 5 years behind today's earnings, so it is scaled up by about 5 years of 1.5% real growth (1.015^5 ≈ 1.075). It needs no growth input, so it checks an optimistic one. It overstates returns where companies issue many new shares (emerging markets)."
+                labelHelperText={
+                  <>
+                    1.075 ÷ CAPE. CAPE&apos;s 10-year earnings average sits about 5 years behind
+                    today&apos;s earnings, so it is scaled up by about 5 years of 1.5% real growth
+                    (1.015<sup>5</sup> ≈ 1.075). It needs no growth input, so it checks an
+                    optimistic one. It overstates returns where companies issue many new shares
+                    (emerging markets).
+                  </>
+                }
               />
               <UserInputFormItem
                 {...field("weightRiskPremium")}
