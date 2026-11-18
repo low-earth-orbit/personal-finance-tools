@@ -22,6 +22,9 @@ function Point({ heading, children }: { heading?: string; children: ReactNode })
   );
 }
 
+const UBS_YEARBOOK_URL =
+  "https://www.ubs.com/global/en/investment-bank/insights-and-data/articles/global-investment-returns-yearbook-2026.html";
+
 function Source({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Anchor href={href} target="_blank" rel="noreferrer" c="dimmed" underline="always">
@@ -36,17 +39,21 @@ export default function Notes() {
       <ToolNotes title="Method" columns>
         <Point>
           No single model forecasts stock returns well: most predictors barely beat the long-run
-          average out of sample (Goyal and Welch, 2008). So this tool blends five views per region
-          and shows how far apart they are. All returns are real (after inflation), in local
-          currency and compound (geometric). Currencies are assumed to add nothing over the long
-          run, so regions are blended directly by weight.
+          average out of sample (
+          <Source href="https://doi.org/10.1093/rfs/hhm014">Goyal and Welch, 2008</Source>). So this
+          tool blends five views per region and shows how far apart they are. All returns are real
+          (after inflation), in local currency and compound (geometric). Currencies are assumed to
+          add nothing over the long run, so regions are blended directly by weight.
         </Point>
         <Point heading="Yield + growth.">
-          The building-block model (Grinold and Kroner) with valuation multiples held where they
-          are: dividend yield + net buyback yield + real growth of total earnings. Damodaran’s
-          implied equity risk premium rests on the same logic. Treating yield + growth as a compound
-          return follows common practice; some argue it is closer to an arithmetic one, which would
-          lower it by about half the variance.
+          The building-block model (
+          <Source href="https://rpc.cfainstitute.org/sites/default/files/-/media/documents/book/rf-publication/2011/rf-v2011-n4-full-pdf.pdf">
+            Grinold and Kroner
+          </Source>
+          ) with valuation multiples held where they are: dividend yield + net buyback yield + real
+          growth of total earnings. Damodaran’s implied equity risk premium rests on the same logic.
+          Treating yield + growth as a compound return follows common practice; some argue it is
+          closer to an arithmetic one, which would lower it by about half the variance.
         </Point>
         <Point heading="CAPE reversion.">
           Yield + growth plus a CAPE drag. Log CAPE decays toward your target like an AR(1): half
@@ -70,10 +77,15 @@ export default function Notes() {
           across countries since 1900.
         </Point>
         <Point heading="History.">
-          One long-run real return for every region, about 5% for global stocks since 1900 (Dimson,
-          Marsh and Staunton; Jordà, Schularick and Taylor). It is the anchor the other views shrink
-          toward. The default weights are equal: simple equal-weight averages of forecasts have
-          beaten the individual forecasts out of sample (Rapach, Strauss and Zhou, 2010).
+          One long-run real return for every region, about 5% for global stocks since 1900 (
+          <Source href={UBS_YEARBOOK_URL}>Dimson, Marsh and Staunton</Source>;{" "}
+          <Source href="https://www.macrohistory.net/database/">
+            Jordà, Schularick and Taylor
+          </Source>
+          ). It is the anchor the other views shrink toward. The default weights are equal: simple
+          equal-weight averages of forecasts have beaten the individual forecasts out of sample (
+          <Source href="https://doi.org/10.1093/rfs/hhp063">Rapach, Strauss and Zhou, 2010</Source>
+          ).
         </Point>
         <Point heading="Costs and conversions.">
           The fund MER plus foreign withholding tax on dividends come off the blend. Withholding is
@@ -81,8 +93,11 @@ export default function Notes() {
           non-registered account, so lower it there. The nominal figure compounds your inflation
           rate on top; the arithmetic figure converts it with your volatility. Even with a century
           of data, the average return is only known to about ±1.5%, so check plans against the low
-          end of the range. Published assumptions, such as FP Canada’s Projection Assumption
-          Guidelines, are a good cross-check.
+          end of the range. Published assumptions, such as FP Canada’s{" "}
+          <Source href="https://www.fpcanada.ca/docs/professionalsitelibraries/standards/projection-assumption-guidelines.pdf">
+            Projection Assumption Guidelines
+          </Source>
+          , are a good cross-check.
         </Point>
       </ToolNotes>
 
@@ -120,8 +135,9 @@ export default function Notes() {
           projections such as the IMF World Economic Outlook are a reasonable guide.
         </Point>
         <Point heading="Fund costs and weights.">
-          The fund’s fact sheet has the MER and regional split. Long-run returns: the UBS Global
-          Investment Returns Yearbook (free summary edition).
+          The fund’s fact sheet has the MER and regional split. Long-run returns: the{" "}
+          <Source href={UBS_YEARBOOK_URL}>UBS Global Investment Returns Yearbook</Source> (free
+          summary edition).
         </Point>
       </ToolNotes>
     </>

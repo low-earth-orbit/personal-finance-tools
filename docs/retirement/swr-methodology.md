@@ -44,7 +44,7 @@ Code: engine [`src/utils/retirement/monteCarlo.ts`](../../src/utils/retirement/m
 | **Affine rescaling** | Shifting and stretching a historical return series to a target mean and volatility (`a + b·r`). It changes the level but keeps the sequencing pattern and the stock/bond correlation. |
 | **Variance ratio, VR(q)** | Variance of q-year cumulative returns ÷ (q × variance of one-year returns). It is 1 for iid returns, below 1 under **mean reversion** and above 1 under **persistence** (§4). |
 | **AR(1), φ** | A first-order autoregression: each year's return deviation is φ × last year's plus fresh noise. φ < 0 is mean reversion and φ > 0 persistence. |
-| **JST** | The Jordà–Schularick–Taylor Macrohistory database (R6): annual returns for 16 countries with both stock and bond series, 1871–2020. |
+| **JST** | The [Jordà–Schularick–Taylor Macrohistory database](https://www.macrohistory.net/database/) (R6): annual returns for 16 countries with both stock and bond series, 1871–2020. |
 
 ---
 
@@ -212,7 +212,7 @@ _The coloured band is ±1 standard deviation of the cumulative real return after
 
 `RETURN_AUTOCORRELATION` is the engine's AR(1) coefficient φ on the annual return deviation. Over long horizons an AR(1) process has variance ratio **(1+φ)/(1−φ)**, which is the limit VR(q) approaches as q grows.
 
-- **It was −0.2** (mean reversion). That gives a long-horizon VR of 0.8/1.2 ≈ 0.67, a cut of about a third in multi-year variance, which lifts the SWR. The value had been tuned to land the 30-year figure near Morningstar's.
+- **It was −0.2** (mean reversion). That gives a long-horizon VR of 0.8/1.2 ≈ 0.67, a cut of about a third in multi-year variance, which lifts the SWR. The value had been tuned to land the 30-year figure near [Morningstar's](https://www.morningstar.com/lp/the-state-of-retirement-income).
 - **It is now 0** (iid). The AR(1) machinery remains, so a separately justified view can be reintroduced by changing one constant.
 - **Why not a small negative value?** Equity VR(10y) ≈ 0.91 corresponds to φ ≈ −0.05 (solving (1+φ)/(1−φ) = 0.91), but:
   - adding it barely moves the SWR;
@@ -234,10 +234,11 @@ The block bootstrap is the empirical answer; there is no need to approximate it 
 
 ## References
 
-- FP Canada / Institut de planification financière — Projection Assumption Guidelines 2025/26.
-- Jordà, Knoll, Kuvshinov, Schularick & Taylor (2019) — "The Rate of Return on Everything, 1870–2015", _QJE_ 134(3). Data: <https://www.macrohistory.net/database/>.
-- Lo & MacKinlay (1988) — "Stock Market Prices Do Not Follow Random Walks", _Review of Financial Studies_ 1(1) (the variance-ratio test).
-- Politis & Romano (1994) — "The Stationary Bootstrap", _JASA_ 89(428).
-- Morningstar — "What's a Safe Retirement Withdrawal Rate?" (annual; Blanchett et al.).
-- Kitces — Monte Carlo vs rolling historical returns and sequence-of-returns risk.
-- Vanguard VCMM — valuation-conditioned forward returns (an example of in-simulation mean reversion; sophisticated but contested).
+- FP Canada / Institut de planification financière — [Projection Assumption Guidelines](https://www.fpcanada.ca/docs/professionalsitelibraries/standards/projection-assumption-guidelines.pdf) 2025/26.
+- Jordà, Knoll, Kuvshinov, Schularick & Taylor (2019) — "[The Rate of Return on Everything, 1870–2015](https://doi.org/10.1093/qje/qjz012)", _QJE_ 134(3). Data: <https://www.macrohistory.net/database/>.
+- Lo & MacKinlay (1988) — "[Stock Market Prices Do Not Follow Random Walks](https://doi.org/10.1093/rfs/1.1.41)", _Review of Financial Studies_ 1(1) (the variance-ratio test).
+- Politis & Romano (1994) — "[The Stationary Bootstrap](https://doi.org/10.1080/01621459.1994.10476870)", _JASA_ 89(428).
+- Morningstar — [_The State of Retirement Income_](https://www.morningstar.com/lp/the-state-of-retirement-income) (annual safe-withdrawal-rate report).
+- Kitces (2017) — "[Fat Tails in Monte Carlo Analysis vs Safe Withdrawal Rates](https://www.kitces.com/blog/monte-carlo-analysis-risk-fat-tails-vs-safe-withdrawal-rates-rolling-historical-returns/)" (Monte Carlo vs rolling historical returns).
+- Kitces (2014) — "[Understanding Sequence of Return Risk & Safe Withdrawal Rates](https://www.kitces.com/blog/understanding-sequence-of-return-risk-safe-withdrawal-rates-bear-market-crashes-and-bad-decades/)".
+- Vanguard — [_Vanguard Capital Markets Model_](https://corporate.vanguard.com/content/dam/corp/research/pdf/vanguard_capital_markets_model.pdf) (VCMM): valuation-conditioned forward returns (an example of in-simulation mean reversion; sophisticated but contested).

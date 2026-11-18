@@ -58,7 +58,7 @@ Four recurring costs, each anchored in today's dollars: property tax (`propertyT
 All four grow at one rate, `ownerCostGrowthRate`, default **3%/yr**: a little above ~2.1% inflation. It's a judgment, not a fit. The reasons it sits above inflation apply to every line:
 
 - **Labour.** Repairs, rebuilding (what insurance prices) and condo operations are mostly skilled labour, whose price follows wages, which outpace prices; CPI is pulled down by goods that keep getting cheaper.
-- **Aging.** Over the hold more components wear out; in a condo this lands in fees and special assessments. US surveys put the maintenance age gradient at ~0.5–1%/yr (2023 AHS via JCHS; Philly Fed 2025).
+- **Aging.** Over the hold more components wear out; in a condo this lands in fees and special assessments. US surveys put the maintenance age gradient at ~0.5–1%/yr ([2023 AHS via JCHS](https://www.jchs.harvard.edu/blog/many-owners-cannot-afford-maintain-aging-homes); [Philly Fed 2025](https://www.philadelphiafed.org/community-development/housing-and-neighborhoods/home-repair-costs-2025)).
 - **Municipal levies.** A property tax bill follows the municipality's total levy, not the home's value (reassessment mostly reshuffles who pays), and levies have recently grown faster than prices.
 - **Insurance** premiums rose about twice as fast as CPI from 2019 to 2025 (StatCan), partly a regional catastrophe repricing that isn't assumed to continue at that pace.
 
