@@ -48,7 +48,7 @@ const Header = ({
       <Group justify="space-between" wrap="nowrap" gap="md" className={classes.topBar}>
         <Group gap="lg" wrap="wrap">
           {showHomeLink && (
-            <Anchor component={Link} href="/" className={classes.homeLink}>
+            <Anchor component={Link} href="/" underline="hover" className={classes.homeLink}>
               <IconArrowLeft size={14} aria-hidden="true" />
               All tools
             </Anchor>

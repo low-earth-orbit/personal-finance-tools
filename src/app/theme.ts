@@ -1,6 +1,7 @@
 import {
   Accordion,
   Alert,
+  Anchor,
   Badge,
   Button,
   Card,
@@ -161,6 +162,10 @@ export const theme = createTheme({
     }),
     Alert: Alert.extend({
       classNames: { root: classes.alert, title: classes.alertTitle },
+    }),
+    Anchor: Anchor.extend({
+      defaultProps: { underline: "always" },
+      classNames: { root: classes.anchor },
     }),
     Badge: Badge.extend({
       defaultProps: { radius: "xs" },

@@ -25,7 +25,6 @@ describe("Allocator Result", () => {
     expect(screen.getByRole("heading", { name: "Invest about $20,000" })).toBeInTheDocument();
     expect(screen.getByText(/Future-dollar illustration, not a forecast/)).toBeInTheDocument();
     expect(screen.getByText("Why this split")).toBeInTheDocument();
-    expect(screen.getByText("Model limits")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 

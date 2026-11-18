@@ -27,7 +27,7 @@ const Notes = () => {
         lifts the bond-heavy rows. The model uses a simple one-year memory. With the historical
         ratios, 60/40 closely matches a bootstrap of that history, while all-stock and all-bond rows
         come out about 0.1 to 0.2 points lower; see the{" "}
-        <Anchor href={METHODOLOGY_URL} target="_blank" rel="noreferrer" c="dimmed">
+        <Anchor href={METHODOLOGY_URL} target="_blank" rel="noreferrer">
           methodology notes
         </Anchor>
         .

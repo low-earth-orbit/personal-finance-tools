@@ -104,6 +104,24 @@
   font-weight: 600;
 }
 
+.anchor {
+  /*
+   * Every hyperlink: ink text (Mantine's anchor colour, already scheme-aware) with an always-on
+   * underline, since colour alone barely sets a link apart from the muted prose around it. The
+   * underline is a soft hairline that firms up to full ink on hover. Set `underline` on the
+   * component for a nav-style link that should only underline on hover.
+   */
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentcolor 45%, transparent);
+}
+
+@media (hover: hover) {
+  .anchor:hover {
+    text-decoration-color: currentcolor;
+  }
+}
+
 .badge {
   font-family: var(--pf-font-figures);
   font-weight: 500;
