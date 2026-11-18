@@ -16,7 +16,7 @@ interface PercentToggleOptions {
 interface UserInputFormItemProps {
   id: string;
   label: ReactNode;
-  labelHelperText?: string;
+  labelHelperText?: ReactNode;
   description?: ReactNode;
   additionalText?: string;
   min?: number;
