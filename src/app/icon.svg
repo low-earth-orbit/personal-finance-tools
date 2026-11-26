@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Rising abacus: counted beads step up like a bar chart. Ink tile with the dark-theme accent green. -->
+  <rect width="32" height="32" rx="7" fill="#14181f"/>
+  <g fill="#f6f7f9">
+    <rect x="4.5" y="5" width="23" height="2.4" rx="1.2"/>
+    <rect x="4.5" y="24.6" width="23" height="2.4" rx="1.2"/>
+  </g>
+  <g stroke="#f6f7f9" stroke-width="1" opacity=".5">
+    <line x1="9.5" y1="7" x2="9.5" y2="25"/>
+    <line x1="16" y1="7" x2="16" y2="25"/>
+    <line x1="22.5" y1="7" x2="22.5" y2="25"/>
+  </g>
+  <g fill="#3d4552">
+    <rect x="6.7" y="8" width="5.6" height="3.8" rx="1.9"/>
+    <rect x="6.7" y="12.2" width="5.6" height="3.8" rx="1.9"/>
+    <rect x="13.2" y="8" width="5.6" height="3.8" rx="1.9"/>
+  </g>
+  <g fill="#5fb396">
+    <rect x="6.7" y="20.2" width="5.6" height="3.8" rx="1.9"/>
+    <rect x="13.2" y="16" width="5.6" height="3.8" rx="1.9"/>
+    <rect x="13.2" y="20.2" width="5.6" height="3.8" rx="1.9"/>
+    <rect x="19.7" y="11.8" width="5.6" height="3.8" rx="1.9"/>
+    <rect x="19.7" y="16" width="5.6" height="3.8" rx="1.9"/>
+    <rect x="19.7" y="20.2" width="5.6" height="3.8" rx="1.9"/>
+  </g>
+</svg>
