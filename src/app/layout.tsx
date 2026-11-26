@@ -15,7 +15,10 @@ const sourceSans = Source_Sans_3({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  // icon.svg, favicon.ico, apple-icon.png and opengraph-image.png in this folder are picked up by
+  // file convention and apply to every route.
   openGraph: { siteName: "Personal Finance", type: "website", locale: "en_CA" },
+  twitter: { card: "summary_large_image" },
   // Hub canonical; every tool page sets its own.
   alternates: { canonical: "/" },
   title: {
@@ -31,9 +34,6 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const FAVICON =
-  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><text x="16" y="23" font-size="22" text-anchor="middle">%F0%9F%A4%91</text></svg>';
-
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" {...mantineHtmlProps} className={sourceSans.variable}>
@@ -42,7 +42,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           defaultColorScheme="auto"
           localStorageKey="personal-finance-color-scheme"
         />
-        <link rel="icon" type="image/svg+xml" href={FAVICON} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
